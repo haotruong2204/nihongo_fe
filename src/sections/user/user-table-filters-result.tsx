@@ -14,28 +14,27 @@ import Iconify from 'src/components/iconify';
 type Props = StackProps & {
   filters: IUserTableFilters;
   onFilters: (name: string, value: IUserTableFilterValue) => void;
-  //
   onResetFilters: VoidFunction;
-  //
   results: number;
 };
 
 export default function UserTableFiltersResult({
   filters,
   onFilters,
-  //
   onResetFilters,
-  //
   results,
   ...other
 }: Props) {
-  const handleRemoveStatus = () => {
-    onFilters('status', 'all');
+  const handleRemoveProvider = () => {
+    onFilters('provider', '');
   };
 
-  const handleRemoveRole = (inputValue: string) => {
-    const newValue = filters.role.filter((item) => item !== inputValue);
-    onFilters('role', newValue);
+  const handleRemovePremium = () => {
+    onFilters('isPremium', 'all');
+  };
+
+  const handleRemoveSearch = () => {
+    onFilters('search', '');
   };
 
   return (
@@ -48,17 +47,30 @@ export default function UserTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.status !== 'all' && (
-          <Block label="Status:">
-            <Chip size="small" label={filters.status} onDelete={handleRemoveStatus} />
+        {filters.search && (
+          <Block label="Search:">
+            <Chip size="small" label={filters.search} onDelete={handleRemoveSearch} />
           </Block>
         )}
 
-        {!!filters.role.length && (
-          <Block label="Role:">
-            {filters.role.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveRole(item)} />
-            ))}
+        {filters.provider && (
+          <Block label="Provider:">
+            <Chip
+              size="small"
+              label={filters.provider}
+              onDelete={handleRemoveProvider}
+              sx={{ textTransform: 'capitalize' }}
+            />
+          </Block>
+        )}
+
+        {filters.isPremium !== 'all' && (
+          <Block label="Status:">
+            <Chip
+              size="small"
+              label={filters.isPremium === 'true' ? 'Premium' : 'Free'}
+              onDelete={handleRemovePremium}
+            />
           </Block>
         )}
 

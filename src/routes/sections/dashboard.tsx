@@ -29,12 +29,7 @@ const InvoiceDetailsPage = lazy(() => import('src/pages/dashboard/invoice/detail
 const InvoiceCreatePage = lazy(() => import('src/pages/dashboard/invoice/new'));
 const InvoiceEditPage = lazy(() => import('src/pages/dashboard/invoice/edit'));
 // USER
-const UserProfilePage = lazy(() => import('src/pages/dashboard/user/profile'));
-const UserCardsPage = lazy(() => import('src/pages/dashboard/user/cards'));
 const UserListPage = lazy(() => import('src/pages/dashboard/user/list'));
-const UserAccountPage = lazy(() => import('src/pages/dashboard/user/account'));
-const UserCreatePage = lazy(() => import('src/pages/dashboard/user/new'));
-const UserEditPage = lazy(() => import('src/pages/dashboard/user/edit'));
 // BLOG
 const BlogPostsPage = lazy(() => import('src/pages/dashboard/post/list'));
 const BlogPostPage = lazy(() => import('src/pages/dashboard/post/details'));
@@ -83,13 +78,8 @@ export const dashboardRoutes = [
       {
         path: 'user',
         children: [
-          { element: <UserProfilePage />, index: true },
-          { path: 'profile', element: <UserProfilePage /> },
-          { path: 'cards', element: <UserCardsPage /> },
+          { element: <UserListPage />, index: true },
           { path: 'list', element: <UserListPage /> },
-          { path: 'new', element: <UserCreatePage /> },
-          { path: ':id/edit', element: <UserEditPage /> },
-          { path: 'account', element: <UserAccountPage /> },
         ],
       },
       {

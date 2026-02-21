@@ -2,12 +2,12 @@ import { CustomFile } from 'src/components/upload';
 
 // ----------------------------------------------------------------------
 
-export type IUserTableFilterValue = string | string[];
+export type IUserTableFilterValue = string | boolean | null;
 
 export type IUserTableFilters = {
-  name: string;
-  role: string[];
-  status: string;
+  search: string;
+  provider: string;
+  isPremium: string; // 'all' | 'true' | 'false'
 };
 
 // ----------------------------------------------------------------------
@@ -94,19 +94,21 @@ export type IUserCard = {
 
 export type IUserItem = {
   id: string;
-  name: string;
-  city: string;
-  role: string;
   email: string;
-  state: string;
-  status: string;
-  address: string;
-  country: string;
-  zipCode: string;
-  company: string;
-  avatarUrl: string;
-  phoneNumber: string;
-  isVerified: boolean;
+  display_name: string;
+  photo_url: string;
+  provider: string;
+  is_premium: boolean;
+  is_banned: boolean;
+  banned_reason: string | null;
+  premium_until: string | null;
+};
+
+export type IUserPagination = {
+  current_page: number;
+  total_pages: number;
+  total_count: number;
+  per_page: number;
 };
 
 export type IUserAccount = {

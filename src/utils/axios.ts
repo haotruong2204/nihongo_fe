@@ -49,4 +49,10 @@ export const endpoints = {
     details: '/api/product/details',
     search: '/api/product/search',
   },
+  user: {
+    list: '/api/v1/admins/users',
+    details: (id: string) => `/api/v1/admins/users/${id}`,
+    update: (id: string) => `/api/v1/admins/users/${id}`,
+    delete: (id: string) => `/api/v1/admins/users/${id}`,
+  },
 };

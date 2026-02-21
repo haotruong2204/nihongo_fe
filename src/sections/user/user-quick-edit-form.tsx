@@ -5,23 +5,19 @@ import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
-import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-// _mock
-import { USER_STATUS_OPTIONS } from 'src/_mock';
 // types
 import { IUserItem } from 'src/types/user';
-// assets
-import { countries } from 'src/assets/data';
+// api
+import { updateUser } from 'src/api/user';
 // components
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
+import FormProvider, { RHFSelect, RHFTextField } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
@@ -34,55 +30,63 @@ type Props = {
 export default function UserQuickEditForm({ currentUser, open, onClose }: Props) {
   const { enqueueSnackbar } = useSnackbar();
 
-  const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    phoneNumber: Yup.string().required('Phone number is required'),
-    address: Yup.string().required('Address is required'),
-    country: Yup.string().required('Country is required'),
-    company: Yup.string().required('Company is required'),
-    state: Yup.string().required('State is required'),
-    city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role is required'),
+  const UpdateUserSchema = Yup.object().shape({
+    is_premium: Yup.string().required('Premium status is required'),
+    is_banned: Yup.string().required('Status is required'),
+    banned_reason: Yup.string()
+      .nullable()
+      .when('is_banned', {
+        is: 'true',
+        then: (schema) => schema.required('Banned reason is required'),
+      }),
+    premium_until: Yup.string().nullable(),
   });
 
   const defaultValues = useMemo(
     () => ({
-      name: currentUser?.name || '',
-      email: currentUser?.email || '',
-      phoneNumber: currentUser?.phoneNumber || '',
-      address: currentUser?.address || '',
-      country: currentUser?.country || '',
-      state: currentUser?.state || '',
-      city: currentUser?.city || '',
-      zipCode: currentUser?.zipCode || '',
-      status: currentUser?.status,
-      company: currentUser?.company || '',
-      role: currentUser?.role || '',
+      is_premium: currentUser?.is_premium ? 'true' : 'false',
+      is_banned: currentUser?.is_banned ? 'true' : 'false',
+      banned_reason: currentUser?.banned_reason || '',
+      premium_until: currentUser?.premium_until
+        ? currentUser.premium_until.slice(0, 16)
+        : '',
     }),
     [currentUser]
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewUserSchema),
+    resolver: yupResolver(UpdateUserSchema),
     defaultValues,
   });
 
   const {
     reset,
+    watch,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
+  const isBanned = watch('is_banned') === 'true';
+
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      if (!currentUser) return;
+
+      const isBanning = data.is_banned === 'true';
+
+      await updateUser(currentUser.id, {
+        is_premium: data.is_premium === 'true',
+        is_banned: isBanning,
+        banned_reason: isBanning ? data.banned_reason : null,
+        premium_until: data.premium_until || null,
+      });
+
       reset();
       onClose();
       enqueueSnackbar('Update success!');
-      console.info('DATA', data);
     } catch (error) {
       console.error(error);
+      enqueueSnackbar('Update failed!', { variant: 'error' });
     }
   });
 
@@ -93,74 +97,45 @@ export default function UserQuickEditForm({ currentUser, open, onClose }: Props)
       open={open}
       onClose={onClose}
       PaperProps={{
-        sx: { maxWidth: 720 },
+        sx: { maxWidth: 480 },
       }}
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
         <DialogTitle>Quick Update</DialogTitle>
 
         <DialogContent>
-          <Alert variant="outlined" severity="info" sx={{ mb: 3 }}>
-            Account is waiting for confirmation
-          </Alert>
-
           <Box
             rowGap={3}
             columnGap={2}
             display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-            }}
+            gridTemplateColumns="repeat(1, 1fr)"
+            sx={{ pt: 1 }}
           >
-            <RHFSelect name="status" label="Status">
-              {USER_STATUS_OPTIONS.map((status) => (
-                <MenuItem key={status.value} value={status.value}>
-                  {status.label}
-                </MenuItem>
-              ))}
+            <RHFSelect name="is_banned" label="Status">
+              <MenuItem value="false">Active</MenuItem>
+              <MenuItem value="true">Banned</MenuItem>
             </RHFSelect>
 
-            <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
+            {isBanned && (
+              <RHFTextField
+                name="banned_reason"
+                label="Banned Reason"
+                multiline
+                rows={3}
+              />
+            )}
 
-            <RHFTextField name="name" label="Full Name" />
-            <RHFTextField name="email" label="Email Address" />
-            <RHFTextField name="phoneNumber" label="Phone Number" />
+            <RHFSelect name="is_premium" label="Premium Status">
+              <MenuItem value="true">Premium</MenuItem>
+              <MenuItem value="false">Free</MenuItem>
+            </RHFSelect>
 
-            <RHFAutocomplete
-              name="country"
-              label="Country"
-              options={countries.map((country) => country.label)}
-              getOptionLabel={(option) => option}
-              renderOption={(props, option) => {
-                const { code, label, phone } = countries.filter(
-                  (country) => country.label === option
-                )[0];
-
-                if (!label) {
-                  return null;
-                }
-
-                return (
-                  <li {...props} key={label}>
-                    <Iconify
-                      key={label}
-                      icon={`circle-flags:${code.toLowerCase()}`}
-                      width={28}
-                      sx={{ mr: 1 }}
-                    />
-                    {label} ({code}) +{phone}
-                  </li>
-                );
-              }}
+            <RHFTextField
+              name="premium_until"
+              label="Premium Until"
+              type="datetime-local"
+              InputLabelProps={{ shrink: true }}
             />
-
-            <RHFTextField name="state" label="State/Region" />
-            <RHFTextField name="city" label="City" />
-            <RHFTextField name="address" label="Address" />
-            <RHFTextField name="zipCode" label="Zip/Code" />
-            <RHFTextField name="company" label="Company" />
-            <RHFTextField name="role" label="Role" />
           </Box>
         </DialogContent>
 

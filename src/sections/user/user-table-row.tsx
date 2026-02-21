@@ -12,6 +12,8 @@ import ListItemText from '@mui/material/ListItemText';
 import { useBoolean } from 'src/hooks/use-boolean';
 // types
 import { IUserItem } from 'src/types/user';
+// utils
+import { fDateTime } from 'src/utils/format-time';
 // components
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -24,7 +26,6 @@ import UserQuickEditForm from './user-quick-edit-form';
 
 type Props = {
   selected: boolean;
-  onEditRow: VoidFunction;
   row: IUserItem;
   onSelectRow: VoidFunction;
   onDeleteRow: VoidFunction;
@@ -33,11 +34,10 @@ type Props = {
 export default function UserTableRow({
   row,
   selected,
-  onEditRow,
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { name, avatarUrl, company, role, status, email, phoneNumber } = row;
+  const { display_name, photo_url, email, provider, is_premium, is_banned, premium_until } = row;
 
   const confirm = useBoolean();
 
@@ -53,10 +53,10 @@ export default function UserTableRow({
         </TableCell>
 
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} />
+          <Avatar alt={display_name} src={photo_url} sx={{ mr: 2 }} />
 
           <ListItemText
-            primary={name}
+            primary={display_name}
             secondary={email}
             primaryTypographyProps={{ typography: 'body2' }}
             secondaryTypographyProps={{
@@ -66,24 +66,30 @@ export default function UserTableRow({
           />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{phoneNumber}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{company}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{role}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>
+          {provider}
+        </TableCell>
 
         <TableCell>
           <Label
             variant="soft"
-            color={
-              (status === 'active' && 'success') ||
-              (status === 'pending' && 'warning') ||
-              (status === 'banned' && 'error') ||
-              'default'
-            }
+            color={is_premium ? 'success' : 'default'}
           >
-            {status}
+            {is_premium ? 'Premium' : 'Free'}
           </Label>
+        </TableCell>
+
+        <TableCell>
+          <Label
+            variant="soft"
+            color={is_banned ? 'error' : 'success'}
+          >
+            {is_banned ? 'Banned' : 'Active'}
+          </Label>
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {premium_until ? fDateTime(premium_until) : '-'}
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
@@ -116,16 +122,6 @@ export default function UserTableRow({
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Delete
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Edit
         </MenuItem>
       </CustomPopover>
 

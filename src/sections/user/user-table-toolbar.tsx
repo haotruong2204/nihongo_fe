@@ -2,151 +2,126 @@ import { useCallback } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
-import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
-import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputAdornment from '@mui/material/InputAdornment';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+import InputAdornment from '@mui/material/InputAdornment';
+import OutlinedInput from '@mui/material/OutlinedInput';
 // types
 import { IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
 // components
 import Iconify from 'src/components/iconify';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
+
+const PROVIDER_OPTIONS = ['google', 'email'];
+
+const PREMIUM_OPTIONS = [
+  { value: 'all', label: 'All' },
+  { value: 'true', label: 'Premium' },
+  { value: 'false', label: 'Free' },
+];
 
 type Props = {
   filters: IUserTableFilters;
   onFilters: (name: string, value: IUserTableFilterValue) => void;
-  //
-  roleOptions: string[];
 };
 
 export default function UserTableToolbar({
   filters,
   onFilters,
-  //
-  roleOptions,
 }: Props) {
-  const popover = usePopover();
-
-  const handleFilterName = useCallback(
+  const handleFilterSearch = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
-      onFilters('name', event.target.value);
+      onFilters('search', event.target.value);
     },
     [onFilters]
   );
 
-  const handleFilterRole = useCallback(
-    (event: SelectChangeEvent<string[]>) => {
-      onFilters(
-        'role',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
+  const handleFilterProvider = useCallback(
+    (event: SelectChangeEvent<string>) => {
+      onFilters('provider', event.target.value);
+    },
+    [onFilters]
+  );
+
+  const handleFilterPremium = useCallback(
+    (event: SelectChangeEvent<string>) => {
+      onFilters('isPremium', event.target.value);
     },
     [onFilters]
   );
 
   return (
-    <>
-      <Stack
-        spacing={2}
-        alignItems={{ xs: 'flex-end', md: 'center' }}
-        direction={{
-          xs: 'column',
-          md: 'row',
-        }}
+    <Stack
+      spacing={2}
+      alignItems={{ xs: 'flex-end', md: 'center' }}
+      direction={{
+        xs: 'column',
+        md: 'row',
+      }}
+      sx={{
+        p: 2.5,
+        pr: { xs: 2.5, md: 1 },
+      }}
+    >
+      <FormControl
         sx={{
-          p: 2.5,
-          pr: { xs: 2.5, md: 1 },
+          flexShrink: 0,
+          width: { xs: 1, md: 160 },
         }}
       >
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 200 },
-          }}
+        <InputLabel>Provider</InputLabel>
+
+        <Select
+          value={filters.provider}
+          onChange={handleFilterProvider}
+          input={<OutlinedInput label="Provider" />}
         >
-          <InputLabel>Role</InputLabel>
+          <MenuItem value="">All</MenuItem>
+          {PROVIDER_OPTIONS.map((option) => (
+            <MenuItem key={option} value={option} sx={{ textTransform: 'capitalize' }}>
+              {option}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
-          <Select
-            multiple
-            value={filters.role}
-            onChange={handleFilterRole}
-            input={<OutlinedInput label="Role" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {roleOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.role.includes(option)} />
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-          <TextField
-            fullWidth
-            value={filters.name}
-            onChange={handleFilterName}
-            placeholder="Search..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </Stack>
-      </Stack>
-
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        arrow="right-top"
-        sx={{ width: 140 }}
+      <FormControl
+        sx={{
+          flexShrink: 0,
+          width: { xs: 1, md: 160 },
+        }}
       >
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Print
-        </MenuItem>
+        <InputLabel>Status</InputLabel>
 
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
+        <Select
+          value={filters.isPremium}
+          onChange={handleFilterPremium}
+          input={<OutlinedInput label="Status" />}
         >
-          <Iconify icon="solar:import-bold" />
-          Import
-        </MenuItem>
+          {PREMIUM_OPTIONS.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:export-bold" />
-          Export
-        </MenuItem>
-      </CustomPopover>
-    </>
+      <TextField
+        fullWidth
+        value={filters.search}
+        onChange={handleFilterSearch}
+        placeholder="Search by name or email..."
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+            </InputAdornment>
+          ),
+        }}
+      />
+    </Stack>
   );
 }

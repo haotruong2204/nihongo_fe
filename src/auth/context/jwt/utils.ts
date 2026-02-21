@@ -1,3 +1,4 @@
+import { enqueueSnackbar } from 'notistack';
 // routes
 import { paths } from 'src/routes/paths';
 // utils
@@ -35,20 +36,20 @@ export const isValidToken = (accessToken: string) => {
 
 // ----------------------------------------------------------------------
 
+let expiredTimer: ReturnType<typeof setTimeout> | null = null;
+
 export const tokenExpired = (exp: number) => {
-  // eslint-disable-next-line prefer-const
-  let expiredTimer;
-
   const currentTime = Date.now();
-
-  // Test token expires after 10s
-  // const timeLeft = currentTime + 10000 - currentTime; // ~10s
   const timeLeft = exp * 1000 - currentTime;
 
-  clearTimeout(expiredTimer);
+  if (expiredTimer) {
+    clearTimeout(expiredTimer);
+  }
 
   expiredTimer = setTimeout(() => {
-    alert('Token expired');
+    expiredTimer = null;
+
+    enqueueSnackbar('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', { variant: 'warning' });
 
     sessionStorage.removeItem('accessToken');
 

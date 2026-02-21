@@ -46,8 +46,8 @@ export function useNavData() {
             icon: ICONS.analytics,
           },
           {
-            title: t('account_setting'),
-            path: paths.dashboard.user.demo.edit,
+            title: t('user'),
+            path: paths.dashboard.user.list,
             icon: ICONS.user,
           },
         ],
