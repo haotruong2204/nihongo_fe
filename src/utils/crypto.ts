@@ -19,7 +19,7 @@ function pemToArrayBuffer(pem: string): ArrayBuffer {
   const binary = atob(b64);
   const buf = new ArrayBuffer(binary.length);
   const view = new Uint8Array(buf);
-  for (let i = 0; i < binary.length; i++) {
+  for (let i = 0; i < binary.length; i += 1) {
     view[i] = binary.charCodeAt(i);
   }
   return buf;
@@ -81,7 +81,7 @@ function base64ToArrayBuffer(b64: string): ArrayBuffer {
   const binary = atob(b64);
   const buf = new ArrayBuffer(binary.length);
   const view = new Uint8Array(buf);
-  for (let i = 0; i < binary.length; i++) {
+  for (let i = 0; i < binary.length; i += 1) {
     view[i] = binary.charCodeAt(i);
   }
   return buf;

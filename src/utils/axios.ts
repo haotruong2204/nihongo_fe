@@ -16,7 +16,11 @@ axiosInstance.interceptors.response.use(
       'iv' in res.data &&
       'encrypted_data' in res.data
     ) {
-      res.data = await decryptResponse(res.data);
+      try {
+        res.data = await decryptResponse(res.data);
+      } catch (e) {
+        console.error('[Decrypt] Failed to decrypt response:', e);
+      }
     }
     return res;
   },
