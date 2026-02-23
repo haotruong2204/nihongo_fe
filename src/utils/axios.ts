@@ -1,13 +1,25 @@
 import axios, { AxiosRequestConfig } from 'axios';
 // config
 import { HOST_API } from 'src/config-global';
+import { decryptResponse } from 'src/utils/crypto';
 
 // ----------------------------------------------------------------------
 
 const axiosInstance = axios.create({ baseURL: HOST_API });
 
 axiosInstance.interceptors.response.use(
-  (res) => res,
+  async (res) => {
+    if (
+      res.data &&
+      typeof res.data === 'object' &&
+      'encrypted_key' in res.data &&
+      'iv' in res.data &&
+      'encrypted_data' in res.data
+    ) {
+      res.data = await decryptResponse(res.data);
+    }
+    return res;
+  },
   (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong')
 );
 
