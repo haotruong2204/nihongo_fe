@@ -23,6 +23,7 @@ build
 .env.test.local
 .env.production.local
 .env.production
+.env.*
 
 # misc
 .DS_Store
