@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 // utils
 import axiosInstance, { fetcher, endpoints } from 'src/utils/axios';
 // types
@@ -30,25 +30,35 @@ function mapFeedback(item: any, usersMap: Record<string, IFeedbackUser>): IFeedb
   };
 }
 
+function parseFeedbacks(data: any): IFeedbackItem[] {
+  if (!data?.data?.resource?.data) return [];
+  const usersMap = buildIncludedMap(data.data.resource.included);
+  return data.data.resource.data.map((item: any) => mapFeedback(item, usersMap));
+}
+
 // ----------------------------------------------------------------------
 
 type UseGetFeedbacksParams = {
-  page?: number;
   perPage?: number;
 };
 
-export function useGetFeedbacks({ page = 1, perPage = 20 }: UseGetFeedbacksParams = {}) {
-  const URL = [endpoints.feedback.list, { params: { page, per_page: perPage } }];
+export function useGetFeedbacks({ perPage = 20 }: UseGetFeedbacksParams = {}) {
+  const [extraPages, setExtraPages] = useState<IFeedbackItem[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const URL = [endpoints.feedback.list, { params: { page: 1, per_page: perPage } }];
 
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher, {
     keepPreviousData: true,
   });
 
-  const feedbacks: IFeedbackItem[] = useMemo(() => {
-    if (!data?.data?.resource?.data) return [];
-    const usersMap = buildIncludedMap(data.data.resource.included);
-    return data.data.resource.data.map((item: any) => mapFeedback(item, usersMap));
-  }, [data]);
+  const firstPageFeedbacks = useMemo(() => parseFeedbacks(data), [data]);
+
+  const feedbacks = useMemo(
+    () => [...firstPageFeedbacks, ...extraPages],
+    [firstPageFeedbacks, extraPages]
+  );
 
   const pagination: IFeedbackPagination = useMemo(
     () =>
@@ -61,6 +71,33 @@ export function useGetFeedbacks({ page = 1, perPage = 20 }: UseGetFeedbacksParam
     [data, perPage]
   );
 
+  const hasMore = currentPage < pagination.total_pages;
+
+  const loadMore = useCallback(async () => {
+    if (loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    try {
+      const nextPage = currentPage + 1;
+      const res = await axiosInstance.get(endpoints.feedback.list, {
+        params: { page: nextPage, per_page: perPage },
+      });
+      const newFeedbacks = parseFeedbacks(res.data);
+      setExtraPages((prev) => [...prev, ...newFeedbacks]);
+      setCurrentPage(nextPage);
+    } catch (e) {
+      console.error('Failed to load more feedbacks:', e);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loadingMore, hasMore, currentPage, perPage]);
+
+  const resetAndMutate = useCallback(() => {
+    setExtraPages([]);
+    setCurrentPage(1);
+    return mutate();
+  }, [mutate]);
+
   return useMemo(
     () => ({
       feedbacks,
@@ -69,9 +106,12 @@ export function useGetFeedbacks({ page = 1, perPage = 20 }: UseGetFeedbacksParam
       feedbacksError: error,
       feedbacksValidating: isValidating,
       feedbacksEmpty: !isLoading && !feedbacks.length,
-      feedbacksMutate: mutate,
+      feedbacksMutate: resetAndMutate,
+      feedbacksHasMore: hasMore,
+      feedbacksLoadMore: loadMore,
+      feedbacksLoadingMore: loadingMore,
     }),
-    [feedbacks, pagination, isLoading, error, isValidating, mutate]
+    [feedbacks, pagination, isLoading, error, isValidating, resetAndMutate, hasMore, loadMore, loadingMore]
   );
 }
 

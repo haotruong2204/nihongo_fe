@@ -1,8 +1,10 @@
+import { useRef, useEffect, useCallback } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import Drawer from '@mui/material/Drawer';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
+import CircularProgress from '@mui/material/CircularProgress';
 // hooks
 import { useResponsive } from 'src/hooks/use-responsive';
 // types
@@ -25,6 +27,10 @@ type Props = {
   onClickFeedback: (id: string) => void;
   //
   selectedFeedbackId: string;
+  //
+  hasMore?: boolean;
+  onLoadMore?: VoidFunction;
+  loadingMore?: boolean;
 };
 
 export default function FeedbackList({
@@ -36,8 +42,27 @@ export default function FeedbackList({
   onClickFeedback,
   //
   selectedFeedbackId,
+  //
+  hasMore,
+  onLoadMore,
+  loadingMore,
 }: Props) {
   const mdUp = useResponsive('up', 'md');
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return undefined;
+
+    const handleScroll = () => {
+      if (el.scrollHeight - el.scrollTop - el.clientHeight < 100 && hasMore && !loadingMore && onLoadMore) {
+        onLoadMore();
+      }
+    };
+
+    el.addEventListener('scroll', handleScroll);
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [hasMore, loadingMore, onLoadMore]);
 
   const renderSkeleton = (
     <>
@@ -59,6 +84,12 @@ export default function FeedbackList({
           }}
         />
       ))}
+
+      {loadingMore && (
+        <Stack alignItems="center" sx={{ py: 2 }}>
+          <CircularProgress size={24} />
+        </Stack>
+      )}
     </>
   );
 
@@ -77,7 +108,7 @@ export default function FeedbackList({
         />
       </Stack>
 
-      <Scrollbar sx={{ px: 2 }}>
+      <Scrollbar ref={scrollRef} sx={{ px: 2 }}>
         {loading && renderSkeleton}
 
         {!!feedbacks.length && renderList}

@@ -34,8 +34,16 @@ export default function FeedbackView() {
 
   const openList = useBoolean();
 
-  const { feedbacks, feedbacksLoading, feedbacksError, feedbacksEmpty, feedbacksMutate } =
-    useGetFeedbacks();
+  const {
+    feedbacks,
+    feedbacksLoading,
+    feedbacksError,
+    feedbacksEmpty,
+    feedbacksMutate,
+    feedbacksHasMore,
+    feedbacksLoadMore,
+    feedbacksLoadingMore,
+  } = useGetFeedbacks();
 
   const selectedFeedback = useMemo(
     () => feedbacks.find((f) => f.id === selectedFeedbackId) || null,
@@ -91,6 +99,10 @@ export default function FeedbackView() {
       onClickFeedback={handleClickFeedback}
       //
       selectedFeedbackId={selectedFeedbackId}
+      //
+      hasMore={feedbacksHasMore}
+      onLoadMore={feedbacksLoadMore}
+      loadingMore={feedbacksLoadingMore}
     />
   );
 
