@@ -15,8 +15,6 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-const PROVIDER_OPTIONS = ['google', 'email'];
-
 const PREMIUM_OPTIONS = [
   { value: 'all', label: 'All' },
   { value: 'true', label: 'Premium' },
@@ -35,13 +33,6 @@ export default function UserTableToolbar({
   const handleFilterSearch = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       onFilters('search', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterProvider = useCallback(
-    (event: SelectChangeEvent<string>) => {
-      onFilters('provider', event.target.value);
     },
     [onFilters]
   );
@@ -66,28 +57,6 @@ export default function UserTableToolbar({
         pr: { xs: 2.5, md: 1 },
       }}
     >
-      <FormControl
-        sx={{
-          flexShrink: 0,
-          width: { xs: 1, md: 160 },
-        }}
-      >
-        <InputLabel>Provider</InputLabel>
-
-        <Select
-          value={filters.provider}
-          onChange={handleFilterProvider}
-          input={<OutlinedInput label="Provider" />}
-        >
-          <MenuItem value="">All</MenuItem>
-          {PROVIDER_OPTIONS.map((option) => (
-            <MenuItem key={option} value={option} sx={{ textTransform: 'capitalize' }}>
-              {option}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
       <FormControl
         sx={{
           flexShrink: 0,

@@ -97,6 +97,13 @@ export function useNavData() {
             icon: ICONS.user,
           },
 
+          // FEEDBACK
+          {
+            title: t('feedback'),
+            path: paths.dashboard.feedback,
+            icon: ICONS.chat,
+          },
+
           // PRODUCT
           {
             title: t('product'),

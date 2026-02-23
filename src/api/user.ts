@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 // utils
 import axiosInstance, { fetcher, endpoints } from 'src/utils/axios';
 // types
-import { IUserItem, IUserPagination } from 'src/types/user';
+import { IUserItem, IUserPagination, IUserStats } from 'src/types/user';
 
 // ----------------------------------------------------------------------
 
@@ -11,7 +11,6 @@ type UseGetUsersParams = {
   page?: number;
   perPage?: number;
   search?: string;
-  provider?: string;
   isPremium?: string;
 };
 
@@ -19,7 +18,6 @@ export function useGetUsers({
   page = 1,
   perPage = 10,
   search = '',
-  provider = '',
   isPremium = 'all',
 }: UseGetUsersParams = {}) {
   const params: Record<string, any> = {
@@ -29,10 +27,6 @@ export function useGetUsers({
 
   if (search) {
     params['q[display_name_or_email_cont]'] = search;
-  }
-
-  if (provider) {
-    params['q[provider_eq]'] = provider;
   }
 
   if (isPremium !== 'all') {
@@ -78,6 +72,89 @@ export function useGetUsers({
   );
 
   return memoizedValue;
+}
+
+// ----------------------------------------------------------------------
+
+export function useGetUser(id: string) {
+  const URL = id ? endpoints.user.details(id) : null;
+
+  const { data, isLoading, error } = useSWR(URL, fetcher);
+
+  const user: IUserItem | null = useMemo(() => {
+    if (!data?.data?.resource?.data) return null;
+    const item = data.data.resource.data;
+    return {
+      id: item.id,
+      ...item.attributes,
+    };
+  }, [data]);
+
+  const stats: IUserStats | null = useMemo(() => data?.data?.stats || null, [data]);
+
+  const memoizedValue = useMemo(
+    () => ({
+      user,
+      stats,
+      userLoading: isLoading,
+      userError: error,
+    }),
+    [user, stats, isLoading, error]
+  );
+
+  return memoizedValue;
+}
+
+// ----------------------------------------------------------------------
+
+type UseGetUserResourcesParams = {
+  page?: number;
+  perPage?: number;
+};
+
+export function useGetUserResources(
+  userId: string,
+  resource: string,
+  { page = 1, perPage = 10 }: UseGetUserResourcesParams = {}
+) {
+  const URL = userId && resource
+    ? [endpoints.user.resources(userId, resource), { params: { page, per_page: perPage } }]
+    : null;
+
+  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher, {
+    keepPreviousData: true,
+  });
+
+  const items: Record<string, any>[] = useMemo(() => {
+    if (!data?.data?.resource?.data) return [];
+    return data.data.resource.data.map((item: any) => ({
+      id: item.id,
+      ...item.attributes,
+    }));
+  }, [data]);
+
+  const pagination: IUserPagination = useMemo(
+    () =>
+      data?.data?.pagy || {
+        current_page: 1,
+        total_pages: 1,
+        total_count: 0,
+        per_page: perPage,
+      },
+    [data, perPage]
+  );
+
+  return useMemo(
+    () => ({
+      items,
+      pagination,
+      isLoading,
+      error,
+      isValidating,
+      isEmpty: !isLoading && !items.length,
+    }),
+    [items, pagination, isLoading, error, isValidating]
+  );
 }
 
 // ----------------------------------------------------------------------

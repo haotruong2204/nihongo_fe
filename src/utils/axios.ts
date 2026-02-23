@@ -49,10 +49,15 @@ export const endpoints = {
     details: '/api/product/details',
     search: '/api/product/search',
   },
+  feedback: {
+    list: '/api/v1/admins/feedbacks',
+    details: (id: string) => `/api/v1/admins/feedbacks/${id}`,
+  },
   user: {
     list: '/api/v1/admins/users',
     details: (id: string) => `/api/v1/admins/users/${id}`,
     update: (id: string) => `/api/v1/admins/users/${id}`,
     delete: (id: string) => `/api/v1/admins/users/${id}`,
+    resources: (userId: string, resource: string) => `/api/v1/admins/users/${userId}/${resource}`,
   },
 };

@@ -47,6 +47,11 @@
   "item_by_roles": "mục theo vai trò",
   "item_external_link": "liên kết bên ngoài của mục",
   "only_admin_can_see_this_item": "Chỉ admin mới có thể thấy mục này",
+  "feedback": "phản hồi",
+  "feedback_status_pending": "Chờ xử lý",
+  "feedback_status_reviewed": "Đã xem",
+  "feedback_status_done": "Đã xử lý",
+  "feedback_status_rejected": "Không xử lý",
   "upgrade_to_pro": "Nâng cấp lên phiên bản Pro",
   "account_setting": "Chỉnh sửa thông tin",
   "demo": {

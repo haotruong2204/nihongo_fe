@@ -58,6 +58,7 @@ export const paths = {
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,
+    feedback: `${ROOTS.DASHBOARD}/feedback`,
     mail: `${ROOTS.DASHBOARD}/mail`,
     chat: `${ROOTS.DASHBOARD}/chat`,
     blank: `${ROOTS.DASHBOARD}/blank`,
@@ -76,6 +77,8 @@ export const paths = {
     user: {
       root: `${ROOTS.DASHBOARD}/user`,
       list: `${ROOTS.DASHBOARD}/user/list`,
+      analytics: (id: string) => `${ROOTS.DASHBOARD}/user/${id}/analytics`,
+      resource: (id: string, resource: string) => `${ROOTS.DASHBOARD}/user/${id}/${resource}`,
     },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,

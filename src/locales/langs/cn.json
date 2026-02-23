@@ -47,6 +47,11 @@
   "item_by_roles": "按角色显示的项目",
   "item_external_link": "项目外部链接",
   "only_admin_can_see_this_item": "只有管理员可以看到此项目",
+  "feedback": "反馈",
+  "feedback_status_pending": "待处理",
+  "feedback_status_reviewed": "已查看",
+  "feedback_status_done": "已处理",
+  "feedback_status_rejected": "已拒绝",
   "upgrade_to_pro": "升级到专业版",
   "account_setting": "账户设置",
   "demo": {

@@ -41,16 +41,15 @@ import UserTableFiltersResult from '../user-table-filters-result';
 
 const TABLE_HEAD = [
   { id: 'display_name', label: 'User' },
-  { id: 'provider', label: 'Provider', width: 140 },
   { id: 'is_premium', label: 'Premium', width: 140 },
   { id: 'is_banned', label: 'Status', width: 120 },
   { id: 'premium_until', label: 'Premium Until', width: 180 },
+  { id: 'last_login_at', label: 'Last Login', width: 180 },
   { id: '', width: 88 },
 ];
 
 const defaultFilters: IUserTableFilters = {
   search: '',
-  provider: '',
   isPremium: 'all',
 };
 
@@ -71,7 +70,6 @@ export default function UserListView() {
     page: table.page + 1, // MUI is 0-based, API is 1-based
     perPage: table.rowsPerPage,
     search: filters.search,
-    provider: filters.provider,
     isPremium: filters.isPremium,
   });
 

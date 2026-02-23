@@ -25,10 +25,6 @@ export default function UserTableFiltersResult({
   results,
   ...other
 }: Props) {
-  const handleRemoveProvider = () => {
-    onFilters('provider', '');
-  };
-
   const handleRemovePremium = () => {
     onFilters('isPremium', 'all');
   };
@@ -50,17 +46,6 @@ export default function UserTableFiltersResult({
         {filters.search && (
           <Block label="Search:">
             <Chip size="small" label={filters.search} onDelete={handleRemoveSearch} />
-          </Block>
-        )}
-
-        {filters.provider && (
-          <Block label="Provider:">
-            <Chip
-              size="small"
-              label={filters.provider}
-              onDelete={handleRemoveProvider}
-              sx={{ textTransform: 'capitalize' }}
-            />
           </Block>
         )}
 

@@ -6,7 +6,6 @@ export type IUserTableFilterValue = string | boolean | null;
 
 export type IUserTableFilters = {
   search: string;
-  provider: string;
   isPremium: string; // 'all' | 'true' | 'false'
 };
 
@@ -102,6 +101,16 @@ export type IUserItem = {
   is_banned: boolean;
   banned_reason: string | null;
   premium_until: string | null;
+  last_login_at: string | null;
+};
+
+export type IUserStats = {
+  srs_cards_count: number;
+  review_logs_count: number;
+  custom_vocab_items_count: number;
+  roadmap_day_progresses_count: number;
+  tango_lesson_progresses_count: number;
+  jlpt_test_results_count: number;
 };
 
 export type IUserPagination = {

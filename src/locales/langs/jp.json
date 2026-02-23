@@ -47,6 +47,11 @@
   "item_by_roles": "役割ごとの項目",
   "item_external_link": "外部リンク項目",
   "only_admin_can_see_this_item": "管理者のみがこの項目を表示できます",
+  "feedback": "フィードバック",
+  "feedback_status_pending": "保留中",
+  "feedback_status_reviewed": "確認済み",
+  "feedback_status_done": "完了",
+  "feedback_status_rejected": "却下",
   "upgrade_to_pro": "Pro版にアップグレード",
   "account_setting": "アカウント設定",
   "demo": {

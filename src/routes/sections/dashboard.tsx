@@ -30,6 +30,8 @@ const InvoiceCreatePage = lazy(() => import('src/pages/dashboard/invoice/new'));
 const InvoiceEditPage = lazy(() => import('src/pages/dashboard/invoice/edit'));
 // USER
 const UserListPage = lazy(() => import('src/pages/dashboard/user/list'));
+const UserAnalyticsPage = lazy(() => import('src/pages/dashboard/user/analytics'));
+const UserResourceListPage = lazy(() => import('src/pages/dashboard/user/resource'));
 // BLOG
 const BlogPostsPage = lazy(() => import('src/pages/dashboard/post/list'));
 const BlogPostPage = lazy(() => import('src/pages/dashboard/post/details'));
@@ -49,6 +51,7 @@ const TourEditPage = lazy(() => import('src/pages/dashboard/tour/edit'));
 const FileManagerPage = lazy(() => import('src/pages/dashboard/file-manager'));
 // APP
 const ChatPage = lazy(() => import('src/pages/dashboard/chat'));
+const FeedbackPage = lazy(() => import('src/pages/dashboard/feedback'));
 const MailPage = lazy(() => import('src/pages/dashboard/mail'));
 const CalendarPage = lazy(() => import('src/pages/dashboard/calendar'));
 const KanbanPage = lazy(() => import('src/pages/dashboard/kanban'));
@@ -80,6 +83,8 @@ export const dashboardRoutes = [
         children: [
           { element: <UserListPage />, index: true },
           { path: 'list', element: <UserListPage /> },
+          { path: ':id/analytics', element: <UserAnalyticsPage /> },
+          { path: ':id/:resource', element: <UserResourceListPage /> },
         ],
       },
       {
@@ -141,6 +146,7 @@ export const dashboardRoutes = [
         ],
       },
       { path: 'file-manager', element: <FileManagerPage /> },
+      { path: 'feedback', element: <FeedbackPage /> },
       { path: 'mail', element: <MailPage /> },
       { path: 'chat', element: <ChatPage /> },
       { path: 'calendar', element: <CalendarPage /> },

@@ -8,8 +8,12 @@ import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
+import Link from '@mui/material/Link';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+// routes
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hooks';
 // types
 import { IUserItem } from 'src/types/user';
 // utils
@@ -37,7 +41,9 @@ export default function UserTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { display_name, photo_url, email, provider, is_premium, is_banned, premium_until } = row;
+  const { id, display_name, photo_url, email, is_premium, is_banned, premium_until, last_login_at } = row;
+
+  const router = useRouter();
 
   const confirm = useBoolean();
 
@@ -56,7 +62,15 @@ export default function UserTableRow({
           <Avatar alt={display_name} src={photo_url} sx={{ mr: 2 }} />
 
           <ListItemText
-            primary={display_name}
+            primary={
+              <Link
+                color="inherit"
+                sx={{ cursor: 'pointer' }}
+                onClick={() => router.push(paths.dashboard.user.analytics(id))}
+              >
+                {display_name}
+              </Link>
+            }
             secondary={email}
             primaryTypographyProps={{ typography: 'body2' }}
             secondaryTypographyProps={{
@@ -64,10 +78,6 @@ export default function UserTableRow({
               color: 'text.disabled',
             }}
           />
-        </TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>
-          {provider}
         </TableCell>
 
         <TableCell>
@@ -90,6 +100,10 @@ export default function UserTableRow({
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           {premium_until ? fDateTime(premium_until) : '-'}
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {last_login_at ? fDateTime(last_login_at) : '-'}
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>

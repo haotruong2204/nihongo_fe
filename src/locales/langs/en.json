@@ -47,6 +47,11 @@
   "item_by_roles": "item by roles",
   "item_external_link": "item external link",
   "only_admin_can_see_this_item": "Only admin can see this item",
+  "feedback": "feedback",
+  "feedback_status_pending": "Pending",
+  "feedback_status_reviewed": "Reviewed",
+  "feedback_status_done": "Done",
+  "feedback_status_rejected": "Rejected",
   "upgrade_to_pro": "Upgrade to Pro",
   "account_setting": "Account Setting",
   "demo": {
