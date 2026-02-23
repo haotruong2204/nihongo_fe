@@ -31,13 +31,6 @@ import { useSnackbar } from 'src/components/snackbar';
 
 // ----------------------------------------------------------------------
 
-const STATUS_COLOR: Record<string, 'default' | 'warning' | 'info' | 'success' | 'error'> = {
-  pending: 'warning',
-  reviewed: 'info',
-  done: 'success',
-  rejected: 'error',
-};
-
 const STATUS_OPTIONS = ['pending', 'reviewed', 'done', 'rejected'];
 
 type Props = {
