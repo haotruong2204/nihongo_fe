@@ -4,8 +4,10 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
+import Switch from '@mui/material/Switch';
 import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
@@ -118,6 +120,20 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
     [feedback, enqueueSnackbar, onMutate]
   );
 
+  const handleToggleDisplay = useCallback(
+    async (checked: boolean) => {
+      if (!feedback) return;
+      try {
+        await updateFeedback(feedback.id, { display: checked });
+        enqueueSnackbar('Display updated');
+        onMutate();
+      } catch (error) {
+        enqueueSnackbar('Failed to update display', { variant: 'error' });
+      }
+    },
+    [feedback, enqueueSnackbar, onMutate]
+  );
+
   const handleStartEditReply = useCallback(() => {
     if (!feedback) return;
     setReplyText(feedback.admin_reply || '');
@@ -164,6 +180,22 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
             </MenuItem>
           ))}
         </Select>
+
+        <FormControlLabel
+          control={
+            <Switch
+              checked={feedback.display}
+              onChange={(e) => handleToggleDisplay(e.target.checked)}
+              size="small"
+            />
+          }
+          label={
+            <Typography variant="subtitle2" sx={{ ml: 0.5 }}>
+              Display
+            </Typography>
+          }
+          sx={{ ml: 2 }}
+        />
       </Stack>
 
       <Stack direction="row" alignItems="center">
