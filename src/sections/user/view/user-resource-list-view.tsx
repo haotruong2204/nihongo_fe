@@ -15,6 +15,10 @@ import Typography from '@mui/material/Typography';
 import { paths } from 'src/routes/paths';
 // api
 import { useGetUser, useGetUserResources } from 'src/api/user';
+// locales
+import { useLocales } from 'src/locales';
+// utils
+import { fDateTime } from 'src/utils/format-time';
 // components
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
@@ -24,19 +28,47 @@ import { useTable, TableNoData, TableSkeleton } from 'src/components/table';
 
 // ----------------------------------------------------------------------
 
-const RESOURCE_CONFIG: Record<string, string> = {
-  srs_cards: 'SRS Cards',
-  review_logs: 'Review Logs',
-  custom_vocab_items: 'Custom Vocab',
-  roadmap_day_progresses: 'Roadmap Progress',
-  tango_lesson_progresses: 'Tango Lessons',
-  jlpt_test_results: 'JLPT Tests',
+const RESOURCE_I18N_KEY: Record<string, string> = {
+  srs_cards: 'srs_cards',
+  review_logs: 'review_logs',
+  custom_vocab_items: 'custom_vocab',
+  roadmap_day_progresses: 'roadmap_progress',
+  tango_lesson_progresses: 'tango_lessons',
+  jlpt_test_results: 'jlpt_tests',
 };
+
+function isDateColumn(col: string): boolean {
+  return /(_(at|date|time|until|on)$|created|updated)/i.test(col);
+}
+
+function formatColumnHeader(col: string, t: (key: string) => string): string {
+  const key = `col_${col}`;
+  const translated = t(key);
+  // If i18next returns the key itself, fallback to formatted column name
+  if (translated === key) {
+    return col
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  return translated;
+}
+
+function formatCellValue(col: string, value: unknown, t: (key: string) => string): string {
+  if (typeof value === 'boolean') return value ? t('yes') : t('no');
+  if (value == null) return '-';
+  if (isDateColumn(col) && typeof value === 'string' && value.length > 0) {
+    const formatted = fDateTime(value);
+    return formatted || String(value);
+  }
+  return String(value);
+}
 
 // ----------------------------------------------------------------------
 
 export default function UserResourceListView() {
   const settings = useSettingsContext();
+
+  const { t } = useLocales();
 
   const { id = '', resource = '' } = useParams();
 
@@ -49,7 +81,8 @@ export default function UserResourceListView() {
     perPage: table.rowsPerPage,
   });
 
-  const resourceTitle = RESOURCE_CONFIG[resource] || resource;
+  const resourceKey = RESOURCE_I18N_KEY[resource];
+  const resourceTitle = resourceKey ? t(resourceKey) : resource;
 
   const columns = useMemo(() => {
     if (!items.length) return [];
@@ -63,7 +96,7 @@ export default function UserResourceListView() {
   if (!user) {
     return (
       <Container maxWidth={settings.themeStretch ? false : 'xl'}>
-        <Typography variant="h6">User not found</Typography>
+        <Typography variant="h6">{t('user_not_found')}</Typography>
       </Container>
     );
   }
@@ -73,8 +106,8 @@ export default function UserResourceListView() {
       <CustomBreadcrumbs
         heading={resourceTitle}
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'User', href: paths.dashboard.user.list },
+          { name: t('dashboard'), href: paths.dashboard.root },
+          { name: t('user'), href: paths.dashboard.user.list },
           { name: user.display_name, href: paths.dashboard.user.analytics(id) },
           { name: resourceTitle },
         ]}
@@ -89,7 +122,7 @@ export default function UserResourceListView() {
                 <TableRow>
                   {columns.map((col) => (
                     <TableCell key={col} sx={{ fontWeight: 'bold' }}>
-                      {col}
+                      {formatColumnHeader(col, t)}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -106,11 +139,7 @@ export default function UserResourceListView() {
                       <TableRow key={row.id} hover>
                         {columns.map((col) => (
                           <TableCell key={col}>
-                            {(() => {
-                              if (typeof row[col] === 'boolean') return row[col] ? 'Yes' : 'No';
-                              if (row[col] != null) return String(row[col]);
-                              return '-';
-                            })()}
+                            {formatCellValue(col, row[col], t)}
                           </TableCell>
                         ))}
                       </TableRow>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { formatDistanceToNowStrict } from 'date-fns';
+import { format } from 'date-fns';
 // @mui
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
 import Dialog from '@mui/material/Dialog';
+import Tooltip from '@mui/material/Tooltip';
 // types
 import { IChatMessage } from 'src/types/chat';
 
@@ -33,34 +34,25 @@ type Props = {
   message: IChatMessage;
   adminId: string;
   participantPhoto?: string;
+  isFirstInGroup?: boolean;
+  isLastInGroup?: boolean;
 };
 
-export default function ChatMessageItem({ message, adminId, participantPhoto }: Props) {
+export default function ChatMessageItem({
+  message,
+  adminId,
+  participantPhoto,
+  isFirstInGroup = true,
+  isLastInGroup = true,
+}: Props) {
   const me = message.senderId === adminId;
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const createdAtDate = message.createdAt?.toDate?.();
+  const showAvatar = !me && isLastInGroup;
 
-  const renderInfo = (
-    <Typography
-      noWrap
-      variant="caption"
-      sx={{
-        mb: 1,
-        color: 'text.disabled',
-        ...(!me && {
-          mr: 'auto',
-        }),
-      }}
-    >
-      {!me && `${message.senderName},`} &nbsp;
-      {createdAtDate &&
-        formatDistanceToNowStrict(createdAtDate, {
-          addSuffix: true,
-        })}
-    </Typography>
-  );
+  const createdAtDate = message.createdAt?.toDate?.();
+  const tooltipTime = createdAtDate ? format(createdAtDate, 'HH:mm dd/MM/yyyy') : '';
 
   const renderBody = (
     <Stack
@@ -95,8 +87,16 @@ export default function ChatMessageItem({ message, adminId, participantPhoto }: 
   );
 
   return (
-    <Stack direction="row" justifyContent={me ? 'flex-end' : 'unset'} sx={{ mb: 5 }}>
-      {!me && (
+    <Stack
+      direction="row"
+      justifyContent={me ? 'flex-end' : 'unset'}
+      alignItems="flex-end"
+      sx={{
+        mb: isLastInGroup ? 2.5 : 0.25,
+        ...(!me && { ml: showAvatar ? 0 : 6 }),
+      }}
+    >
+      {!me && showAvatar && (
         <Avatar
           alt={message.senderName}
           src={participantPhoto}
@@ -104,17 +104,11 @@ export default function ChatMessageItem({ message, adminId, participantPhoto }: 
         />
       )}
 
-      <Stack alignItems={me ? 'flex-end' : 'flex-start'}>
-        {renderInfo}
-
-        <Stack
-          direction="row"
-          alignItems="center"
-          sx={{ position: 'relative' }}
-        >
+      <Tooltip title={tooltipTime} placement={me ? 'left' : 'right'} arrow>
+        <Stack alignItems={me ? 'flex-end' : 'flex-start'}>
           {renderBody}
         </Stack>
-      </Stack>
+      </Tooltip>
 
       {message.imageUrl && (
         <Dialog

@@ -11,6 +11,8 @@ import Box from '@mui/material/Box';
 import { paths } from 'src/routes/paths';
 // api
 import { useGetUser } from 'src/api/user';
+// locales
+import { useLocales } from 'src/locales';
 // components
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
@@ -23,6 +25,8 @@ import AnalyticsWidgetSummary from 'src/sections/overview/analytics/analytics-wi
 
 export default function UserAnalyticsView() {
   const settings = useSettingsContext();
+
+  const { t } = useLocales();
 
   const navigate = useNavigate();
 
@@ -41,7 +45,7 @@ export default function UserAnalyticsView() {
   if (!user) {
     return (
       <Container maxWidth={settings.themeStretch ? false : 'xl'}>
-        <Typography variant="h6">User not found</Typography>
+        <Typography variant="h6">{t('user_not_found')}</Typography>
       </Container>
     );
   }
@@ -51,8 +55,8 @@ export default function UserAnalyticsView() {
       <CustomBreadcrumbs
         heading={user.display_name}
         links={[
-          { name: 'Dashboard', href: paths.dashboard.root },
-          { name: 'User', href: paths.dashboard.user.list },
+          { name: t('dashboard'), href: paths.dashboard.root },
+          { name: t('user'), href: paths.dashboard.user.list },
           { name: user.display_name },
         ]}
         sx={{ mb: { xs: 3, md: 5 } }}
@@ -72,10 +76,10 @@ export default function UserAnalyticsView() {
             </Typography>
             <Stack direction="row" spacing={1}>
               <Label variant="soft" color={user.is_premium ? 'success' : 'default'}>
-                {user.is_premium ? 'Premium' : 'Free'}
+                {user.is_premium ? t('premium') : t('free')}
               </Label>
               <Label variant="soft" color={user.is_banned ? 'error' : 'success'}>
-                {user.is_banned ? 'Banned' : 'Active'}
+                {user.is_banned ? t('banned') : t('active')}
               </Label>
             </Stack>
           </Stack>
@@ -87,7 +91,7 @@ export default function UserAnalyticsView() {
           <Grid xs={12} sm={6} md={4}>
             <Box onClick={() => handleCardClick('srs_cards')} sx={{ cursor: 'pointer' }}>
               <AnalyticsWidgetSummary
-                title="SRS Cards"
+                title={t('srs_cards')}
                 total={stats.srs_cards_count}
                 color="primary"
                 icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
@@ -98,7 +102,7 @@ export default function UserAnalyticsView() {
           <Grid xs={12} sm={6} md={4}>
             <Box onClick={() => handleCardClick('review_logs')} sx={{ cursor: 'pointer' }}>
               <AnalyticsWidgetSummary
-                title="Review Logs"
+                title={t('review_logs')}
                 total={stats.review_logs_count}
                 color="info"
                 icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
@@ -109,7 +113,7 @@ export default function UserAnalyticsView() {
           <Grid xs={12} sm={6} md={4}>
             <Box onClick={() => handleCardClick('custom_vocab_items')} sx={{ cursor: 'pointer' }}>
               <AnalyticsWidgetSummary
-                title="Custom Vocab"
+                title={t('custom_vocab')}
                 total={stats.custom_vocab_items_count}
                 color="warning"
                 icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
@@ -120,7 +124,7 @@ export default function UserAnalyticsView() {
           <Grid xs={12} sm={6} md={4}>
             <Box onClick={() => handleCardClick('roadmap_day_progresses')} sx={{ cursor: 'pointer' }}>
               <AnalyticsWidgetSummary
-                title="Roadmap Progress"
+                title={t('roadmap_progress')}
                 total={stats.roadmap_day_progresses_count}
                 color="error"
                 icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
@@ -131,7 +135,7 @@ export default function UserAnalyticsView() {
           <Grid xs={12} sm={6} md={4}>
             <Box onClick={() => handleCardClick('tango_lesson_progresses')} sx={{ cursor: 'pointer' }}>
               <AnalyticsWidgetSummary
-                title="Tango Lessons"
+                title={t('tango_lessons')}
                 total={stats.tango_lesson_progresses_count}
                 color="success"
                 icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
@@ -142,7 +146,7 @@ export default function UserAnalyticsView() {
           <Grid xs={12} sm={6} md={4}>
             <Box onClick={() => handleCardClick('jlpt_test_results')} sx={{ cursor: 'pointer' }}>
               <AnalyticsWidgetSummary
-                title="JLPT Tests"
+                title={t('jlpt_tests')}
                 total={stats.jlpt_test_results_count}
                 color="secondary"
                 icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
