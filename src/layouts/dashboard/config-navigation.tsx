@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 import { paths } from 'src/routes/paths';
 // locales
 import { useLocales } from 'src/locales';
+// api
+import { useTotalAdminUnread } from 'src/api/chat';
 // components
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -49,6 +51,7 @@ const ICONS = {
 
 export function useNavData() {
   const { t } = useLocales();
+  const totalUnread = useTotalAdminUnread();
 
   const data = useMemo(
     () => [
@@ -97,11 +100,21 @@ export function useNavData() {
             icon: ICONS.user,
           },
 
+          // CHAT
+          {
+            title: t('chat'),
+            path: paths.dashboard.chat,
+            icon: ICONS.chat,
+            ...(totalUnread > 0 && {
+              info: <Label color="error">+{totalUnread}</Label>,
+            }),
+          },
+
           // FEEDBACK
           {
             title: t('feedback'),
             path: paths.dashboard.feedback,
-            icon: ICONS.chat,
+            icon: ICONS.mail,
           },
 
           // PRODUCT
@@ -198,14 +211,6 @@ export function useNavData() {
             title: t('mail'),
             path: paths.dashboard.mail,
             icon: ICONS.mail,
-            info: <Label color="error">+32</Label>,
-          },
-
-          // CHAT
-          {
-            title: t('chat'),
-            path: paths.dashboard.chat,
-            icon: ICONS.chat,
           },
 
           // CALENDAR
@@ -306,7 +311,7 @@ export function useNavData() {
         ],
       },
     ],
-    [t]
+    [t, totalUnread]
   );
 
   return data;

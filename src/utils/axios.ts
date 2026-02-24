@@ -69,6 +69,10 @@ export const endpoints = {
     list: '/api/v1/admins/feedbacks',
     details: (id: string) => `/api/v1/admins/feedbacks/${id}`,
   },
+  chatRoom: {
+    list: '/api/v1/admins/chat_rooms',
+    update: (uid: string) => `/api/v1/admins/chat_rooms/${uid}`,
+  },
   user: {
     list: '/api/v1/admins/users',
     details: (id: string) => `/api/v1/admins/users/${id}`,

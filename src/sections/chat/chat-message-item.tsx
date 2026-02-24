@@ -1,39 +1,46 @@
+import { useState } from 'react';
 import { formatDistanceToNowStrict } from 'date-fns';
 // @mui
-import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-// hooks
-import { useMockedUser } from 'src/hooks/use-mocked-user';
+import Box from '@mui/material/Box';
+import Link from '@mui/material/Link';
+import Dialog from '@mui/material/Dialog';
 // types
-import { IChatParticipant, IChatMessage } from 'src/types/chat';
-// components
-import Iconify from 'src/components/iconify';
-//
-import { useGetMessage } from './hooks';
+import { IChatMessage } from 'src/types/chat';
+
+// ----------------------------------------------------------------------
+
+const URL_REGEX = /(https?:\/\/[^\s]+)/g;
+
+function renderTextWithLinks(text: string) {
+  const parts = text.split(URL_REGEX);
+  return parts.map((part, i) =>
+    URL_REGEX.test(part) ? (
+      <Link key={i} href={part} target="_blank" rel="noopener noreferrer">
+        {part}
+      </Link>
+    ) : (
+      part
+    )
+  );
+}
 
 // ----------------------------------------------------------------------
 
 type Props = {
   message: IChatMessage;
-  participants: IChatParticipant[];
-  onOpenLightbox: (value: string) => void;
+  adminId: string;
+  participantPhoto?: string;
 };
 
-export default function ChatMessageItem({ message, participants, onOpenLightbox }: Props) {
-  const { user } = useMockedUser();
+export default function ChatMessageItem({ message, adminId, participantPhoto }: Props) {
+  const me = message.senderId === adminId;
 
-  const { me, senderDetails, hasImage } = useGetMessage({
-    message,
-    participants,
-    currentUserId: `${user?.id}`,
-  });
+  const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const { firstName, avatarUrl } = senderDetails;
-
-  const { body, createdAt } = message;
+  const createdAtDate = message.createdAt?.toDate?.();
 
   const renderInfo = (
     <Typography
@@ -47,10 +54,11 @@ export default function ChatMessageItem({ message, participants, onOpenLightbox 
         }),
       }}
     >
-      {!me && `${firstName},`} &nbsp;
-      {formatDistanceToNowStrict(new Date(createdAt), {
-        addSuffix: true,
-      })}
+      {!me && `${message.senderName},`} &nbsp;
+      {createdAtDate &&
+        formatDistanceToNowStrict(createdAtDate, {
+          addSuffix: true,
+        })}
     </Typography>
   );
 
@@ -67,88 +75,64 @@ export default function ChatMessageItem({ message, participants, onOpenLightbox 
           color: 'grey.800',
           bgcolor: 'primary.lighter',
         }),
-        ...(hasImage && {
-          p: 0,
-          bgcolor: 'transparent',
-        }),
       }}
     >
-      {hasImage ? (
+      {message.imageUrl && (
         <Box
           component="img"
-          alt="attachment"
-          src={body}
-          onClick={() => onOpenLightbox(body)}
+          src={message.imageUrl}
           sx={{
-            minHeight: 220,
-            borderRadius: 1.5,
+            maxWidth: 200,
+            borderRadius: 1,
             cursor: 'pointer',
-            '&:hover': {
-              opacity: 0.9,
-            },
+            mb: message.text ? 1 : 0,
           }}
+          onClick={() => setLightboxOpen(true)}
         />
-      ) : (
-        body
       )}
-    </Stack>
-  );
-
-  const renderActions = (
-    <Stack
-      direction="row"
-      className="message-actions"
-      sx={{
-        pt: 0.5,
-        opacity: 0,
-        top: '100%',
-        left: 0,
-        position: 'absolute',
-        transition: (theme) =>
-          theme.transitions.create(['opacity'], {
-            duration: theme.transitions.duration.shorter,
-          }),
-        ...(me && {
-          left: 'unset',
-          right: 0,
-        }),
-      }}
-    >
-      <IconButton size="small">
-        <Iconify icon="solar:reply-bold" width={16} />
-      </IconButton>
-      <IconButton size="small">
-        <Iconify icon="eva:smiling-face-fill" width={16} />
-      </IconButton>
-      <IconButton size="small">
-        <Iconify icon="solar:trash-bin-trash-bold" width={16} />
-      </IconButton>
+      {message.text && <Typography variant="body2">{renderTextWithLinks(message.text)}</Typography>}
     </Stack>
   );
 
   return (
     <Stack direction="row" justifyContent={me ? 'flex-end' : 'unset'} sx={{ mb: 5 }}>
-      {!me && <Avatar alt={firstName} src={avatarUrl} sx={{ width: 32, height: 32, mr: 2 }} />}
+      {!me && (
+        <Avatar
+          alt={message.senderName}
+          src={participantPhoto}
+          sx={{ width: 32, height: 32, mr: 2 }}
+        />
+      )}
 
-      <Stack alignItems="flex-end">
+      <Stack alignItems={me ? 'flex-end' : 'flex-start'}>
         {renderInfo}
 
         <Stack
           direction="row"
           alignItems="center"
-          sx={{
-            position: 'relative',
-            '&:hover': {
-              '& .message-actions': {
-                opacity: 1,
-              },
-            },
-          }}
+          sx={{ position: 'relative' }}
         >
           {renderBody}
-          {renderActions}
         </Stack>
       </Stack>
+
+      {message.imageUrl && (
+        <Dialog
+          open={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+          maxWidth="md"
+          PaperProps={{
+            sx: { bgcolor: 'transparent', boxShadow: 'none', overflow: 'hidden' },
+          }}
+        >
+          <Box
+            component="img"
+            src={message.imageUrl}
+            onClick={() => setLightboxOpen(false)}
+            sx={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', cursor: 'pointer' }}
+          />
+        </Dialog>
+      )}
     </Stack>
   );
 }

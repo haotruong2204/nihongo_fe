@@ -1,215 +1,196 @@
-import { useMemo } from 'react';
-import keyBy from 'lodash/keyBy';
-import useSWR, { mutate } from 'swr';
-// utils
-import axios, { endpoints, fetcher } from 'src/utils/axios';
-// types
+import { useState, useEffect } from 'react';
 import {
-  IChatMessage,
-  IChatParticipant,
-  IChatConversations,
-  IChatConversation,
-} from 'src/types/chat';
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  getDocs,
+  serverTimestamp,
+  increment,
+} from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from 'src/lib/firebase';
+import { IChatRoom, IChatMessage, IChatRoomMeta } from 'src/types/chat';
+import axios, { endpoints } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
-const options = {
-  revalidateIfStale: false,
-  revalidateOnFocus: false,
-  revalidateOnReconnect: false,
-};
+export function useChatRooms() {
+  const [chatRooms, setChatRooms] = useState<IChatRoom[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export function useGetContacts() {
-  const URL = [endpoints.chat, { params: { endpoint: 'contacts' } }];
+  useEffect(() => {
+    const q = query(collection(db, 'chats'), orderBy('lastMessageAt', 'desc'));
 
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher, options);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const rooms = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      })) as IChatRoom[];
 
-  const memoizedValue = useMemo(
-    () => ({
-      contacts: (data?.contacts as IChatParticipant[]) || [],
-      contactsLoading: isLoading,
-      contactsError: error,
-      contactsValidating: isValidating,
-      contactsEmpty: !isLoading && !data?.contacts.length,
+      setChatRooms(rooms);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  return { chatRooms, loading };
+}
+
+// ----------------------------------------------------------------------
+
+export function useChatMessages(chatId: string | null) {
+  const [messages, setMessages] = useState<IChatMessage[]>([]);
+
+  useEffect(() => {
+    if (!chatId) {
+      setMessages([]);
+      return undefined;
+    }
+
+    const q = query(
+      collection(db, 'chats', chatId, 'messages'),
+      orderBy('createdAt', 'asc')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const msgs = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      })) as IChatMessage[];
+
+      setMessages(msgs);
+    });
+
+    return () => unsubscribe();
+  }, [chatId]);
+
+  return { messages };
+}
+
+// ----------------------------------------------------------------------
+
+export async function uploadChatImage(chatId: string, file: File): Promise<string> {
+  const path = `chats/${chatId}/${Date.now()}_${file.name}`;
+  const storageRef = ref(storage, path);
+  await uploadBytes(storageRef, file);
+  return getDownloadURL(storageRef);
+}
+
+export async function sendAdminMessage(
+  chatId: string,
+  text: string,
+  admin: { id: string; email: string },
+  imageUrl?: string
+) {
+  const messagesRef = collection(db, 'chats', chatId, 'messages');
+  const chatRef = doc(db, 'chats', chatId);
+
+  await Promise.all([
+    addDoc(messagesRef, {
+      text,
+      senderId: `admin_${admin.id}`,
+      senderName: admin.email,
+      createdAt: serverTimestamp(),
+      ...(imageUrl && { imageUrl }),
     }),
-    [data?.contacts, error, isLoading, isValidating]
-  );
-
-  return memoizedValue;
-}
-
-// ----------------------------------------------------------------------
-
-export function useGetConversations() {
-  const URL = [endpoints.chat, { params: { endpoint: 'conversations' } }];
-
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher, options);
-
-  const memoizedValue = useMemo(() => {
-    const byId = keyBy(data?.conversations, 'id') || {};
-    const allIds = Object.keys(byId) || [];
-
-    return {
-      conversations: {
-        byId,
-        allIds,
-      } as IChatConversations,
-      conversationsLoading: isLoading,
-      conversationsError: error,
-      conversationsValidating: isValidating,
-      conversationsEmpty: !isLoading && !allIds.length,
-    };
-  }, [data?.conversations, error, isLoading, isValidating]);
-
-  return memoizedValue;
-}
-
-// ----------------------------------------------------------------------
-
-export function useGetConversation(conversationId: string) {
-  const URL = conversationId
-    ? [endpoints.chat, { params: { conversationId, endpoint: 'conversation' } }]
-    : null;
-
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher, options);
-
-  const memoizedValue = useMemo(
-    () => ({
-      conversation: data?.conversation as IChatConversation,
-      conversationLoading: isLoading,
-      conversationError: error,
-      conversationValidating: isValidating,
+    updateDoc(chatRef, {
+      lastMessage: text || '[Hình ảnh]',
+      lastMessageAt: serverTimestamp(),
+      userUnread: increment(1),
     }),
-    [data?.conversation, error, isLoading, isValidating]
-  );
-
-  return memoizedValue;
+  ]);
 }
 
 // ----------------------------------------------------------------------
 
-export async function sendMessage(conversationId: string, messageData: IChatMessage) {
-  const CONVERSATIONS_URL = [endpoints.chat, { params: { endpoint: 'conversations' } }];
+export async function resetAdminUnread(chatId: string) {
+  const chatRef = doc(db, 'chats', chatId);
+  await updateDoc(chatRef, { adminUnread: 0 });
+}
 
-  const CONVERSATION_URL = [
-    endpoints.chat,
+// ----------------------------------------------------------------------
+
+export function useTotalAdminUnread() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const q = query(collection(db, 'chats'));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      let total = 0;
+      snapshot.docs.forEach((d) => {
+        total += d.data().adminUnread || 0;
+      });
+      setCount(total);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  return count;
+}
+
+// ----------------------------------------------------------------------
+// Rails API — enriched room metadata
+// ----------------------------------------------------------------------
+
+export async function fetchChatRoomsMeta(uids: string[]): Promise<Record<string, IChatRoomMeta>> {
+  const params = new URLSearchParams();
+  uids.forEach((uid) => params.append('uids[]', uid));
+  const res = await axios.get(endpoints.chatRoom.list, { params });
+  console.log('[fetchChatRoomsMeta] raw response:', JSON.stringify(res.data));
+  const items = res.data?.data?.resource?.data || [];
+  console.log('[fetchChatRoomsMeta] items:', JSON.stringify(items));
+  const map: Record<string, IChatRoomMeta> = {};
+  items.forEach((item: any) => {
+    const attrs = item.attributes;
+    map[attrs.uid] = attrs;
+  });
+  return map;
+}
+
+export async function updateChatRoomMeta(uid: string, data: Record<string, any>) {
+  return axios.patch(endpoints.chatRoom.update(uid), { chat_room: data });
+}
+
+export async function deleteChatRoom(chatId: string) {
+  // Delete all messages in subcollection first
+  const messagesRef = collection(db, 'chats', chatId, 'messages');
+  const snapshot = await getDocs(messagesRef);
+  const deletes = snapshot.docs.map((d) => deleteDoc(d.ref));
+  await Promise.all(deletes);
+
+  // Delete the chat document
+  await deleteDoc(doc(db, 'chats', chatId));
+}
+
+// ----------------------------------------------------------------------
+
+export async function createNewChat(user: {
+  uid: string;
+  display_name: string;
+  photo_url: string;
+}) {
+  const chatRef = doc(db, 'chats', user.uid);
+  await setDoc(
+    chatRef,
     {
-      params: { conversationId, endpoint: 'conversation' },
+      participantId: user.uid,
+      participantName: user.display_name,
+      participantPhoto: user.photo_url,
+      lastMessage: '',
+      lastMessageAt: serverTimestamp(),
+      adminUnread: 0,
+      userUnread: 0,
     },
-  ];
-
-  /**
-   * Work on server
-   */
-  // const data = { conversationId, messageData };
-  // await axios.put(endpoints.chat, data);
-
-  /**
-   * Work in local
-   */
-  mutate(
-    CONVERSATION_URL,
-    (currentData: any) => {
-      const { conversation: currentConversation } = currentData;
-
-      const conversation = {
-        ...currentConversation,
-        messages: [...currentConversation.messages, messageData],
-      };
-
-      return {
-        conversation,
-      };
-    },
-    false
+    { merge: true }
   );
-
-  /**
-   * Work in local
-   */
-  mutate(
-    CONVERSATIONS_URL,
-    (currentData: any) => {
-      const { conversations: currentConversations } = currentData;
-
-      const conversations: IChatConversation[] = currentConversations.map(
-        (conversation: IChatConversation) =>
-          conversation.id === conversationId
-            ? {
-                ...conversation,
-                messages: [...conversation.messages, messageData],
-              }
-            : conversation
-      );
-
-      return {
-        conversations,
-      };
-    },
-    false
-  );
-}
-
-// ----------------------------------------------------------------------
-
-export async function createConversation(conversationData: IChatConversation) {
-  const URL = [endpoints.chat, { params: { endpoint: 'conversations' } }];
-
-  /**
-   * Work on server
-   */
-  const data = { conversationData };
-  const res = await axios.post(endpoints.chat, data);
-
-  /**
-   * Work in local
-   */
-  mutate(
-    URL,
-    (currentData: any) => {
-      const conversations: IChatConversation[] = [...currentData.conversations, conversationData];
-      return {
-        ...currentData,
-        conversations,
-      };
-    },
-    false
-  );
-
-  return res.data;
-}
-
-// ----------------------------------------------------------------------
-
-export async function clickConversation(conversationId: string) {
-  const URL = endpoints.chat;
-
-  /**
-   * Work on server
-   */
-  // await axios.get(URL, { params: { conversationId, endpoint: 'mark-as-seen' } });
-
-  /**
-   * Work in local
-   */
-  mutate(
-    [
-      URL,
-      {
-        params: { endpoint: 'conversations' },
-      },
-    ],
-    (currentData: any) => {
-      const conversations: IChatConversations = currentData.conversations.map(
-        (conversation: IChatConversation) =>
-          conversation.id === conversationId ? { ...conversation, unreadCount: 0 } : conversation
-      );
-
-      return {
-        ...currentData,
-        conversations,
-      };
-    },
-    false
-  );
+  return user.uid;
 }

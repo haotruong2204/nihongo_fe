@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 // types
 import { IChatMessage } from 'src/types/chat';
 
@@ -7,27 +7,16 @@ import { IChatMessage } from 'src/types/chat';
 export default function useMessagesScroll(messages: IChatMessage[]) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollMessagesToBottom = useCallback(() => {
-    if (!messages) {
-      return;
-    }
+  useEffect(() => {
+    if (!messages?.length || !messagesEndRef.current) return undefined;
 
-    if (!messagesEndRef.current) {
-      return;
-    }
+    // Delay to ensure DOM has rendered
+    const timer = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+    }, 100);
 
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
-    }
+    return () => clearTimeout(timer);
   }, [messages]);
-
-  useEffect(
-    () => {
-      scrollMessagesToBottom();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [messages]
-  );
 
   return {
     messagesEndRef,

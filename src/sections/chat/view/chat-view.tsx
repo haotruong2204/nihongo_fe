@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 // @mui
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -7,60 +7,91 @@ import Typography from '@mui/material/Typography';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter, useSearchParams } from 'src/routes/hooks';
-// hooks
-import { useMockedUser } from 'src/hooks/use-mocked-user';
+// auth
+import { useAuthContext } from 'src/auth/hooks';
 // api
-import { useGetContacts, useGetConversation, useGetConversations } from 'src/api/chat';
+import { useChatRooms, useChatMessages, resetAdminUnread, fetchChatRoomsMeta, updateChatRoomMeta } from 'src/api/chat';
+// types
+import { IChatRoomMeta } from 'src/types/chat';
 // components
 import { useSettingsContext } from 'src/components/settings';
-// types
-import { IChatParticipant } from 'src/types/chat';
 //
 import ChatNav from '../chat-nav';
 import ChatRoom from '../chat-room';
 import ChatMessageList from '../chat-message-list';
 import ChatMessageInput from '../chat-message-input';
 import ChatHeaderDetail from '../chat-header-detail';
-import ChatHeaderCompose from '../chat-header-compose';
 
 // ----------------------------------------------------------------------
 
 export default function ChatView() {
   const router = useRouter();
 
-  const { user } = useMockedUser();
+  const { user } = useAuthContext();
 
   const settings = useSettingsContext();
 
   const searchParams = useSearchParams();
 
-  const selectedConversationId = searchParams.get('id') || '';
+  const selectedChatId = searchParams.get('id') || '';
 
-  const [recipients, setRecipients] = useState<IChatParticipant[]>([]);
+  const { chatRooms, loading } = useChatRooms();
 
-  const { contacts } = useGetContacts();
+  const { messages } = useChatMessages(selectedChatId || null);
 
-  const { conversations, conversationsLoading } = useGetConversations();
+  const selectedRoom = chatRooms.find((room) => room.id === selectedChatId) || null;
 
-  const { conversation, conversationError } = useGetConversation(`${selectedConversationId}`);
+  const adminId = user ? `admin_${user.id}` : '';
 
-  const participants: IChatParticipant[] = conversation
-    ? conversation.participants.filter(
-        (participant: IChatParticipant) => participant.id !== `${user?.id}`
-      )
-    : [];
+  // Rails enriched metadata
+  const [roomsMeta, setRoomsMeta] = useState<Record<string, IChatRoomMeta>>({});
+
+  const roomUidsKey = useMemo(() => chatRooms.map((r) => r.id).join(','), [chatRooms]);
 
   useEffect(() => {
-    if (conversationError || !selectedConversationId) {
-      router.push(paths.dashboard.chat);
+    const uids = chatRooms.map((r) => r.id);
+    if (uids.length === 0) return;
+    fetchChatRoomsMeta(uids).then(setRoomsMeta).catch(console.error);
+  }, [roomUidsKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const selectedMeta = selectedChatId ? roomsMeta[selectedChatId] : undefined;
+
+  // Reset admin unread when selecting a room
+  useEffect(() => {
+    if (selectedChatId && selectedRoom && selectedRoom.adminUnread > 0) {
+      resetAdminUnread(selectedChatId);
     }
-  }, [conversationError, router, selectedConversationId]);
+  }, [selectedChatId, selectedRoom]);
 
-  const handleAddRecipients = useCallback((selected: IChatParticipant[]) => {
-    setRecipients(selected);
-  }, []);
+  // Track last_opened_at when selecting a room
+  useEffect(() => {
+    if (selectedChatId) {
+      updateChatRoomMeta(selectedChatId, { last_opened_at: new Date().toISOString() }).catch(console.error);
+    }
+  }, [selectedChatId]);
 
-  const details = !!conversation;
+  const handleSelectRoom = useCallback(
+    (roomId: string) => {
+      router.push(`${paths.dashboard.chat}?id=${roomId}`);
+    },
+    [router]
+  );
+
+  const handleMessageSent = useCallback(() => {
+    if (selectedChatId) {
+      updateChatRoomMeta(selectedChatId, { last_admin_reply_at: new Date().toISOString() }).catch(console.error);
+    }
+  }, [selectedChatId]);
+
+  const handleMetaUpdate = useCallback(() => {
+    const uids = chatRooms.map((r) => r.id);
+    if (uids.length === 0) return;
+    fetchChatRoomsMeta(uids).then(setRoomsMeta).catch(console.error);
+  }, [chatRooms]);
+
+  const handleDeleteChat = useCallback(() => {
+    router.push(paths.dashboard.chat);
+  }, [router]);
 
   const renderHead = (
     <Stack
@@ -69,20 +100,17 @@ export default function ChatView() {
       flexShrink={0}
       sx={{ pr: 1, pl: 2.5, py: 1, minHeight: 72 }}
     >
-      {selectedConversationId ? (
-        <>{details && <ChatHeaderDetail participants={participants} />}</>
-      ) : (
-        <ChatHeaderCompose contacts={contacts} onAddRecipients={handleAddRecipients} />
-      )}
+      {selectedRoom && <ChatHeaderDetail room={selectedRoom} meta={selectedMeta} />}
     </Stack>
   );
 
   const renderNav = (
     <ChatNav
-      contacts={contacts}
-      conversations={conversations}
-      loading={conversationsLoading}
-      selectedConversationId={selectedConversationId}
+      chatRooms={chatRooms}
+      loading={loading}
+      selectedChatId={selectedChatId}
+      onSelectRoom={handleSelectRoom}
+      roomsMeta={roomsMeta}
     />
   );
 
@@ -94,14 +122,16 @@ export default function ChatView() {
         overflow: 'hidden',
       }}
     >
-      <ChatMessageList messages={conversation?.messages} participants={participants} />
+      <ChatMessageList
+        messages={messages}
+        adminId={adminId}
+        participantPhoto={selectedMeta?.user?.photo_url || selectedRoom?.participantPhoto}
+      />
 
       <ChatMessageInput
-        recipients={recipients}
-        onAddRecipients={handleAddRecipients}
-        //
-        selectedConversationId={selectedConversationId}
-        disabled={!recipients.length && !selectedConversationId}
+        chatId={selectedChatId}
+        disabled={!selectedChatId}
+        onMessageSent={handleMessageSent}
       />
     </Stack>
   );
@@ -140,7 +170,7 @@ export default function ChatView() {
           >
             {renderMessages}
 
-            {details && <ChatRoom conversation={conversation} participants={participants} />}
+            {selectedRoom && <ChatRoom room={selectedRoom} meta={selectedMeta} onMetaUpdate={handleMetaUpdate} onDelete={handleDeleteChat} />}
           </Stack>
         </Stack>
       </Stack>

@@ -1,20 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
+import Tooltip from '@mui/material/Tooltip';
 // hooks
 import { useResponsive } from 'src/hooks/use-responsive';
-// routes
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
 // types
-import { IChatParticipant, IChatConversations } from 'src/types/chat';
+import { IChatRoom, IChatRoomMeta } from 'src/types/chat';
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -23,7 +17,7 @@ import { useCollapseNav } from './hooks';
 import ChatNavItem from './chat-nav-item';
 import ChatNavAccount from './chat-nav-account';
 import { ChatNavItemSkeleton } from './chat-skeleton';
-import ChatNavSearchResults from './chat-nav-search-results';
+import ChatNewDialog from './chat-new-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -33,20 +27,21 @@ const NAV_COLLAPSE_WIDTH = 96;
 
 type Props = {
   loading: boolean;
-  selectedConversationId: string;
-  contacts: IChatParticipant[];
-  conversations: IChatConversations;
+  selectedChatId: string;
+  chatRooms: IChatRoom[];
+  onSelectRoom: (roomId: string) => void;
+  roomsMeta: Record<string, IChatRoomMeta>;
 };
 
 export default function ChatNav({
   loading,
-  contacts,
-  conversations,
-  selectedConversationId,
+  chatRooms,
+  selectedChatId,
+  onSelectRoom,
+  roomsMeta,
 }: Props) {
+  const [newChatOpen, setNewChatOpen] = useState(false);
   const theme = useTheme();
-
-  const router = useRouter();
 
   const mdUp = useResponsive('up', 'md');
 
@@ -59,14 +54,6 @@ export default function ChatNav({
     onOpenMobile,
     onCloseMobile,
   } = useCollapseNav();
-
-  const [searchContacts, setSearchContacts] = useState<{
-    query: string;
-    results: IChatParticipant[];
-  }>({
-    query: '',
-    results: [],
-  });
 
   useEffect(() => {
     if (!mdUp) {
@@ -81,50 +68,6 @@ export default function ChatNav({
       onCloseMobile();
     }
   }, [mdUp, onCloseMobile, onCollapseDesktop]);
-
-  const handleClickCompose = useCallback(() => {
-    if (!mdUp) {
-      onCloseMobile();
-    }
-    router.push(paths.dashboard.chat);
-  }, [mdUp, onCloseMobile, router]);
-
-  const handleSearchContacts = useCallback(
-    (inputValue: string) => {
-      setSearchContacts((prevState) => ({
-        ...prevState,
-        query: inputValue,
-      }));
-
-      if (inputValue) {
-        const results = contacts.filter((contact) =>
-          contact.name.toLowerCase().includes(inputValue)
-        );
-
-        setSearchContacts((prevState) => ({
-          ...prevState,
-          results,
-        }));
-      }
-    },
-    [contacts]
-  );
-
-  const handleClickAwaySearch = useCallback(() => {
-    setSearchContacts({
-      query: '',
-      results: [],
-    });
-  }, []);
-
-  const handleClickResult = useCallback(
-    (result: IChatParticipant) => {
-      handleClickAwaySearch();
-
-      router.push(`${paths.dashboard.chat}?id=${result.id}`);
-    },
-    [handleClickAwaySearch, router]
-  );
 
   const renderToggleBtn = (
     <IconButton
@@ -159,43 +102,18 @@ export default function ChatNav({
 
   const renderList = (
     <>
-      {conversations.allIds.map((conversationId) => (
+      {chatRooms.map((room) => (
         <ChatNavItem
-          key={conversationId}
+          key={room.id}
+          room={room}
           collapse={collapseDesktop}
-          conversation={conversations.byId[conversationId]}
-          selected={conversationId === selectedConversationId}
+          selected={room.id === selectedChatId}
+          onSelectRoom={onSelectRoom}
           onCloseMobile={onCloseMobile}
+          meta={roomsMeta[room.id]}
         />
       ))}
     </>
-  );
-
-  const renderListResults = (
-    <ChatNavSearchResults
-      query={searchContacts.query}
-      results={searchContacts.results}
-      onClickResult={handleClickResult}
-    />
-  );
-
-  const renderSearchInput = (
-    <ClickAwayListener onClickAway={handleClickAwaySearch}>
-      <TextField
-        fullWidth
-        value={searchContacts.query}
-        onChange={(event) => handleSearchContacts(event.target.value)}
-        placeholder="Search contacts..."
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-            </InputAdornment>
-          ),
-        }}
-        sx={{ mt: 2.5 }}
-      />
-    </ClickAwayListener>
   );
 
   const renderContent = (
@@ -204,31 +122,27 @@ export default function ChatNav({
         {!collapseDesktop && (
           <>
             <ChatNavAccount />
-            <Box sx={{ flexGrow: 1 }} />
+            <Stack sx={{ flexGrow: 1 }} />
           </>
         )}
+
+        <Tooltip title="Nhắn tin mới">
+          <IconButton onClick={() => setNewChatOpen(true)}>
+            <Iconify icon="solar:pen-new-square-bold" />
+          </IconButton>
+        </Tooltip>
 
         <IconButton onClick={handleToggleNav}>
           <Iconify
             icon={collapseDesktop ? 'eva:arrow-ios-forward-fill' : 'eva:arrow-ios-back-fill'}
           />
         </IconButton>
-
-        {!collapseDesktop && (
-          <IconButton onClick={handleClickCompose}>
-            <Iconify width={24} icon="solar:user-plus-bold" />
-          </IconButton>
-        )}
       </Stack>
 
-      <Box sx={{ p: 2.5, pt: 0 }}>{!collapseDesktop && renderSearchInput}</Box>
-
-      <Scrollbar sx={{ pb: 1 }}>
-        {searchContacts.query && renderListResults}
-
+      <Scrollbar sx={{ pb: 1, mt: 2 }}>
         {loading && renderSkeleton}
 
-        {!searchContacts.query && !!conversations.allIds.length && renderList}
+        {!loading && !!chatRooms.length && renderList}
       </Scrollbar>
     </>
   );
@@ -268,6 +182,12 @@ export default function ChatNav({
           {renderContent}
         </Drawer>
       )}
+
+      <ChatNewDialog
+        open={newChatOpen}
+        onClose={() => setNewChatOpen(false)}
+        onSelectRoom={onSelectRoom}
+      />
     </>
   );
 }

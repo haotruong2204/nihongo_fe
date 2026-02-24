@@ -1,144 +1,163 @@
-import { sub } from 'date-fns';
-import { useRef, useState, useCallback, useMemo } from 'react';
+import { useRef, useState, useCallback } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
-// routes
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hooks';
-// hooks
-import { useMockedUser } from 'src/hooks/use-mocked-user';
-// utils
-import uuidv4 from 'src/utils/uuidv4';
+import Popover from '@mui/material/Popover';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+// emoji
+// eslint-disable-next-line import/no-extraneous-dependencies
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+// auth
+import { useAuthContext } from 'src/auth/hooks';
 // api
-import { sendMessage, createConversation } from 'src/api/chat';
+import { sendAdminMessage, uploadChatImage } from 'src/api/chat';
 // components
 import Iconify from 'src/components/iconify';
-// types
-import { IChatParticipant } from 'src/types/chat';
 
 // ----------------------------------------------------------------------
 
 type Props = {
-  recipients: IChatParticipant[];
-  onAddRecipients: (recipients: IChatParticipant[]) => void;
-  //
+  chatId: string;
   disabled: boolean;
-  selectedConversationId: string;
+  onMessageSent?: () => void;
 };
 
-export default function ChatMessageInput({
-  recipients,
-  onAddRecipients,
-  //
-  disabled,
-  selectedConversationId,
-}: Props) {
-  const router = useRouter();
+export default function ChatMessageInput({ chatId, disabled, onMessageSent }: Props) {
+  const { user } = useAuthContext();
 
-  const { user } = useMockedUser();
-
-  const fileRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [message, setMessage] = useState('');
+  const messageRef = useRef(message);
+  messageRef.current = message;
 
-  const myContact = useMemo(
-    () => ({
-      id: `${user?.id}`,
-      role: `${user?.role}`,
-      email: `${user?.email}`,
-      address: `${user?.address}`,
-      name: `${user?.displayName}`,
-      lastActivity: new Date(),
-      avatarUrl: `${user?.photoURL}`,
-      phoneNumber: `${user?.phoneNumber}`,
-      status: 'online' as 'online' | 'offline' | 'alway' | 'busy',
-    }),
-    [user]
-  );
+  const sendingRef = useRef(false);
+  const [uploading, setUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const imageFileRef = useRef(imageFile);
+  imageFileRef.current = imageFile;
 
-  const messageData = useMemo(
-    () => ({
-      id: uuidv4(),
-      attachments: [],
-      body: message,
-      contentType: 'text',
-      createdAt: sub(new Date(), { minutes: 1 }),
-      senderId: myContact.id,
-    }),
-    [message, myContact.id]
-  );
-
-  const conversationData = useMemo(
-    () => ({
-      id: uuidv4(),
-      messages: [messageData],
-      participants: [...recipients, myContact],
-      type: recipients.length > 1 ? 'GROUP' : 'ONE_TO_ONE',
-      unreadCount: 0,
-    }),
-    [messageData, myContact, recipients]
-  );
-
-  const handleAttach = useCallback(() => {
-    if (fileRef.current) {
-      fileRef.current.click();
-    }
-  }, []);
+  // Emoji popover
+  const [emojiAnchor, setEmojiAnchor] = useState<HTMLElement | null>(null);
 
   const handleChangeMessage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
   }, []);
 
-  const handleSendMessage = useCallback(
-    async (event: React.KeyboardEvent<HTMLInputElement>) => {
-      try {
-        if (event.key === 'Enter') {
-          if (message) {
-            if (selectedConversationId) {
-              await sendMessage(selectedConversationId, messageData);
-            } else {
-              const res = await createConversation(conversationData);
+  const clearImage = useCallback(() => {
+    setImagePreview(null);
+    setImageFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }, []);
 
-              router.push(`${paths.dashboard.chat}?id=${res.conversation.id}`);
+  const doSend = useCallback(async () => {
+    const currentMessage = messageRef.current;
+    const currentImageFile = imageFileRef.current;
 
-              onAddRecipients([]);
-            }
-          }
-          setMessage('');
-        }
-      } catch (error) {
-        console.error(error);
+    if ((!currentMessage.trim() && !currentImageFile) || !chatId || !user || sendingRef.current) return;
+    sendingRef.current = true;
+    setUploading(!!currentImageFile);
+
+    const text = currentMessage.trim();
+    setMessage('');
+
+    try {
+      let imageUrl: string | undefined;
+      if (currentImageFile) {
+        imageUrl = await uploadChatImage(chatId, currentImageFile);
+      }
+      await sendAdminMessage(chatId, text, { id: user.id, email: user.email }, imageUrl);
+      clearImage();
+      onMessageSent?.();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      sendingRef.current = false;
+      setUploading(false);
+      inputRef.current?.focus();
+    }
+  }, [chatId, user, onMessageSent, clearImage]);
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        doSend();
       }
     },
-    [conversationData, message, messageData, onAddRecipients, router, selectedConversationId]
+    [doSend]
   );
 
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }, []);
+
+  const handleEmojiClick = useCallback((emojiData: EmojiClickData) => {
+    setMessage((prev) => prev + emojiData.emoji);
+    setEmojiAnchor(null);
+    inputRef.current?.focus();
+  }, []);
+
+  const canSend = !disabled && !uploading && (!!message.trim() || !!imageFile);
+
   return (
-    <>
+    <Box>
+      {/* Image preview */}
+      {imagePreview && (
+        <Stack direction="row" alignItems="center" sx={{ px: 2, py: 1, gap: 1 }}>
+          <Box
+            component="img"
+            src={imagePreview}
+            sx={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 1 }}
+          />
+          <IconButton size="small" onClick={clearImage}>
+            <Iconify icon="mingcute:close-line" width={18} />
+          </IconButton>
+        </Stack>
+      )}
+
       <InputBase
+        fullWidth
+        inputRef={inputRef}
         value={message}
-        onKeyUp={handleSendMessage}
+        onKeyDown={handleKeyDown}
         onChange={handleChangeMessage}
         placeholder="Type a message"
-        disabled={disabled}
+        disabled={disabled || uploading}
         startAdornment={
-          <IconButton>
-            <Iconify icon="eva:smiling-face-fill" />
-          </IconButton>
+          <Stack direction="row" sx={{ flexShrink: 0 }}>
+            <IconButton
+              size="small"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={disabled || uploading}
+            >
+              <Iconify icon="solar:gallery-bold" />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={(e) => setEmojiAnchor(e.currentTarget)}
+              disabled={disabled || uploading}
+            >
+              <Iconify icon="eva:smiling-face-fill" />
+            </IconButton>
+          </Stack>
         }
         endAdornment={
           <Stack direction="row" sx={{ flexShrink: 0 }}>
-            <IconButton onClick={handleAttach}>
-              <Iconify icon="solar:gallery-add-bold" />
-            </IconButton>
-            <IconButton onClick={handleAttach}>
-              <Iconify icon="eva:attach-2-fill" />
-            </IconButton>
-            <IconButton>
-              <Iconify icon="solar:microphone-bold" />
-            </IconButton>
+            {uploading ? (
+              <CircularProgress size={24} sx={{ m: 1 }} />
+            ) : (
+              <IconButton onClick={doSend} disabled={!canSend}>
+                <Iconify icon="ic:round-send" />
+              </IconButton>
+            )}
           </Stack>
         }
         sx={{
@@ -149,7 +168,25 @@ export default function ChatMessageInput({
         }}
       />
 
-      <input type="file" ref={fileRef} style={{ display: 'none' }} />
-    </>
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={handleFileSelect}
+      />
+
+      {/* Emoji picker popover */}
+      <Popover
+        open={!!emojiAnchor}
+        anchorEl={emojiAnchor}
+        onClose={() => setEmojiAnchor(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <EmojiPicker onEmojiClick={handleEmojiClick} />
+      </Popover>
+    </Box>
   );
 }

@@ -10,8 +10,8 @@ import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 import Badge, { badgeClasses } from '@mui/material/Badge';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-// hooks
-import { useMockedUser } from 'src/hooks/use-mocked-user';
+// auth
+import { useAuthContext } from 'src/auth/hooks';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -19,7 +19,7 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 export default function ChatNavAccount() {
-  const { user } = useMockedUser();
+  const { user } = useAuthContext();
 
   const popover = usePopover();
 
@@ -33,8 +33,7 @@ export default function ChatNavAccount() {
     <>
       <Badge variant={status} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
         <Avatar
-          src={user?.photoURL}
-          alt={user?.displayName}
+          alt={user?.email}
           onClick={popover.onOpen}
           sx={{ cursor: 'pointer', width: 48, height: 48 }}
         />
@@ -52,8 +51,8 @@ export default function ChatNavAccount() {
           }}
         >
           <ListItemText
-            primary={user?.displayName}
-            secondary={user?.email}
+            primary={user?.email}
+            secondary={user?.role}
             secondaryTypographyProps={{ component: 'span' }}
           />
 
