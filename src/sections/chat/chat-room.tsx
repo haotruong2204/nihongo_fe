@@ -24,7 +24,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 // types
 import { IChatRoom, IChatRoomMeta } from 'src/types/chat';
 // api
-import { updateChatRoomMeta, deleteChatRoom } from 'src/api/chat';
+import { deleteChatRoom } from 'src/api/chat';
 // components
 import Iconify from 'src/components/iconify';
 //
