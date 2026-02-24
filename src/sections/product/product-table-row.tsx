@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 // @mui
 import Box from '@mui/material/Box';
 import Link from '@mui/material/Link';
@@ -13,6 +12,7 @@ import ListItemText from '@mui/material/ListItemText';
 import LinearProgress from '@mui/material/LinearProgress';
 // utils
 import { fCurrency } from 'src/utils/format-number';
+import { fDateTime } from 'src/utils/format-time';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -96,14 +96,8 @@ export default function ProductTableRow({
 
         <TableCell>
           <ListItemText
-            primary={format(new Date(createdAt), 'dd MMM yyyy')}
-            secondary={format(new Date(createdAt), 'p')}
+            primary={fDateTime(createdAt)}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            secondaryTypographyProps={{
-              mt: 0.5,
-              component: 'span',
-              typography: 'caption',
-            }}
           />
         </TableCell>
 

@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 // @mui
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -16,6 +15,7 @@ import ListItemText from '@mui/material/ListItemText';
 import { useBoolean } from 'src/hooks/use-boolean';
 // utils
 import { fCurrency } from 'src/utils/format-number';
+import { fDateTime } from 'src/utils/format-time';
 // types
 import { IOrderItem } from 'src/types/order';
 // components
@@ -85,14 +85,8 @@ export default function OrderTableRow({
 
       <TableCell>
         <ListItemText
-          primary={format(new Date(createdAt), 'dd MMM yyyy')}
-          secondary={format(new Date(createdAt), 'p')}
+          primary={fDateTime(createdAt)}
           primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-          secondaryTypographyProps={{
-            mt: 0.5,
-            component: 'span',
-            typography: 'caption',
-          }}
         />
       </TableCell>
 

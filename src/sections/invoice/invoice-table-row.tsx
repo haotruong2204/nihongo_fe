@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 // @mui
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
@@ -15,6 +14,7 @@ import ListItemText from '@mui/material/ListItemText';
 import { useBoolean } from 'src/hooks/use-boolean';
 // utils
 import { fCurrency } from 'src/utils/format-number';
+import { fDateTime } from 'src/utils/format-time';
 // types
 import { IInvoice } from 'src/types/invoice';
 // components
@@ -82,27 +82,15 @@ export default function InvoiceTableRow({
 
         <TableCell>
           <ListItemText
-            primary={format(new Date(createDate), 'dd MMM yyyy')}
-            secondary={format(new Date(createDate), 'p')}
+            primary={fDateTime(createDate)}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            secondaryTypographyProps={{
-              mt: 0.5,
-              component: 'span',
-              typography: 'caption',
-            }}
           />
         </TableCell>
 
         <TableCell>
           <ListItemText
-            primary={format(new Date(dueDate), 'dd MMM yyyy')}
-            secondary={format(new Date(dueDate), 'p')}
+            primary={fDateTime(dueDate)}
             primaryTypographyProps={{ typography: 'body2', noWrap: true }}
-            secondaryTypographyProps={{
-              mt: 0.5,
-              component: 'span',
-              typography: 'caption',
-            }}
           />
         </TableCell>
 

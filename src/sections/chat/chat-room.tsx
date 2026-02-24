@@ -2,6 +2,8 @@ import { useEffect, useCallback, useState } from 'react';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from 'src/lib/firebase';
+// utils
+import { fDateTime } from 'src/utils/format-time';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -189,7 +191,7 @@ export default function ChatRoom({ room, meta, onMetaUpdate, onDelete }: Props) 
           label="Joined"
           value={
             meta?.user?.created_at
-              ? new Date(meta.user.created_at).toLocaleDateString('vi-VN')
+              ? fDateTime(meta.user.created_at)
               : '—'
           }
         />

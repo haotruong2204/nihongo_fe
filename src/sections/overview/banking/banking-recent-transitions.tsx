@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -18,6 +17,7 @@ import Badge, { badgeClasses } from '@mui/material/Badge';
 import TableContainer from '@mui/material/TableContainer';
 // utils
 import { fCurrency } from 'src/utils/format-number';
+import { fDateTime } from 'src/utils/format-time';
 // components
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -168,14 +168,8 @@ function BankingRecentTransitionsRow({ row }: BankingRecentTransitionsRowProps) 
 
         <TableCell>
           <ListItemText
-            primary={format(new Date(row.date), 'dd MMM yyyy')}
-            secondary={format(new Date(row.date), 'p')}
+            primary={fDateTime(row.date)}
             primaryTypographyProps={{ typography: 'body2' }}
-            secondaryTypographyProps={{
-              mt: 0.5,
-              component: 'span',
-              typography: 'caption',
-            }}
           />
         </TableCell>
 
