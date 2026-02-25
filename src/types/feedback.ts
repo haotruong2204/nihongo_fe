@@ -11,6 +11,7 @@ export type IFeedbackItem = {
   id: string;
   user_id: number | null;
   email: string;
+  photo_url: string | null;
   text: string;
   display: boolean;
   status: 'pending' | 'reviewed' | 'done' | 'rejected';
