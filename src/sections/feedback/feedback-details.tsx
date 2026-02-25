@@ -58,6 +58,8 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
 
   const [replyText, setReplyText] = useState('');
 
+  const [deletingReplyId, setDeletingReplyId] = useState<string | null>(null);
+
   // Thread reply
   const handleSendThreadReply = useCallback(async () => {
     if (!feedback || !replyText.trim()) return;
@@ -148,6 +150,31 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
     isReplying.onFalse();
     isEditingReply.onFalse();
   }, [isReplying, isEditingReply]);
+
+  const handleToggleReplyDisplay = useCallback(
+    async (replyId: string, checked: boolean) => {
+      try {
+        await updateFeedback(replyId, { display: checked });
+        enqueueSnackbar('Reply display updated');
+        onMutate();
+      } catch (error) {
+        enqueueSnackbar('Failed to update reply display', { variant: 'error' });
+      }
+    },
+    [enqueueSnackbar, onMutate]
+  );
+
+  const handleDeleteThreadReply = useCallback(async () => {
+    if (!deletingReplyId) return;
+    try {
+      await deleteFeedback(deletingReplyId);
+      enqueueSnackbar('Reply deleted');
+      setDeletingReplyId(null);
+      onMutate();
+    } catch (error) {
+      enqueueSnackbar('Failed to delete reply', { variant: 'error' });
+    }
+  }, [deletingReplyId, enqueueSnackbar, onMutate]);
 
   if (!feedback) {
     return (
@@ -289,6 +316,7 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
               p: 1.5,
               borderRadius: 1,
               bgcolor: isAdmin ? 'primary.lighter' : 'background.neutral',
+              opacity: reply.display ? 1 : 0.6,
             }}
           >
             <Avatar
@@ -306,6 +334,20 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
                 <Typography variant="caption" sx={{ color: 'text.disabled' }}>
                   {fDateTime(reply.created_at)}
                 </Typography>
+                <Stack direction="row" alignItems="center" spacing={0.5} sx={{ ml: 'auto' }}>
+                  <Tooltip title={reply.display ? 'Đang hiển thị' : 'Đang ẩn'}>
+                    <Switch
+                      size="small"
+                      checked={reply.display}
+                      onChange={(e) => handleToggleReplyDisplay(reply.id, e.target.checked)}
+                    />
+                  </Tooltip>
+                  <Tooltip title="Xóa reply">
+                    <IconButton size="small" color="error" onClick={() => setDeletingReplyId(reply.id)}>
+                      <Iconify icon="solar:trash-bin-trash-bold" width={16} />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
               </Stack>
               <Typography variant="body2" sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}>
                 {reply.text}
@@ -450,7 +492,7 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
         }
       />
 
-      {/* Confirm delete reply */}
+      {/* Confirm delete legacy reply */}
       <ConfirmDialog
         open={confirmDeleteReply.value}
         onClose={confirmDeleteReply.onFalse}
@@ -458,6 +500,19 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
         content="Are you sure you want to delete this reply?"
         action={
           <Button variant="contained" color="error" onClick={handleDeleteReply}>
+            Delete
+          </Button>
+        }
+      />
+
+      {/* Confirm delete thread reply */}
+      <ConfirmDialog
+        open={!!deletingReplyId}
+        onClose={() => setDeletingReplyId(null)}
+        title="Delete Reply"
+        content="Are you sure you want to delete this reply?"
+        action={
+          <Button variant="contained" color="error" onClick={handleDeleteThreadReply}>
             Delete
           </Button>
         }
