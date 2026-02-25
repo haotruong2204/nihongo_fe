@@ -5,6 +5,7 @@ import { paths } from 'src/routes/paths';
 import { useLocales } from 'src/locales';
 // api
 import { useTotalAdminUnread } from 'src/api/chat';
+import { useGetNotifications } from 'src/api/notification';
 // components
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -52,6 +53,7 @@ const ICONS = {
 export function useNavData() {
   const { t } = useLocales();
   const totalUnread = useTotalAdminUnread();
+  const { unreadCount: notifUnread } = useGetNotifications();
 
   const data = useMemo(
     () => [
@@ -115,6 +117,16 @@ export function useNavData() {
             title: t('feedback'),
             path: paths.dashboard.feedback,
             icon: ICONS.mail,
+          },
+
+          // NOTIFICATIONS
+          {
+            title: 'Thông báo',
+            path: paths.dashboard.notifications,
+            icon: <Iconify icon="solar:bell-bold-duotone" width={24} />,
+            ...(notifUnread > 0 && {
+              info: <Label color="error">{notifUnread}</Label>,
+            }),
           },
 
           // PRODUCT
@@ -311,7 +323,7 @@ export function useNavData() {
         ],
       },
     ],
-    [t, totalUnread]
+    [t, totalUnread, notifUnread]
   );
 
   return data;

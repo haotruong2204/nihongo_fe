@@ -70,6 +70,11 @@ export const endpoints = {
     details: (id: string) => `/api/v1/admins/feedbacks/${id}`,
     replies: (id: string) => `/api/v1/admins/feedbacks/${id}/replies`,
   },
+  notification: {
+    list: '/api/v1/admins/admin_notifications',
+    markRead: (id: string) => `/api/v1/admins/admin_notifications/${id}/mark_read`,
+    markAllRead: '/api/v1/admins/admin_notifications/mark_read',
+  },
   chatRoom: {
     list: '/api/v1/admins/chat_rooms',
     update: (uid: string) => `/api/v1/admins/chat_rooms/${uid}`,
