@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
@@ -10,7 +10,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 import { paths } from 'src/routes/paths';
 import { useRouter, useSearchParams } from 'src/routes/hooks';
 // api
-import { useGetFeedbacks } from 'src/api/feedback';
+import { useGetFeedbacks, useGetFeedback } from 'src/api/feedback';
 // components
 import EmptyContent from 'src/components/empty-content';
 import { useSettingsContext } from 'src/components/settings';
@@ -45,10 +45,10 @@ export default function FeedbackView() {
     feedbacksLoadingMore,
   } = useGetFeedbacks();
 
-  const selectedFeedback = useMemo(
-    () => feedbacks.find((f) => f.id === selectedFeedbackId) || null,
-    [feedbacks, selectedFeedbackId]
-  );
+  const {
+    feedback: selectedFeedback,
+    feedbackMutate: selectedFeedbackMutate,
+  } = useGetFeedback(selectedFeedbackId);
 
   const firstFeedbackId = feedbacks[0]?.id || '';
 
@@ -75,6 +75,11 @@ export default function FeedbackView() {
       handleClickFeedback(firstFeedbackId);
     }
   }, [firstFeedbackId, handleClickFeedback, selectedFeedbackId]);
+
+  const handleMutate = useCallback(() => {
+    feedbacksMutate();
+    selectedFeedbackMutate();
+  }, [feedbacksMutate, selectedFeedbackMutate]);
 
   const renderEmpty = (
     <EmptyContent
@@ -122,9 +127,9 @@ export default function FeedbackView() {
       ) : (
         <FeedbackDetails
           feedback={selectedFeedback}
-          onMutate={feedbacksMutate}
+          onMutate={handleMutate}
           onDelete={() => {
-            feedbacksMutate();
+            handleMutate();
             router.push(paths.dashboard.feedback);
           }}
         />

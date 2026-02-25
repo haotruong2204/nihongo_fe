@@ -4,11 +4,13 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 import Switch from '@mui/material/Switch';
 import Select from '@mui/material/Select';
 import Divider from '@mui/material/Divider';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
+import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -26,7 +28,7 @@ import Scrollbar from 'src/components/scrollbar';
 import EmptyContent from 'src/components/empty-content';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 // api
-import { updateFeedback, deleteFeedback } from 'src/api/feedback';
+import { updateFeedback, deleteFeedback, createFeedbackReply } from 'src/api/feedback';
 // types
 import { IFeedbackItem } from 'src/types/feedback';
 import { useSnackbar } from 'src/components/snackbar';
@@ -56,10 +58,11 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
 
   const [replyText, setReplyText] = useState('');
 
-  const handleSendReply = useCallback(async () => {
+  // Thread reply
+  const handleSendThreadReply = useCallback(async () => {
     if (!feedback || !replyText.trim()) return;
     try {
-      await updateFeedback(feedback.id, { admin_reply: replyText.trim() });
+      await createFeedbackReply(feedback.id, replyText.trim());
       enqueueSnackbar('Reply sent');
       setReplyText('');
       isReplying.onFalse();
@@ -161,6 +164,7 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
   }
 
   const name = feedback.user?.display_name || feedback.email || 'Unknown';
+  const hasThreadReplies = feedback.replies && feedback.replies.length > 0;
 
   const renderHead = (
     <Stack direction="row" alignItems="center" flexShrink={0} sx={{ height: 56, pl: 2, pr: 1 }}>
@@ -208,6 +212,33 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
     </Stack>
   );
 
+  const renderContext = feedback.context_type && (
+    <Stack direction="row" alignItems="center" spacing={1} sx={{ px: 2, py: 1 }}>
+      <Chip
+        label={feedback.context_type === 'vocab_lesson' ? 'Vocab Lesson' : feedback.context_type}
+        size="small"
+        color="info"
+        variant="soft"
+      />
+      {feedback.context_label && (
+        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+          {feedback.context_label}
+        </Typography>
+      )}
+      {feedback.context_id && (
+        <Link
+          href={`https://nhaikanji.com/tango/${feedback.context_id}`}
+          target="_blank"
+          rel="noopener"
+          variant="caption"
+          sx={{ ml: 'auto' }}
+        >
+          Open
+        </Link>
+      )}
+    </Stack>
+  );
+
   const renderSender = (
     <Stack
       flexShrink={0}
@@ -243,6 +274,49 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
     </Stack>
   );
 
+  const renderThreadReplies = hasThreadReplies && (
+    <Stack sx={{ px: 2, mt: 2 }} spacing={1.5}>
+      <Typography variant="subtitle2">Replies ({feedback.replies.length})</Typography>
+      {feedback.replies.map((reply) => {
+        const isAdmin = reply.user_id === null;
+        const replyName = isAdmin ? 'Admin' : (reply.user?.display_name || reply.email || 'User');
+        return (
+          <Stack
+            key={reply.id}
+            direction="row"
+            spacing={1.5}
+            sx={{
+              p: 1.5,
+              borderRadius: 1,
+              bgcolor: isAdmin ? 'primary.lighter' : 'background.neutral',
+            }}
+          >
+            <Avatar
+              alt={replyName}
+              src={isAdmin ? '' : (reply.user?.photo_url || '')}
+              sx={{ width: 32, height: 32 }}
+            >
+              {isAdmin ? 'A' : replyName.charAt(0).toUpperCase()}
+            </Avatar>
+            <Stack sx={{ minWidth: 0, flex: 1 }}>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="subtitle2" sx={{ fontSize: 13 }}>
+                  {replyName}
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'text.disabled' }}>
+                  {fDateTime(reply.created_at)}
+                </Typography>
+              </Stack>
+              <Typography variant="body2" sx={{ mt: 0.5, whiteSpace: 'pre-wrap' }}>
+                {reply.text}
+              </Typography>
+            </Stack>
+          </Stack>
+        );
+      })}
+    </Stack>
+  );
+
   const renderContent = (
     <Box sx={{ py: 3, overflow: 'hidden', flexGrow: 1 }}>
       <Scrollbar>
@@ -250,11 +324,14 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
           {feedback.text}
         </Typography>
 
-        {/* Admin Reply */}
+        {/* Thread replies */}
+        {renderThreadReplies}
+
+        {/* Legacy Admin Reply */}
         {feedback.admin_reply && !isEditingReply.value && (
           <Stack sx={{ px: 2, mt: 3 }}>
             <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
-              <Typography variant="subtitle2">Admin Reply</Typography>
+              <Typography variant="subtitle2">Admin Reply (legacy)</Typography>
               <Stack direction="row" spacing={0.5}>
                 <Tooltip title="Edit reply">
                   <IconButton size="small" onClick={handleStartEditReply}>
@@ -307,7 +384,7 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
         </Button>
         <Button
           variant="contained"
-          onClick={isEditingReply.value ? handleUpdateReply : handleSendReply}
+          onClick={isEditingReply.value ? handleUpdateReply : handleSendThreadReply}
           disabled={!replyText.trim()}
           endIcon={<Iconify icon="iconamoon:send-fill" />}
         >
@@ -317,7 +394,7 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
     </Stack>
   );
 
-  const renderReplyButton = !feedback.admin_reply && !isReplying.value && (
+  const renderReplyButton = !isReplying.value && !isEditingReply.value && (
     <Stack sx={{ p: 2 }}>
       <Button
         variant="soft"
@@ -344,6 +421,10 @@ export default function FeedbackDetails({ feedback, onMutate, onDelete }: Props)
         {renderHead}
 
         <Divider sx={{ borderStyle: 'dashed' }} />
+
+        {renderContext}
+
+        {renderContext && <Divider sx={{ borderStyle: 'dashed' }} />}
 
         {renderSender}
 

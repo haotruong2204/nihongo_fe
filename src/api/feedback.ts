@@ -21,19 +21,40 @@ function buildIncludedMap(included: any[]): Record<string, IFeedbackUser> {
   return map;
 }
 
-function mapFeedback(item: any, usersMap: Record<string, IFeedbackUser>): IFeedbackItem {
+function mapReplies(item: any, included: any[], usersMap: Record<string, IFeedbackUser>): IFeedbackItem[] {
+  const replyIds = item.relationships?.replies?.data;
+  if (!replyIds || !Array.isArray(replyIds) || !included) return [];
+
+  return replyIds
+    .map((ref: any) => {
+      const replyData = included.find((inc: any) => inc.type === 'feedback' && String(inc.id) === String(ref.id));
+      if (!replyData) return null;
+      const userId = replyData.relationships?.user?.data?.id;
+      return {
+        ...replyData.attributes,
+        id: String(replyData.id),
+        user: userId ? usersMap[String(userId)] || null : null,
+        replies: [],
+      };
+    })
+    .filter(Boolean) as IFeedbackItem[];
+}
+
+function mapFeedback(item: any, usersMap: Record<string, IFeedbackUser>, included?: any[]): IFeedbackItem {
   const userId = item.relationships?.user?.data?.id;
   return {
     ...item.attributes,
     id: String(item.id),
     user: userId ? usersMap[String(userId)] || null : null,
+    replies: included ? mapReplies(item, included, usersMap) : [],
   };
 }
 
 function parseFeedbacks(data: any): IFeedbackItem[] {
   if (!data?.data?.resource?.data) return [];
-  const usersMap = buildIncludedMap(data.data.resource.included);
-  return data.data.resource.data.map((item: any) => mapFeedback(item, usersMap));
+  const { included } = data.data.resource;
+  const usersMap = buildIncludedMap(included);
+  return data.data.resource.data.map((item: any) => mapFeedback(item, usersMap, included));
 }
 
 // ----------------------------------------------------------------------
@@ -120,13 +141,13 @@ export function useGetFeedbacks({ perPage = 20 }: UseGetFeedbacksParams = {}) {
 export function useGetFeedback(id: string) {
   const URL = id ? endpoints.feedback.details(id) : null;
 
-  const { data, isLoading, error } = useSWR(URL, fetcher);
+  const { data, isLoading, error, mutate } = useSWR(URL, fetcher);
 
   const feedback: IFeedbackItem | null = useMemo(() => {
     if (!data?.data?.resource?.data) return null;
-    const item = data.data.resource.data;
-    const usersMap = buildIncludedMap(data.data.resource.included);
-    return mapFeedback(item, usersMap);
+    const { data: item, included } = data.data.resource;
+    const usersMap = buildIncludedMap(included);
+    return mapFeedback(item, usersMap, included);
   }, [data]);
 
   return useMemo(
@@ -134,8 +155,9 @@ export function useGetFeedback(id: string) {
       feedback,
       feedbackLoading: isLoading,
       feedbackError: error,
+      feedbackMutate: mutate,
     }),
-    [feedback, isLoading, error]
+    [feedback, isLoading, error, mutate]
   );
 }
 
@@ -159,5 +181,13 @@ export async function updateFeedback(
 export async function deleteFeedback(id: string) {
   const URL = endpoints.feedback.details(id);
   const res = await axiosInstance.delete(URL);
+  return res.data;
+}
+
+// ----------------------------------------------------------------------
+
+export async function createFeedbackReply(feedbackId: string, text: string) {
+  const URL = endpoints.feedback.replies(feedbackId);
+  const res = await axiosInstance.post(URL, { reply: { text } });
   return res.data;
 }

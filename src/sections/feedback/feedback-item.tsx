@@ -2,6 +2,7 @@ import { formatDistanceToNowStrict } from 'date-fns';
 // @mui
 import Stack from '@mui/material/Stack';
 import Avatar from '@mui/material/Avatar';
+import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemButton, { ListItemButtonProps } from '@mui/material/ListItemButton';
@@ -48,11 +49,22 @@ export default function FeedbackItem({
       </Avatar>
 
       <ListItemText
-        primary={name}
-        primaryTypographyProps={{
-          noWrap: true,
-          variant: 'subtitle2',
-        }}
+        primary={
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Typography variant="subtitle2" noWrap>
+              {name}
+            </Typography>
+            {feedback.context_type && (
+              <Chip
+                label={feedback.context_type === 'vocab_lesson' ? 'Vocab' : feedback.context_type}
+                size="small"
+                color="info"
+                variant="soft"
+                sx={{ height: 20, fontSize: 11 }}
+              />
+            )}
+          </Stack>
+        }
         secondary={feedback.text}
         secondaryTypographyProps={{
           noWrap: true,

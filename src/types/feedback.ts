@@ -16,6 +16,11 @@ export type IFeedbackItem = {
   status: 'pending' | 'reviewed' | 'done' | 'rejected';
   admin_reply: string | null;
   replied_at: string | null;
+  parent_id: number | null;
+  context_type: string | null;
+  context_id: string | null;
+  context_label: string | null;
+  replies: IFeedbackItem[];
   created_at: string;
   updated_at: string;
   user: IFeedbackUser | null;
