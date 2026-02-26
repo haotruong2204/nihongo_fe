@@ -20,6 +20,7 @@ import { paths } from 'src/routes/paths';
 // api
 import {
   useGetNotifications,
+  useAdminNotificationChannel,
   markNotificationRead,
   markAllNotificationsRead,
 } from 'src/api/notification';
@@ -40,6 +41,8 @@ export default function NotificationsPopover() {
   const router = useRouter();
 
   const { notifications, unreadCount, notificationsMutate } = useGetNotifications();
+
+  useAdminNotificationChannel(notificationsMutate);
 
   const handleMarkAllAsRead = useCallback(async () => {
     await markAllNotificationsRead();

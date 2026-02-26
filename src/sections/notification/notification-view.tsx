@@ -34,6 +34,7 @@ import { useRouter } from 'src/routes/hooks';
 // api
 import {
   useGetNotifications,
+  useAdminNotificationChannel,
   markNotificationRead,
   markAllNotificationsRead,
   createAdminNotification,
@@ -112,6 +113,8 @@ export default function NotificationsView() {
     createdBy: adminCreatedByFilter,
     notificationType: adminTypeFilter,
   });
+
+  useAdminNotificationChannel(adminMutate);
 
   // ---------- User notifications ----------
   const userTable = useTable({ defaultRowsPerPage: 20 });

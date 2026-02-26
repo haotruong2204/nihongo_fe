@@ -1,7 +1,8 @@
-import useSWR from 'swr';
-import { useMemo } from 'react';
+import useSWR, { KeyedMutator } from 'swr';
+import { useMemo, useEffect, useRef } from 'react';
 // utils
 import axiosInstance, { fetcher, endpoints } from 'src/utils/axios';
+import { getCableConsumer } from 'src/utils/actioncable';
 // types
 import { INotificationItem, INotificationPagination } from 'src/types/notification';
 
@@ -38,9 +39,7 @@ export function useGetNotifications({
 
   const URL = [endpoints.notification.list, { params }];
 
-  const { data, isLoading, error, mutate } = useSWR(URL, fetcher, {
-    refreshInterval: 30000,
-  });
+  const { data, isLoading, error, mutate } = useSWR(URL, fetcher);
 
   const notifications = useMemo(() => parseNotifications(data), [data]);
 
@@ -117,4 +116,34 @@ export async function deleteAdminNotification(id: string) {
   const URL = endpoints.notification.details(id);
   const res = await axiosInstance.delete(URL);
   return res.data;
+}
+
+// ----------------------------------------------------------------------
+// WebSocket hook for realtime admin notifications
+
+export function useAdminNotificationChannel(mutate: KeyedMutator<any>) {
+  const subscriptionRef = useRef<any>(null);
+
+  useEffect(() => {
+    const consumer = getCableConsumer();
+    if (!consumer) return undefined;
+
+    subscriptionRef.current = consumer.subscriptions.create(
+      { channel: 'NotificationChannel' },
+      {
+        received(data: any) {
+          if (data?.type === 'new_notification') {
+            mutate();
+          }
+        },
+      }
+    );
+
+    return () => {
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+      }
+    };
+  }, [mutate]);
 }
