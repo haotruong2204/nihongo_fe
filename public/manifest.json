@@ -1,19 +1,14 @@
 {
-  "name": "Minimal UI",
-  "short_name": "Minimal UI",
+  "name": "Nhaikanji Admin",
+  "short_name": "Nhaikanji Admin",
   "display": "standalone",
   "start_url": "/",
   "theme_color": "#000000",
   "background_color": "#ffffff",
   "icons": [
     {
-      "src": "favicon/android-chrome-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "favicon/android-chrome-512x512.png",
-      "sizes": "512x512",
+      "src": "favicon/thocode.png",
+      "sizes": "any",
       "type": "image/png"
     }
   ]

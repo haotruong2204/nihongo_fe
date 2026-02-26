@@ -4,18 +4,18 @@
 export const NOTIFICATION_TYPES = [
   { value: 'feedback', label: 'Phản hồi' },
   { value: 'new_feature', label: 'Tính năng mới!' },
-  { value: 'upgrade_success', label: 'Nâng cấp tài khoản thành công!' },
-  { value: 'maintenance', label: 'Bảo trì để nâng cấp' },
-  { value: 'welcome', label: 'Chào mừng đến với website' },
+  { value: 'upgrade_success', label: 'Nâng cấp' },
+  { value: 'maintenance', label: 'Bảo trì' },
+  { value: 'welcome', label: 'Chào mừng' },
   { value: 'warning', label: 'Cảnh báo' },
 ] as const;
 
 export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   feedback: 'Phản hồi',
   new_feature: 'Tính năng mới!',
-  upgrade_success: 'Nâng cấp tài khoản thành công!',
-  maintenance: 'Bảo trì để nâng cấp',
-  welcome: 'Chào mừng đến với website',
+  upgrade_success: 'Nâng cấp',
+  maintenance: 'Bảo trì',
+  welcome: 'Chào mừng',
   warning: 'Cảnh báo',
 };
 
@@ -30,7 +30,10 @@ export const NOTIFICATION_TYPE_ICONS: Record<string, string> = {
 };
 
 // Color mapping for notification type chips
-export const NOTIFICATION_TYPE_COLORS: Record<string, 'default' | 'primary' | 'secondary' | 'info' | 'success' | 'warning' | 'error'> = {
+export const NOTIFICATION_TYPE_COLORS: Record<
+  string,
+  'default' | 'primary' | 'secondary' | 'info' | 'success' | 'warning' | 'error'
+> = {
   feedback: 'info',
   new_feature: 'primary',
   upgrade_success: 'success',
