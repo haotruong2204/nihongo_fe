@@ -15,11 +15,21 @@ import { IChatMessage } from 'src/types/chat';
 
 const URL_REGEX = /(https?:\/\/[^\s]+)/g;
 
-function renderTextWithLinks(text: string) {
+function renderTextWithLinks(text: string, isMe: boolean) {
   const parts = text.split(URL_REGEX);
   return parts.map((part, i) =>
     URL_REGEX.test(part) ? (
-      <Link key={i} href={part} target="_blank" rel="noopener noreferrer">
+      <Link
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        sx={{
+          color: isMe ? 'primary.dark' : 'primary.main',
+          fontWeight: 600,
+          textDecorationColor: 'inherit',
+        }}
+      >
         {part}
       </Link>
     ) : (
@@ -63,6 +73,7 @@ export default function ChatMessageItem({
         borderRadius: 1,
         typography: 'body2',
         bgcolor: 'background.neutral',
+        overflowWrap: 'anywhere',
         ...(me && {
           color: 'grey.800',
           bgcolor: 'primary.lighter',
@@ -82,7 +93,11 @@ export default function ChatMessageItem({
           onClick={() => setLightboxOpen(true)}
         />
       )}
-      {message.text && <Typography variant="body2">{renderTextWithLinks(message.text)}</Typography>}
+      {message.text && (
+        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+          {renderTextWithLinks(message.text, me)}
+        </Typography>
+      )}
     </Stack>
   );
 

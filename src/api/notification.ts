@@ -17,8 +17,26 @@ function parseNotifications(data: any): INotificationItem[] {
 
 // ----------------------------------------------------------------------
 
-export function useGetNotifications() {
-  const URL = [endpoints.notification.list, { params: { per_page: 50 } }];
+type UseGetNotificationsParams = {
+  createdBy?: string;
+  notificationType?: string;
+};
+
+export function useGetNotifications({
+  createdBy = '',
+  notificationType = '',
+}: UseGetNotificationsParams = {}) {
+  const params: Record<string, any> = { per_page: 50 };
+
+  if (createdBy) {
+    params['q[created_by_eq]'] = createdBy;
+  }
+
+  if (notificationType) {
+    params['q[notification_type_eq]'] = notificationType;
+  }
+
+  const URL = [endpoints.notification.list, { params }];
 
   const { data, isLoading, error, mutate } = useSWR(URL, fetcher, {
     refreshInterval: 30000,
@@ -63,5 +81,40 @@ export async function markNotificationRead(id: string) {
 export async function markAllNotificationsRead() {
   const URL = endpoints.notification.markAllRead;
   const res = await axiosInstance.patch(URL);
+  return res.data;
+}
+
+// ----------------------------------------------------------------------
+// CRUD for admin notifications
+
+export async function createAdminNotification(data: {
+  title: string;
+  body?: string;
+  link?: string;
+  notification_type?: string;
+}) {
+  const res = await axiosInstance.post(endpoints.notification.list, {
+    admin_notification: data,
+  });
+  return res.data;
+}
+
+export async function updateAdminNotification(
+  id: string,
+  data: {
+    title?: string;
+    body?: string;
+    link?: string;
+    notification_type?: string;
+  }
+) {
+  const URL = endpoints.notification.details(id);
+  const res = await axiosInstance.patch(URL, { admin_notification: data });
+  return res.data;
+}
+
+export async function deleteAdminNotification(id: string) {
+  const URL = endpoints.notification.details(id);
+  const res = await axiosInstance.delete(URL);
   return res.data;
 }

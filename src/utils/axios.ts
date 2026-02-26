@@ -72,8 +72,13 @@ export const endpoints = {
   },
   notification: {
     list: '/api/v1/admins/admin_notifications',
+    details: (id: string) => `/api/v1/admins/admin_notifications/${id}`,
     markRead: (id: string) => `/api/v1/admins/admin_notifications/${id}/mark_read`,
     markAllRead: '/api/v1/admins/admin_notifications/mark_read',
+  },
+  userNotification: {
+    list: '/api/v1/admins/user_notifications',
+    details: (id: string) => `/api/v1/admins/user_notifications/${id}`,
   },
   chatRoom: {
     list: '/api/v1/admins/chat_rooms',

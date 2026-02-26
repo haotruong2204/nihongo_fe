@@ -83,8 +83,8 @@ export default function ChatMessageInput({ chatId, disabled, onMessageSent }: Pr
   }, [chatId, user, onMessageSent, clearImage]);
 
   const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent<HTMLInputElement>) => {
-      if (event.key === 'Enter') {
+    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault();
         doSend();
       }
@@ -123,50 +123,56 @@ export default function ChatMessageInput({ chatId, disabled, onMessageSent }: Pr
         </Stack>
       )}
 
-      <InputBase
-        fullWidth
-        inputRef={inputRef}
-        value={message}
-        onKeyDown={handleKeyDown}
-        onChange={handleChangeMessage}
-        placeholder="Type a message"
-        disabled={disabled || uploading}
-        startAdornment={
-          <Stack direction="row" sx={{ flexShrink: 0 }}>
-            <IconButton
-              size="small"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={disabled || uploading}
-            >
-              <Iconify icon="solar:gallery-bold" />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={(e) => setEmojiAnchor(e.currentTarget)}
-              disabled={disabled || uploading}
-            >
-              <Iconify icon="eva:smiling-face-fill" />
-            </IconButton>
-          </Stack>
-        }
-        endAdornment={
-          <Stack direction="row" sx={{ flexShrink: 0 }}>
-            {uploading ? (
-              <CircularProgress size={24} sx={{ m: 1 }} />
-            ) : (
-              <IconButton onClick={doSend} disabled={!canSend}>
-                <Iconify icon="ic:round-send" />
-              </IconButton>
-            )}
-          </Stack>
-        }
+      <Stack
+        direction="row"
+        alignItems="flex-end"
         sx={{
           px: 1,
-          height: 56,
+          minHeight: 56,
           flexShrink: 0,
           borderTop: (theme) => `solid 1px ${theme.palette.divider}`,
         }}
-      />
+      >
+        <Stack direction="row" sx={{ flexShrink: 0, py: 1 }}>
+          <IconButton
+            size="small"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={disabled || uploading}
+          >
+            <Iconify icon="solar:gallery-bold" />
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={(e) => setEmojiAnchor(e.currentTarget)}
+            disabled={disabled || uploading}
+          >
+            <Iconify icon="eva:smiling-face-fill" />
+          </IconButton>
+        </Stack>
+
+        <InputBase
+          fullWidth
+          multiline
+          maxRows={4}
+          inputRef={inputRef}
+          value={message}
+          onKeyDown={handleKeyDown}
+          onChange={handleChangeMessage}
+          placeholder="Type a message"
+          disabled={disabled || uploading}
+          sx={{ py: 1.5 }}
+        />
+
+        <Stack direction="row" sx={{ flexShrink: 0, py: 1 }}>
+          {uploading ? (
+            <CircularProgress size={24} sx={{ m: 1 }} />
+          ) : (
+            <IconButton onClick={doSend} disabled={!canSend}>
+              <Iconify icon="ic:round-send" />
+            </IconButton>
+          )}
+        </Stack>
+      </Stack>
 
       {/* Hidden file input */}
       <input

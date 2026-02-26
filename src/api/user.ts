@@ -167,6 +167,23 @@ export async function deleteUser(id: string) {
 
 // ----------------------------------------------------------------------
 
+export async function searchUsers(query: string): Promise<IUserItem[]> {
+  if (!query || query.length < 1) return [];
+  const params: Record<string, any> = {
+    per_page: 10,
+    'q[display_name_or_email_cont]': query,
+  };
+  const res = await axiosInstance.get(endpoints.user.list, { params });
+  const { data } = res;
+  if (!data?.data?.resource?.data) return [];
+  return data.data.resource.data.map((item: any) => ({
+    id: item.id,
+    ...item.attributes,
+  }));
+}
+
+// ----------------------------------------------------------------------
+
 export async function updateUser(
   id: string,
   data: {
