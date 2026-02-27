@@ -10,7 +10,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 import { paths } from 'src/routes/paths';
 import { useRouter, useSearchParams } from 'src/routes/hooks';
 // api
-import { useGetFeedbacks, useGetFeedback } from 'src/api/feedback';
+import { useGetFeedbacks, useGetFeedback, useAdminFeedbackChannel } from 'src/api/feedback';
 // components
 import EmptyContent from 'src/components/empty-content';
 import { useSettingsContext } from 'src/components/settings';
@@ -80,6 +80,8 @@ export default function FeedbackView() {
     feedbacksMutate();
     selectedFeedbackMutate();
   }, [feedbacksMutate, selectedFeedbackMutate]);
+
+  useAdminFeedbackChannel(handleMutate);
 
   const renderEmpty = (
     <EmptyContent

@@ -1,7 +1,8 @@
 import useSWR from 'swr';
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 // utils
 import axiosInstance, { fetcher, endpoints } from 'src/utils/axios';
+import { getCableConsumer } from 'src/utils/actioncable';
 // types
 import { IFeedbackItem, IFeedbackPagination, IFeedbackUser } from 'src/types/feedback';
 
@@ -190,4 +191,40 @@ export async function createFeedbackReply(feedbackId: string, text: string) {
   const URL = endpoints.feedback.replies(feedbackId);
   const res = await axiosInstance.post(URL, { reply: { text } });
   return res.data;
+}
+
+// ----------------------------------------------------------------------
+// WebSocket hook for realtime admin feedbacks
+
+export function useAdminFeedbackChannel(onUpdate: () => void) {
+  const subscriptionRef = useRef<any>(null);
+  const callbackRef = useRef(onUpdate);
+  callbackRef.current = onUpdate;
+
+  useEffect(() => {
+    const consumer = getCableConsumer();
+    if (!consumer) return undefined;
+
+    subscriptionRef.current = consumer.subscriptions.create(
+      { channel: 'FeedbackChannel' },
+      {
+        received(data: any) {
+          if (
+            ['new_feedback', 'new_reply', 'feedback_updated', 'feedback_deleted'].includes(
+              data?.type
+            )
+          ) {
+            callbackRef.current();
+          }
+        },
+      }
+    );
+
+    return () => {
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe();
+        subscriptionRef.current = null;
+      }
+    };
+  }, []);
 }
