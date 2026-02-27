@@ -13,11 +13,13 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useFaviconBadge } from 'src/hooks/use-favicon-badge';
 import { useResponsive } from 'src/hooks/use-responsive';
 // routes
 import { useRouter } from 'src/routes/hooks';
 import { paths } from 'src/routes/paths';
 // api
+import { useTotalAdminUnread } from 'src/api/chat';
 import {
   useGetNotifications,
   useAdminNotificationChannel,
@@ -41,7 +43,9 @@ export default function NotificationsPopover() {
   const router = useRouter();
 
   const { notifications, unreadCount, notificationsMutate } = useGetNotifications();
+  const chatUnread = useTotalAdminUnread();
 
+  useFaviconBadge(unreadCount + chatUnread);
   useAdminNotificationChannel(notificationsMutate);
 
   const handleMarkAllAsRead = useCallback(async () => {
