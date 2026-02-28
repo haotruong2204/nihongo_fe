@@ -14,27 +14,81 @@ import { IChatMessage } from 'src/types/chat';
 // ----------------------------------------------------------------------
 
 const URL_REGEX = /(https?:\/\/[^\s]+)/g;
+const IMAGE_EXT_REGEX = /\.(png|jpe?g|gif|webp|bmp|svg)(\?.*)?$/i;
 
-function renderTextWithLinks(text: string, isMe: boolean) {
+function isImageUrl(url: string): boolean {
+  try {
+    const { pathname } = new URL(url);
+    return IMAGE_EXT_REGEX.test(pathname);
+  } catch {
+    return IMAGE_EXT_REGEX.test(url);
+  }
+}
+
+type TextPart = { type: 'text'; content: string } | { type: 'link'; url: string } | { type: 'image'; url: string };
+
+function parseTextParts(text: string): TextPart[] {
   const parts = text.split(URL_REGEX);
-  return parts.map((part, i) =>
-    URL_REGEX.test(part) ? (
-      <Link
-        key={i}
-        href={part}
-        target="_blank"
-        rel="noopener noreferrer"
-        sx={{
-          color: isMe ? 'primary.dark' : 'primary.main',
-          fontWeight: 600,
-          textDecorationColor: 'inherit',
-        }}
-      >
-        {part}
-      </Link>
-    ) : (
-      part
-    )
+  return parts
+    .filter((p) => p.length > 0)
+    .map((part) => {
+      if (URL_REGEX.test(part)) {
+        return isImageUrl(part) ? { type: 'image', url: part } : { type: 'link', url: part };
+      }
+      return { type: 'text', content: part };
+    });
+}
+
+function RenderTextWithLinks({
+  text,
+  isMe,
+  onImageClick,
+}: {
+  text: string;
+  isMe: boolean;
+  onImageClick: (url: string) => void;
+}) {
+  const parts = parseTextParts(text);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.type === 'image') {
+          return (
+            <Box
+              key={i}
+              component="img"
+              src={part.url}
+              sx={{
+                maxWidth: 200,
+                borderRadius: 1,
+                cursor: 'pointer',
+                display: 'block',
+                my: 0.5,
+              }}
+              onClick={() => onImageClick(part.url)}
+            />
+          );
+        }
+        if (part.type === 'link') {
+          return (
+            <Link
+              key={i}
+              href={part.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                color: isMe ? 'primary.dark' : 'primary.main',
+                fontWeight: 600,
+                textDecorationColor: 'inherit',
+              }}
+            >
+              {part.url}
+            </Link>
+          );
+        }
+        return <span key={i}>{part.content}</span>;
+      })}
+    </>
   );
 }
 
@@ -57,12 +111,14 @@ export default function ChatMessageItem({
 }: Props) {
   const me = message.senderId === adminId;
 
-  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   const showAvatar = !me && isLastInGroup;
 
   const createdAtDate = message.createdAt?.toDate?.();
   const tooltipTime = createdAtDate ? format(createdAtDate, 'HH:mm dd/MM/yyyy') : '';
+
+  const handleImageClick = (url: string) => setLightboxSrc(url);
 
   const renderBody = (
     <Stack
@@ -90,12 +146,12 @@ export default function ChatMessageItem({
             cursor: 'pointer',
             mb: message.text ? 1 : 0,
           }}
-          onClick={() => setLightboxOpen(true)}
+          onClick={() => handleImageClick(message.imageUrl!)}
         />
       )}
       {message.text && (
-        <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
-          {renderTextWithLinks(message.text, me)}
+        <Typography variant="body2" component="div" sx={{ whiteSpace: 'pre-wrap' }}>
+          <RenderTextWithLinks text={message.text} isMe={me} onImageClick={handleImageClick} />
         </Typography>
       )}
     </Stack>
@@ -125,23 +181,23 @@ export default function ChatMessageItem({
         </Stack>
       </Tooltip>
 
-      {message.imageUrl && (
-        <Dialog
-          open={lightboxOpen}
-          onClose={() => setLightboxOpen(false)}
-          maxWidth="md"
-          PaperProps={{
-            sx: { bgcolor: 'transparent', boxShadow: 'none', overflow: 'hidden' },
-          }}
-        >
+      <Dialog
+        open={!!lightboxSrc}
+        onClose={() => setLightboxSrc(null)}
+        maxWidth="md"
+        PaperProps={{
+          sx: { bgcolor: 'transparent', boxShadow: 'none', overflow: 'hidden' },
+        }}
+      >
+        {lightboxSrc && (
           <Box
             component="img"
-            src={message.imageUrl}
-            onClick={() => setLightboxOpen(false)}
+            src={lightboxSrc}
+            onClick={() => setLightboxSrc(null)}
             sx={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', cursor: 'pointer' }}
           />
-        </Dialog>
-      )}
+        )}
+      </Dialog>
     </Stack>
   );
 }
