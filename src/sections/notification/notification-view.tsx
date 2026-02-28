@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useSWRConfig } from 'swr';
 // @mui
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
@@ -64,6 +65,7 @@ import {
 } from 'src/components/table';
 // utils
 import { fToNow, fDateTime } from 'src/utils/format-time';
+import { endpoints } from 'src/utils/axios';
 // types
 import {
   INotificationItem,
@@ -83,19 +85,25 @@ const EMPTY_FORM = { title: '', body: '', link: '', notification_type: '' };
 
 const USER_NOTI_TABLE_HEAD = [
   { id: 'user_id', label: 'User', width: 180 },
-  { id: 'title', label: 'Tiêu đề' },
-  { id: 'body', label: 'Nội dung', width: 200 },
   { id: 'notification_type', label: 'Loại', width: 160 },
   { id: 'created_by', label: 'Gửi bởi', width: 100 },
   { id: 'read', label: 'Trạng thái', width: 100 },
   { id: 'created_at', label: 'Ngày tạo', width: 170 },
-  { id: '', width: 88 },
+  { id: '', width: 120 },
 ];
 
 export default function NotificationsView() {
   const settings = useSettingsContext();
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
+  const { mutate: globalMutate } = useSWRConfig();
+
+  // Revalidate all notification SWR keys (including popover's unfiltered query → updates favicon badge)
+  const revalidateAllNotifications = useCallback(() => {
+    globalMutate(
+      (key: any) => Array.isArray(key) && key[0] === endpoints.notification.list
+    );
+  }, [globalMutate]);
 
   // Tab
   const [currentTab, setCurrentTab] = useState(0);
@@ -142,12 +150,14 @@ export default function NotificationsView() {
   const createDialog = useBoolean();
   const editDialog = useBoolean();
   const confirmDelete = useBoolean();
+  const viewDialog = useBoolean();
 
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingType, setEditingType] = useState<'admin' | 'user'>('admin');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deletingType, setDeletingType] = useState<'admin' | 'user'>('admin');
+  const [viewingNotification, setViewingNotification] = useState<INotificationItem | IUserNotificationItem | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   // Create target
@@ -160,19 +170,28 @@ export default function NotificationsView() {
     async (notification: INotificationItem) => {
       if (!notification.read) {
         await markNotificationRead(notification.id);
-        adminMutate();
+        revalidateAllNotifications();
       }
       if (notification.link) {
         router.push(`/dashboard${notification.link}`);
       }
     },
-    [router, adminMutate]
+    [router, revalidateAllNotifications]
   );
 
   const handleMarkAllRead = useCallback(async () => {
     await markAllNotificationsRead();
-    adminMutate();
-  }, [adminMutate]);
+    revalidateAllNotifications();
+  }, [revalidateAllNotifications]);
+
+  // ---------- View ----------
+  const handleViewNotification = useCallback(
+    (notification: INotificationItem | IUserNotificationItem) => {
+      setViewingNotification(notification);
+      viewDialog.onTrue();
+    },
+    [viewDialog]
+  );
 
   // ---------- Create ----------
   const handleOpenCreate = useCallback(() => {
@@ -213,14 +232,14 @@ export default function NotificationsView() {
         enqueueSnackbar('Tạo thông báo admin thành công!');
         createDialog.onFalse();
         setCurrentTab(0);
-        adminMutate();
+        revalidateAllNotifications();
       }
     } catch (error) {
       enqueueSnackbar('Tạo thông báo thất bại!', { variant: 'error' });
     } finally {
       setSubmitting(false);
     }
-  }, [formData, createTarget, selectedUser, sendToAll, enqueueSnackbar, createDialog, adminMutate, userMutate]);
+  }, [formData, createTarget, selectedUser, sendToAll, enqueueSnackbar, createDialog, revalidateAllNotifications, userMutate]);
 
   // ---------- Edit ----------
   const handleOpenEditAdmin = useCallback(
@@ -262,7 +281,7 @@ export default function NotificationsView() {
         userMutate();
       } else {
         await updateAdminNotification(editingId, formData);
-        adminMutate();
+        revalidateAllNotifications();
       }
       enqueueSnackbar('Cập nhật thành công!');
       editDialog.onFalse();
@@ -271,7 +290,7 @@ export default function NotificationsView() {
     } finally {
       setSubmitting(false);
     }
-  }, [editingId, editingType, formData, enqueueSnackbar, editDialog, adminMutate, userMutate]);
+  }, [editingId, editingType, formData, enqueueSnackbar, editDialog, revalidateAllNotifications, userMutate]);
 
   // ---------- Delete ----------
   const handleOpenDeleteAdmin = useCallback(
@@ -300,14 +319,14 @@ export default function NotificationsView() {
         userMutate();
       } else {
         await deleteAdminNotification(deletingId);
-        adminMutate();
+        revalidateAllNotifications();
       }
       enqueueSnackbar('Xóa thông báo thành công!');
       confirmDelete.onFalse();
     } catch (error) {
       enqueueSnackbar('Xóa thất bại!', { variant: 'error' });
     }
-  }, [deletingId, deletingType, enqueueSnackbar, confirmDelete, adminMutate, userMutate]);
+  }, [deletingId, deletingType, enqueueSnackbar, confirmDelete, revalidateAllNotifications, userMutate]);
 
   // ---------- Form ----------
   const handleFieldChange = useCallback(
@@ -442,9 +461,6 @@ export default function NotificationsView() {
                 sx={{ cursor: 'pointer' }}
                 primary={
                   <Stack direction="row" alignItems="center" spacing={1}>
-                    <Typography variant="subtitle2" sx={{ color: notification.read ? 'text.secondary' : 'text.primary' }}>
-                      {notification.title}
-                    </Typography>
                     <Chip
                       label={NOTIFICATION_TYPE_LABELS[notification.notification_type] || notification.notification_type}
                       size="small"
@@ -462,29 +478,18 @@ export default function NotificationsView() {
                   </Stack>
                 }
                 secondary={
-                  <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 0.5 }}>
-                    <Typography variant="caption" color="text.secondary">
-                      {fToNow(notification.created_at)}
-                    </Typography>
-                    {notification.body && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        sx={{
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          maxWidth: 300,
-                        }}
-                      >
-                        — {notification.body}
-                      </Typography>
-                    )}
-                  </Stack>
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5 }}>
+                    {fToNow(notification.created_at)}
+                  </Typography>
                 }
               />
 
               <Stack direction="row" alignItems="center" spacing={0.5} sx={{ flexShrink: 0 }}>
+                <Tooltip title="Xem">
+                  <IconButton size="small" color="info" onClick={() => handleViewNotification(notification)}>
+                    <Iconify icon="solar:eye-bold" width={18} />
+                  </IconButton>
+                </Tooltip>
                 <Tooltip title="Sửa">
                   <IconButton size="small" onClick={() => handleOpenEditAdmin(notification)}>
                     <Iconify icon="solar:pen-bold" width={18} />
@@ -613,25 +618,6 @@ export default function NotificationsView() {
                         </Stack>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="subtitle2" noWrap>
-                          {row.title}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            maxWidth: 220,
-                          }}
-                        >
-                          {row.body || '—'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
                         <Chip
                           label={NOTIFICATION_TYPE_LABELS[row.notification_type] || row.notification_type}
                           size="small"
@@ -662,6 +648,11 @@ export default function NotificationsView() {
                       </TableCell>
                       <TableCell align="right">
                         <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                          <Tooltip title="Xem">
+                            <IconButton size="small" color="info" onClick={() => handleViewNotification(row)}>
+                              <Iconify icon="solar:eye-bold" width={18} />
+                            </IconButton>
+                          </Tooltip>
                           <Tooltip title="Sửa">
                             <IconButton size="small" onClick={() => handleOpenEditUser(row)}>
                               <Iconify icon="solar:pen-bold" width={18} />
@@ -851,6 +842,86 @@ export default function NotificationsView() {
           </Button>
         }
       />
+
+      {/* View Dialog */}
+      <Dialog
+        open={viewDialog.value}
+        onClose={viewDialog.onFalse}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Iconify
+            icon={NOTIFICATION_TYPE_ICONS[viewingNotification?.notification_type || ''] || 'solar:bell-bold'}
+            width={24}
+            sx={{ color: 'primary.main' }}
+          />
+          Chi tiết thông báo
+        </DialogTitle>
+        <DialogContent>
+          {viewingNotification && (
+            <Stack spacing={2} sx={{ pt: 1 }}>
+              <Stack direction="row" spacing={1}>
+                <Chip
+                  label={NOTIFICATION_TYPE_LABELS[viewingNotification.notification_type] || viewingNotification.notification_type}
+                  size="small"
+                  variant="soft"
+                  color={NOTIFICATION_TYPE_COLORS[viewingNotification.notification_type] || 'default'}
+                />
+                <Chip
+                  label={CREATED_BY_LABELS[viewingNotification.created_by] || viewingNotification.created_by}
+                  size="small"
+                  variant="soft"
+                  color={viewingNotification.created_by === 'admin' ? 'warning' : 'default'}
+                />
+              </Stack>
+
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  Tiêu đề
+                </Typography>
+                <Typography variant="subtitle1">
+                  {viewingNotification.title}
+                </Typography>
+              </Box>
+
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  Nội dung
+                </Typography>
+                <Typography variant="body2">
+                  {viewingNotification.body || '—'}
+                </Typography>
+              </Box>
+
+              {viewingNotification.link && (
+                <Box>
+                  <Typography variant="caption" color="text.secondary">
+                    Link
+                  </Typography>
+                  <Typography variant="body2">
+                    {viewingNotification.link}
+                  </Typography>
+                </Box>
+              )}
+
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  Ngày tạo
+                </Typography>
+                <Typography variant="body2">
+                  {fDateTime(viewingNotification.created_at)}
+                </Typography>
+              </Box>
+            </Stack>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={viewDialog.onFalse}>
+            Đóng
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
