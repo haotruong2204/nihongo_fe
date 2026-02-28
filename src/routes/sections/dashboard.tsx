@@ -52,6 +52,7 @@ const FileManagerPage = lazy(() => import('src/pages/dashboard/file-manager'));
 // APP
 const ChatPage = lazy(() => import('src/pages/dashboard/chat'));
 const FeedbackPage = lazy(() => import('src/pages/dashboard/feedback'));
+const QuickRepliesPage = lazy(() => import('src/pages/dashboard/quick-replies'));
 const NotificationsPage = lazy(() => import('src/pages/dashboard/notifications'));
 const UserNotificationsPage = lazy(() => import('src/pages/dashboard/user-notifications'));
 const MailPage = lazy(() => import('src/pages/dashboard/mail'));
@@ -148,6 +149,7 @@ export const dashboardRoutes = [
         ],
       },
       { path: 'file-manager', element: <FileManagerPage /> },
+      { path: 'quick-replies', element: <QuickRepliesPage /> },
       { path: 'feedback', element: <FeedbackPage /> },
       { path: 'notifications', element: <NotificationsPage /> },
       { path: 'user-notifications', element: <UserNotificationsPage /> },

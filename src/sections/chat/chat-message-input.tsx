@@ -6,6 +6,11 @@ import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+import Tooltip from '@mui/material/Tooltip';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Typography from '@mui/material/Typography';
 // emoji
 // eslint-disable-next-line import/no-extraneous-dependencies
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
@@ -13,6 +18,7 @@ import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import { useAuthContext } from 'src/auth/hooks';
 // api
 import { sendAdminMessage, uploadChatImage } from 'src/api/chat';
+import { useGetQuickReplies } from 'src/api/quick-reply';
 // components
 import Iconify from 'src/components/iconify';
 
@@ -43,6 +49,10 @@ export default function ChatMessageInput({ chatId, disabled, onMessageSent }: Pr
 
   // Emoji popover
   const [emojiAnchor, setEmojiAnchor] = useState<HTMLElement | null>(null);
+
+  // Quick replies popover
+  const [quickReplyAnchor, setQuickReplyAnchor] = useState<HTMLElement | null>(null);
+  const { quickReplies } = useGetQuickReplies({ perPage: 50 });
 
   const handleChangeMessage = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value);
@@ -105,6 +115,12 @@ export default function ChatMessageInput({ chatId, disabled, onMessageSent }: Pr
     inputRef.current?.focus();
   }, []);
 
+  const handleQuickReplySelect = useCallback((content: string) => {
+    setMessage(content);
+    setQuickReplyAnchor(null);
+    inputRef.current?.focus();
+  }, []);
+
   const canSend = !disabled && !uploading && (!!message.trim() || !!imageFile);
 
   return (
@@ -148,6 +164,17 @@ export default function ChatMessageInput({ chatId, disabled, onMessageSent }: Pr
           >
             <Iconify icon="eva:smiling-face-fill" />
           </IconButton>
+          {quickReplies.length > 0 && (
+            <Tooltip title="Quick Replies">
+              <IconButton
+                size="small"
+                onClick={(e) => setQuickReplyAnchor(e.currentTarget)}
+                disabled={disabled || uploading}
+              >
+                <Iconify icon="solar:chat-round-dots-bold" />
+              </IconButton>
+            </Tooltip>
+          )}
         </Stack>
 
         <InputBase
@@ -192,6 +219,39 @@ export default function ChatMessageInput({ chatId, disabled, onMessageSent }: Pr
         transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <EmojiPicker onEmojiClick={handleEmojiClick} />
+      </Popover>
+
+      {/* Quick replies popover */}
+      <Popover
+        open={!!quickReplyAnchor}
+        anchorEl={quickReplyAnchor}
+        onClose={() => setQuickReplyAnchor(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+        transformOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        <Box sx={{ width: 320, maxHeight: 400 }}>
+          <Typography variant="subtitle2" sx={{ px: 2, pt: 1.5, pb: 0.5 }}>
+            Quick Replies
+          </Typography>
+          <List dense sx={{ py: 0.5 }}>
+            {quickReplies.map((qr) => (
+              <ListItemButton
+                key={qr.id}
+                onClick={() => handleQuickReplySelect(qr.content)}
+                sx={{ py: 1 }}
+              >
+                <ListItemText
+                  primary={qr.title}
+                  secondary={qr.content}
+                  secondaryTypographyProps={{
+                    noWrap: true,
+                    sx: { maxWidth: 260 },
+                  }}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        </Box>
       </Popover>
     </Box>
   );

@@ -129,6 +129,13 @@ export function useNavData() {
             }),
           },
 
+          // QUICK REPLIES
+          {
+            title: t('quick_replies'),
+            path: paths.dashboard.quickReplies,
+            icon: <Iconify icon="solar:chat-round-dots-bold-duotone" width={24} />,
+          },
+
           // PRODUCT
           {
             title: t('product'),

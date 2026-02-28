@@ -48,6 +48,7 @@
   "item_external_link": "外部リンク項目",
   "only_admin_can_see_this_item": "管理者のみがこの項目を表示できます",
   "feedback": "フィードバック",
+  "quick_replies": "クイック返信",
   "feedback_status_pending": "保留中",
   "feedback_status_reviewed": "確認済み",
   "feedback_status_done": "完了",
