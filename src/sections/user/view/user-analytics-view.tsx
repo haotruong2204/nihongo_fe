@@ -153,6 +153,17 @@ export default function UserAnalyticsView() {
               />
             </Box>
           </Grid>
+
+          <Grid xs={12} sm={6} md={4}>
+            <Box onClick={() => handleCardClick('login_activities')} sx={{ cursor: 'pointer' }}>
+              <AnalyticsWidgetSummary
+                title={t('login_activities')}
+                total={stats.login_activities_count}
+                color="warning"
+                icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
+              />
+            </Box>
+          </Grid>
         </Grid>
       )}
     </Container>

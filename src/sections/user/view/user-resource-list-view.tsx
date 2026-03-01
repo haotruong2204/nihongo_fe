@@ -35,6 +35,7 @@ const RESOURCE_I18N_KEY: Record<string, string> = {
   roadmap_day_progresses: 'roadmap_progress',
   tango_lesson_progresses: 'tango_lessons',
   jlpt_test_results: 'jlpt_tests',
+  login_activities: 'login_activities',
 };
 
 function isDateColumn(col: string): boolean {

@@ -111,6 +111,7 @@ export type IUserStats = {
   roadmap_day_progresses_count: number;
   tango_lesson_progresses_count: number;
   jlpt_test_results_count: number;
+  login_activities_count: number;
 };
 
 export type IUserPagination = {
