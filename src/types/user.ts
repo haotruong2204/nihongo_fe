@@ -112,6 +112,7 @@ export type IUserStats = {
   tango_lesson_progresses_count: number;
   jlpt_test_results_count: number;
   login_activities_count: number;
+  page_views_count: number;
 };
 
 export type IUserPagination = {

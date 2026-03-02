@@ -129,13 +129,6 @@ export function useNavData() {
             }),
           },
 
-          // REQUEST STATS
-          {
-            title: t('request_stats'),
-            path: paths.dashboard.requestStats,
-            icon: <Iconify icon="solar:chart-2-bold-duotone" width={24} />,
-          },
-
           // QUICK REPLIES
           {
             title: t('quick_replies'),

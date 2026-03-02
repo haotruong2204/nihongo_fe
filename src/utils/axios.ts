@@ -95,9 +95,4 @@ export const endpoints = {
     delete: (id: string) => `/api/v1/admins/users/${id}`,
     resources: (userId: string, resource: string) => `/api/v1/admins/users/${userId}/${resource}`,
   },
-  requestStats: {
-    list: '/api/v1/admins/request_stats',
-    realtime: (userId: string) => `/api/v1/admins/request_stats/realtime/${userId}`,
-    summary: '/api/v1/admins/request_stats/summary',
-  },
 };

@@ -58,7 +58,6 @@ export const paths = {
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,
-    requestStats: `${ROOTS.DASHBOARD}/request-stats`,
     feedback: `${ROOTS.DASHBOARD}/feedback`,
     quickReplies: `${ROOTS.DASHBOARD}/quick-replies`,
     notifications: `${ROOTS.DASHBOARD}/notifications`,
