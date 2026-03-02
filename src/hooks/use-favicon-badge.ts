@@ -2,7 +2,13 @@ import { useEffect } from 'react';
 
 const DEFAULT_TITLE = 'Nhaikanji Admin';
 
+// Generation counter to cancel stale image loads
+let faviconGeneration = 0;
+
 function setNotificationDot(count: number) {
+  faviconGeneration += 1;
+  const currentGen = faviconGeneration;
+
   // 1. Xử lý Title
   const cleanTitle = document.title.replace(/^\(\d+\)\s+/, '');
 
@@ -53,7 +59,9 @@ function setNotificationDot(count: number) {
   };
 
   img.onload = () => {
-    console.log('[FaviconBadge] img loaded OK, drawing badge...');
+    // Skip if a newer call has been made (prevents stale badge overwriting reset)
+    if (currentGen !== faviconGeneration) return;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
@@ -72,16 +80,12 @@ function setNotificationDot(count: number) {
     ctx.stroke();
 
     const dataUrl = canvas.toDataURL('image/png');
-    console.log('[FaviconBadge] setting favicon, dataUrl length:', dataUrl.length);
     link!.href = dataUrl;
   };
 }
 
 export function useFaviconBadge(count: number) {
-  console.log('[FaviconBadge] count:', count);
-
   useEffect(() => {
-    console.log('[FaviconBadge] effect fired, count:', count);
     setNotificationDot(count);
   }, [count]);
 
