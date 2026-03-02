@@ -67,6 +67,8 @@
   "col_user_agent": "浏览器",
   "col_device_info": "设备",
   "col_session_conflict": "会话冲突",
+  "col_country": "国家",
+  "col_city": "城市",
   "user_not_found": "未找到用户",
   "premium": "高级版",
   "free": "免费",

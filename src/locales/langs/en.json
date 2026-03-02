@@ -67,6 +67,8 @@
   "col_user_agent": "User Agent",
   "col_device_info": "Device",
   "col_session_conflict": "Session Conflict",
+  "col_country": "Country",
+  "col_city": "City",
   "user_not_found": "User not found",
   "premium": "Premium",
   "free": "Free",

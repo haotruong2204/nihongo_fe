@@ -67,6 +67,8 @@
   "col_user_agent": "Trình duyệt",
   "col_device_info": "Thiết bị",
   "col_session_conflict": "Xung đột phiên",
+  "col_country": "Quốc gia",
+  "col_city": "Thành phố",
   "user_not_found": "Không tìm thấy người dùng",
   "premium": "Premium",
   "free": "Miễn phí",

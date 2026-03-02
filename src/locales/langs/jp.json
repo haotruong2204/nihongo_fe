@@ -67,6 +67,8 @@
   "col_user_agent": "ブラウザ",
   "col_device_info": "デバイス",
   "col_session_conflict": "セッション競合",
+  "col_country": "国",
+  "col_city": "都市",
   "user_not_found": "ユーザーが見つかりません",
   "premium": "プレミアム",
   "free": "無料",
