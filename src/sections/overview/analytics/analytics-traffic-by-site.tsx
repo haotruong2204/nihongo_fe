@@ -33,10 +33,10 @@ export default function AnalyticsTrafficBySite({ title, subheader, list, ...othe
             <Iconify
               icon={site.icon}
               color={
-                (site.value === 'facebook' && '#1877F2') ||
-                (site.value === 'google' && '#DF3E30') ||
-                (site.value === 'linkedin' && '#006097') ||
-                (site.value === 'twitter' && '#1C9CEA') ||
+                (site.value === 'srs' && '#1877F2') ||
+                (site.value === 'roadmap' && '#FF6C40') ||
+                (site.value === 'tango' && '#2E7D32') ||
+                (site.value === 'jlpt' && '#6A1B9A') ||
                 ''
               }
               width={32}

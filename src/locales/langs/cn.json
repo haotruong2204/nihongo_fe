@@ -117,6 +117,21 @@
   "col_answer": "答案",
   "col_correct": "正确",
   "col_duration": "时长",
+  "analytics_dashboard": "分析仪表板",
+  "total_users": "总用户数",
+  "premium_users": "高级用户",
+  "reviews_today": "今日复习",
+  "pending_feedbacks": "待处理反馈",
+  "daily_activity": "每日活动",
+  "last_30_days": "最近30天",
+  "srs_distribution": "SRS分布",
+  "top_pages": "热门页面",
+  "by_total_views": "按总浏览量",
+  "jlpt_performance": "JLPT表现",
+  "recent_feedbacks": "最近反馈",
+  "recent_activities": "最近活动",
+  "feature_usage": "功能使用情况",
+  "no_analytics_data": "暂无分析数据",
   "demo": {
     "title": "Chinese"
   }

@@ -117,6 +117,21 @@
   "col_answer": "Answer",
   "col_correct": "Correct",
   "col_duration": "Duration",
+  "analytics_dashboard": "Analytics Dashboard",
+  "total_users": "Total Users",
+  "premium_users": "Premium Users",
+  "reviews_today": "Reviews Today",
+  "pending_feedbacks": "Pending Feedbacks",
+  "daily_activity": "Daily Activity",
+  "last_30_days": "Last 30 days",
+  "srs_distribution": "SRS Distribution",
+  "top_pages": "Top Pages",
+  "by_total_views": "By total views",
+  "jlpt_performance": "JLPT Performance",
+  "recent_feedbacks": "Recent Feedbacks",
+  "recent_activities": "Recent Activities",
+  "feature_usage": "Feature Usage",
+  "no_analytics_data": "No analytics data available",
   "demo": {
     "title": "English"
   }

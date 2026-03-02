@@ -88,6 +88,7 @@ export const endpoints = {
     list: '/api/v1/admins/quick_replies',
     details: (id: string) => `/api/v1/admins/quick_replies/${id}`,
   },
+  analytics: '/api/v1/admins/analytics',
   user: {
     list: '/api/v1/admins/users',
     details: (id: string) => `/api/v1/admins/users/${id}`,

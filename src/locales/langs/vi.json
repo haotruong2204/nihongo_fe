@@ -117,6 +117,21 @@
   "col_answer": "Câu trả lời",
   "col_correct": "Đúng",
   "col_duration": "Thời lượng",
+  "analytics_dashboard": "Bảng phân tích",
+  "total_users": "Tổng người dùng",
+  "premium_users": "Người dùng Premium",
+  "reviews_today": "Ôn tập hôm nay",
+  "pending_feedbacks": "Phản hồi chờ xử lý",
+  "daily_activity": "Hoạt động hàng ngày",
+  "last_30_days": "30 ngày gần đây",
+  "srs_distribution": "Phân bổ SRS",
+  "top_pages": "Trang phổ biến",
+  "by_total_views": "Theo tổng lượt xem",
+  "jlpt_performance": "Hiệu suất JLPT",
+  "recent_feedbacks": "Phản hồi gần đây",
+  "recent_activities": "Hoạt động gần đây",
+  "feature_usage": "Sử dụng tính năng",
+  "no_analytics_data": "Không có dữ liệu phân tích",
   "demo": {
     "title": "Vietnamese"
   }
