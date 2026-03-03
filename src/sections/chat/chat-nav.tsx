@@ -106,7 +106,11 @@ export default function ChatNav({
     <>
       {chatRooms.map((room) => {
         const meta = roomsMeta[room.id];
-        const isOnline = meta?.user ? onlineUserIds.has(String(meta.user.id)) : false;
+        const isOnline = meta?.user
+          ? onlineUserIds.has(String(meta.user.id)) ||
+            onlineUserIds.has(String(meta.user.uid)) ||
+            meta.user.is_online === true
+          : false;
         return (
           <ChatNavItem
             key={room.id}

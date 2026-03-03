@@ -106,6 +106,7 @@ export type IUserItem = {
   created_at: string | null;
   srs_cards_count: number;
   review_logs_count: number;
+  page_views_count: number;
   is_online: boolean;
 };
 

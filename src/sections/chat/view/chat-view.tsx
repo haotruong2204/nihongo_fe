@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 // @mui
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -64,12 +64,16 @@ export default function ChatView() {
     Object.values(roomsMeta).forEach((meta) => {
       if (meta.user?.is_online) {
         ids.add(String(meta.user.id));
+        if (meta.user.uid) ids.add(String(meta.user.uid));
       }
     });
     setOnlineUserIds(ids);
   }, [roomsMeta]);
 
   // Real-time presence updates via WebSocket
+  const chatRoomsRef = useRef(chatRooms);
+  chatRoomsRef.current = chatRooms;
+
   const handlePresenceChange = useCallback((data: { user_id: string; is_online: boolean }) => {
     setOnlineUserIds((prev) => {
       const next = new Set(prev);
@@ -80,6 +84,11 @@ export default function ChatView() {
       }
       return next;
     });
+    // Also refetch meta for reliable is_online state
+    const uids = chatRoomsRef.current.map((r) => r.id);
+    if (uids.length > 0) {
+      fetchChatRoomsMeta(uids).then(setRoomsMeta).catch(console.error);
+    }
   }, []);
 
   usePresenceChannel({ onPresenceChange: handlePresenceChange });

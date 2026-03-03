@@ -9,7 +9,6 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
-import TablePagination from '@mui/material/TablePagination';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 // routes
@@ -32,6 +31,7 @@ import {
   TableHeadCustom,
   TableSelectedAction,
   TableSkeleton,
+  TablePaginationCustom,
 } from 'src/components/table';
 // types
 import { IUserTableFilters, IUserTableFilterValue } from 'src/types/user';
@@ -46,8 +46,10 @@ const TABLE_HEAD = [
   { id: 'display_name', label: 'User' },
   { id: 'srs_cards_count', label: 'SRS', width: 100 },
   { id: 'review_logs_count', label: 'Reviews', width: 100 },
+  { id: 'page_views_count', label: 'Page Views', width: 120 },
   { id: 'is_premium', label: 'Premium', width: 140 },
   { id: 'is_banned', label: 'Status', width: 120 },
+  { id: 'last_login_at', label: 'Last Login', width: 180 },
   { id: 'created_at', label: 'Joined', width: 180 },
   { id: '', width: 88 },
 ];
@@ -252,14 +254,14 @@ export default function UserListView() {
             </Scrollbar>
           </TableContainer>
 
-          <TablePagination
-            component="div"
+          <TablePaginationCustom
             count={pagination.total_count}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            rowsPerPageOptions={[5, 10, 25]}
+            dense={table.dense}
+            onChangeDense={table.onChangeDense}
           />
         </Card>
       </Container>

@@ -42,7 +42,7 @@ export default function UserTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { id, display_name, photo_url, email, is_premium, is_banned, created_at, srs_cards_count, review_logs_count, is_online } = row;
+  const { id, display_name, photo_url, email, is_premium, is_banned, created_at, last_login_at, srs_cards_count, review_logs_count, page_views_count, is_online } = row;
 
   const router = useRouter();
 
@@ -105,6 +105,10 @@ export default function UserTableRow({
           {review_logs_count ?? 0}
         </TableCell>
 
+        <TableCell align="center">
+          {page_views_count ?? 0}
+        </TableCell>
+
         <TableCell>
           <Label
             variant="soft"
@@ -121,6 +125,10 @@ export default function UserTableRow({
           >
             {is_banned ? 'Banned' : 'Active'}
           </Label>
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {last_login_at ? fDateTime(last_login_at) : '-'}
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
