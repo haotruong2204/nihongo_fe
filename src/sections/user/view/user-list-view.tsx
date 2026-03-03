@@ -41,9 +41,10 @@ import UserTableFiltersResult from '../user-table-filters-result';
 
 const TABLE_HEAD = [
   { id: 'display_name', label: 'User' },
+  { id: 'srs_cards_count', label: 'SRS', width: 100 },
+  { id: 'review_logs_count', label: 'Reviews', width: 100 },
   { id: 'is_premium', label: 'Premium', width: 140 },
   { id: 'is_banned', label: 'Status', width: 120 },
-  { id: 'premium_until', label: 'Premium Until', width: 180 },
   { id: 'last_login_at', label: 'Last Login', width: 180 },
   { id: '', width: 88 },
 ];
@@ -71,6 +72,8 @@ export default function UserListView() {
     perPage: table.rowsPerPage,
     search: filters.search,
     isPremium: filters.isPremium,
+    sortBy: table.orderBy,
+    sortOrder: table.order,
   });
 
   const canReset = !isEqual(defaultFilters, filters);

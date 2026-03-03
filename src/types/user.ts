@@ -102,6 +102,8 @@ export type IUserItem = {
   banned_reason: string | null;
   premium_until: string | null;
   last_login_at: string | null;
+  srs_cards_count: number;
+  review_logs_count: number;
 };
 
 export type IUserStats = {

@@ -12,6 +12,8 @@ type UseGetUsersParams = {
   perPage?: number;
   search?: string;
   isPremium?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
 };
 
 export function useGetUsers({
@@ -19,6 +21,8 @@ export function useGetUsers({
   perPage = 10,
   search = '',
   isPremium = 'all',
+  sortBy = '',
+  sortOrder = 'desc',
 }: UseGetUsersParams = {}) {
   const params: Record<string, any> = {
     page,
@@ -31,6 +35,10 @@ export function useGetUsers({
 
   if (isPremium !== 'all') {
     params['q[is_premium_eq]'] = isPremium === 'true';
+  }
+
+  if (sortBy) {
+    params['q[s]'] = `${sortBy} ${sortOrder}`;
   }
 
   const URL = [endpoints.user.list, { params }];

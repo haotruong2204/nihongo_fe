@@ -9,7 +9,7 @@ import { fToNow } from 'src/utils/format-time';
 // components
 import Iconify from 'src/components/iconify';
 // types
-import { INotificationItem } from 'src/types/notification';
+import { INotificationItem, NOTIFICATION_TYPE_ICONS } from 'src/types/notification';
 
 // ----------------------------------------------------------------------
 
@@ -48,9 +48,15 @@ export default function NotificationItem({ notification, onClick }: Props) {
 
       <Stack sx={{ mr: 2, mt: 0.5 }}>
         <Iconify
-          icon="solar:chat-round-dots-bold"
+          icon={NOTIFICATION_TYPE_ICONS[notification.notification_type] || 'solar:bell-bold'}
           width={22}
-          sx={{ color: notification.read ? 'text.disabled' : 'primary.main' }}
+          sx={{
+            color: (() => {
+              if (notification.read) return 'text.disabled';
+              if (notification.notification_type === 'abuse_alert' || notification.notification_type === 'warning') return 'error.main';
+              return 'primary.main';
+            })(),
+          }}
         />
       </Stack>
 

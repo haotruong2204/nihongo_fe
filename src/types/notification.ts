@@ -8,6 +8,7 @@ export const NOTIFICATION_TYPES = [
   { value: 'maintenance', label: 'Bảo trì' },
   { value: 'welcome', label: 'Chào mừng' },
   { value: 'warning', label: 'Cảnh báo' },
+  { value: 'abuse_alert', label: 'Lạm dụng' },
 ] as const;
 
 export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
@@ -17,6 +18,7 @@ export const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   maintenance: 'Bảo trì',
   welcome: 'Chào mừng',
   warning: 'Cảnh báo',
+  abuse_alert: 'Lạm dụng',
 };
 
 // Icon mapping (Iconify icons) for each notification type
@@ -27,6 +29,7 @@ export const NOTIFICATION_TYPE_ICONS: Record<string, string> = {
   maintenance: 'solar:settings-bold',
   welcome: 'solar:hand-shake-bold',
   warning: 'solar:danger-triangle-bold',
+  abuse_alert: 'solar:shield-warning-bold',
 };
 
 // Color mapping for notification type chips
@@ -40,6 +43,7 @@ export const NOTIFICATION_TYPE_COLORS: Record<
   maintenance: 'secondary',
   welcome: 'default',
   warning: 'error',
+  abuse_alert: 'error',
 };
 
 export const CREATED_BY_OPTIONS = [

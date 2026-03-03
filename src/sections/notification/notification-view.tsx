@@ -448,7 +448,7 @@ export default function NotificationsView() {
                     sx={{
                       color: (() => {
                         if (notification.read) return 'text.disabled';
-                        if (notification.notification_type === 'warning') return 'error.main';
+                        if (notification.notification_type === 'warning' || notification.notification_type === 'abuse_alert') return 'error.main';
                         return 'primary.main';
                       })(),
                     }}
