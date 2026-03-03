@@ -53,8 +53,13 @@ export type AnalyticsData = {
   widgets: {
     total_users: number;
     premium_users: number;
-    reviews_today: number;
-    pending_feedbacks: number;
+    new_users_today: number;
+    logged_in_users: number;
+  };
+  record_stats?: {
+    records_today: number;
+    total_records: number;
+    requests_today: number;
   };
   daily_activity: {
     labels: string[];

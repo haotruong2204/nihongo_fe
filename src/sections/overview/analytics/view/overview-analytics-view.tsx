@@ -10,6 +10,8 @@ import { useSettingsContext } from 'src/components/settings';
 import { useLocales } from 'src/locales';
 // api
 import { useGetAnalytics } from 'src/api/analytics';
+// components
+import Iconify from 'src/components/iconify';
 //
 import AnalyticsNews from '../analytics-news';
 import AnalyticsCurrentVisits from '../analytics-current-visits';
@@ -49,7 +51,7 @@ export default function OverviewAnalyticsView() {
     );
   }
 
-  const { widgets, daily_activity, srs_distribution, top_pages, jlpt_performance, recent_feedbacks, recent_activities, feature_usage } = analytics;
+  const { widgets, record_stats, daily_activity, srs_distribution, top_pages, jlpt_performance, recent_feedbacks, recent_activities, feature_usage } = analytics;
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -82,8 +84,8 @@ export default function OverviewAnalyticsView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
-            title={t('reviews_today')}
-            total={widgets.reviews_today}
+            title={t('new_users_today')}
+            total={widgets.new_users_today}
             color="warning"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
           />
@@ -91,10 +93,40 @@ export default function OverviewAnalyticsView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
-            title={t('pending_feedbacks')}
-            total={widgets.pending_feedbacks}
+            title={t('logged_in_users')}
+            total={widgets.logged_in_users}
             color="error"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
+          />
+        </Grid>
+
+        <Grid xs={12} sm={6} md={4}>
+          <AnalyticsWidgetSummary
+            title={t('records_today')}
+            total={record_stats?.records_today || null}
+            color="success"
+            placeholder={t('not_updated')}
+            icon={<Iconify icon="solar:document-bold-duotone" width={64} />}
+          />
+        </Grid>
+
+        <Grid xs={12} sm={6} md={4}>
+          <AnalyticsWidgetSummary
+            title={t('total_records')}
+            total={record_stats?.total_records || null}
+            color="info"
+            placeholder={t('not_updated')}
+            icon={<Iconify icon="solar:database-bold-duotone" width={64} />}
+          />
+        </Grid>
+
+        <Grid xs={12} sm={6} md={4}>
+          <AnalyticsWidgetSummary
+            title={t('requests_today')}
+            total={record_stats?.requests_today || null}
+            color="warning"
+            placeholder={t('not_updated')}
+            icon={<Iconify icon="solar:server-square-cloud-bold-duotone" width={64} />}
           />
         </Grid>
 

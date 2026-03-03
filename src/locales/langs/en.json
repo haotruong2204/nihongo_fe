@@ -120,8 +120,8 @@
   "analytics_dashboard": "Analytics Dashboard",
   "total_users": "Total Users",
   "premium_users": "Premium Users",
-  "reviews_today": "Reviews Today",
-  "pending_feedbacks": "Pending Feedbacks",
+  "new_users_today": "New Users Today",
+  "logged_in_users": "Logged In Users",
   "daily_activity": "Daily Activity",
   "last_30_days": "Last 30 days",
   "srs_distribution": "SRS Distribution",
@@ -130,7 +130,11 @@
   "jlpt_performance": "JLPT Performance",
   "recent_feedbacks": "Recent Feedbacks",
   "recent_activities": "Recent Activities",
+  "records_today": "Records Today",
+  "total_records": "Total Records",
+  "requests_today": "Requests Today",
   "feature_usage": "Feature Usage",
+  "not_updated": "Updating",
   "no_analytics_data": "No analytics data available",
   "demo": {
     "title": "English"

@@ -120,8 +120,8 @@
   "analytics_dashboard": "分析ダッシュボード",
   "total_users": "総ユーザー数",
   "premium_users": "プレミアムユーザー",
-  "reviews_today": "今日の復習",
-  "pending_feedbacks": "未処理フィードバック",
+  "new_users_today": "今日の新規ユーザー",
+  "logged_in_users": "ログイン中のユーザー",
   "daily_activity": "日別アクティビティ",
   "last_30_days": "過去30日間",
   "srs_distribution": "SRS分布",
@@ -130,7 +130,11 @@
   "jlpt_performance": "JLPTパフォーマンス",
   "recent_feedbacks": "最近のフィードバック",
   "recent_activities": "最近のアクティビティ",
+  "records_today": "今日のレコード",
+  "total_records": "総レコード数",
+  "requests_today": "今日のリクエスト",
   "feature_usage": "機能利用状況",
+  "not_updated": "更新中",
   "no_analytics_data": "分析データがありません",
   "demo": {
     "title": "日本語"

@@ -120,8 +120,8 @@
   "analytics_dashboard": "分析仪表板",
   "total_users": "总用户数",
   "premium_users": "高级用户",
-  "reviews_today": "今日复习",
-  "pending_feedbacks": "待处理反馈",
+  "new_users_today": "今日新用户",
+  "logged_in_users": "已登录用户",
   "daily_activity": "每日活动",
   "last_30_days": "最近30天",
   "srs_distribution": "SRS分布",
@@ -130,7 +130,11 @@
   "jlpt_performance": "JLPT表现",
   "recent_feedbacks": "最近反馈",
   "recent_activities": "最近活动",
+  "records_today": "今日记录",
+  "total_records": "总记录数",
+  "requests_today": "今日请求",
   "feature_usage": "功能使用情况",
+  "not_updated": "更新中",
   "no_analytics_data": "暂无分析数据",
   "demo": {
     "title": "Chinese"
