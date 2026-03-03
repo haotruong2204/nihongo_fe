@@ -1,10 +1,11 @@
+import { useMemo } from 'react';
 // eslint-disable-next-line import/no-duplicates
 import { format, isSameDay } from 'date-fns';
 // @mui
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 // types
-import { IChatMessage } from 'src/types/chat';
+import { IChatMessage, IChatRoom } from 'src/types/chat';
 // components
 import Scrollbar from 'src/components/scrollbar';
 //
@@ -30,10 +31,27 @@ type Props = {
   messages: IChatMessage[];
   adminId: string;
   participantPhoto?: string;
+  room?: IChatRoom | null;
 };
 
-export default function ChatMessageList({ messages = [], adminId, participantPhoto }: Props) {
+export default function ChatMessageList({ messages = [], adminId, participantPhoto, room }: Props) {
   const { messagesEndRef } = useMessagesScroll(messages);
+
+  // Find the last admin message that the user has read
+  const lastReadAt = room?.lastReadAt;
+  const lastReadAdminMsgId = useMemo(() => {
+    if (!lastReadAt) return null;
+    const readTime = lastReadAt.toMillis();
+    let lastId: string | null = null;
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      const msg = messages[i];
+      if (msg.senderId.startsWith('admin') && msg.createdAt && msg.createdAt.toMillis() <= readTime) {
+        lastId = msg.id;
+        break;
+      }
+    }
+    return lastId;
+  }, [messages, lastReadAt]);
 
   return (
     <Scrollbar sx={{ px: 3, py: 5, height: 1 }}>
@@ -96,6 +114,7 @@ export default function ChatMessageList({ messages = [], adminId, participantPho
                 participantPhoto={participantPhoto}
                 isFirstInGroup={isFirstInGroup}
                 isLastInGroup={isLastInGroup}
+                showSeen={message.id === lastReadAdminMsgId}
               />
             </Box>
           );

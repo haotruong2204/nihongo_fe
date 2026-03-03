@@ -43,6 +43,7 @@ export type IChatRoom = {
   userUnread: number;
   chatBanned?: boolean;
   chatBanReason?: string;
+  lastReadAt?: Timestamp | null;
 };
 
 export type IChatMessage = {

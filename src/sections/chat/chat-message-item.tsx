@@ -100,6 +100,7 @@ type Props = {
   participantPhoto?: string;
   isFirstInGroup?: boolean;
   isLastInGroup?: boolean;
+  showSeen?: boolean;
 };
 
 export default function ChatMessageItem({
@@ -108,6 +109,7 @@ export default function ChatMessageItem({
   participantPhoto,
   isFirstInGroup = true,
   isLastInGroup = true,
+  showSeen = false,
 }: Props) {
   const me = message.senderId === adminId;
 
@@ -178,6 +180,11 @@ export default function ChatMessageItem({
       <Tooltip title={tooltipTime} placement={me ? 'left' : 'right'} arrow>
         <Stack alignItems={me ? 'flex-end' : 'flex-start'}>
           {renderBody}
+          {me && showSeen && (
+            <Typography variant="caption" sx={{ color: 'text.disabled', mt: 0.5, fontSize: '0.675rem' }}>
+              Đã xem
+            </Typography>
+          )}
         </Stack>
       </Tooltip>
 

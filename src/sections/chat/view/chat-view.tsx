@@ -166,6 +166,7 @@ export default function ChatView() {
         messages={messages}
         adminId={adminId}
         participantPhoto={selectedMeta?.user?.photo_url || selectedRoom?.participantPhoto}
+        room={selectedRoom}
       />
 
       <ChatMessageInput
