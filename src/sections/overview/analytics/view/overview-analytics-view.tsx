@@ -93,10 +93,10 @@ export default function OverviewAnalyticsView() {
 
         <Grid xs={12} sm={6} md={3}>
           <AnalyticsWidgetSummary
-            title={t('logged_in_users')}
-            total={widgets.logged_in_users}
-            color="error"
-            icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
+            title={t('online_users')}
+            total={widgets.online_users}
+            color="success"
+            icon={<Iconify icon="mdi:access-point" width={64} sx={{ color: 'success.main' }} />}
           />
         </Grid>
 

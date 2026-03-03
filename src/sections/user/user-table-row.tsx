@@ -1,6 +1,7 @@
 // @mui
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
+import Badge from '@mui/material/Badge';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
@@ -41,7 +42,7 @@ export default function UserTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { id, display_name, photo_url, email, is_premium, is_banned, last_login_at, srs_cards_count, review_logs_count } = row;
+  const { id, display_name, photo_url, email, is_premium, is_banned, created_at, srs_cards_count, review_logs_count, is_online } = row;
 
   const router = useRouter();
 
@@ -59,7 +60,23 @@ export default function UserTableRow({
         </TableCell>
 
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={display_name} src={photo_url} sx={{ mr: 2 }} />
+          <Badge
+            variant="dot"
+            overlap="circular"
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            sx={{
+              mr: 2,
+              '& .MuiBadge-badge': {
+                backgroundColor: is_online ? '#44b700' : 'grey.500',
+                boxShadow: (theme) => `0 0 0 2px ${theme.palette.background.paper}`,
+                width: 12,
+                height: 12,
+                borderRadius: '50%',
+              },
+            }}
+          >
+            <Avatar alt={display_name} src={photo_url} />
+          </Badge>
 
           <ListItemText
             primary={
@@ -107,7 +124,7 @@ export default function UserTableRow({
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {last_login_at ? fDateTime(last_login_at) : '-'}
+          {created_at ? fDateTime(created_at) : '-'}
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>

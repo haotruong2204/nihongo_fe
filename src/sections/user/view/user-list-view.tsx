@@ -10,10 +10,13 @@ import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 // routes
 import { paths } from 'src/routes/paths';
 // api
 import { useGetUsers, deleteUser } from 'src/api/user';
+import { usePresenceChannel } from 'src/api/presence';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -45,13 +48,14 @@ const TABLE_HEAD = [
   { id: 'review_logs_count', label: 'Reviews', width: 100 },
   { id: 'is_premium', label: 'Premium', width: 140 },
   { id: 'is_banned', label: 'Status', width: 120 },
-  { id: 'last_login_at', label: 'Last Login', width: 180 },
+  { id: 'created_at', label: 'Joined', width: 180 },
   { id: '', width: 88 },
 ];
 
 const defaultFilters: IUserTableFilters = {
   search: '',
   isPremium: 'all',
+  isOnline: 'all',
 };
 
 // ----------------------------------------------------------------------
@@ -67,13 +71,20 @@ export default function UserListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { users, pagination, usersLoading, usersEmpty, usersMutate } = useGetUsers({
+  const { users, pagination, onlineCount, usersLoading, usersEmpty, usersMutate } = useGetUsers({
     page: table.page + 1, // MUI is 0-based, API is 1-based
     perPage: table.rowsPerPage,
     search: filters.search,
     isPremium: filters.isPremium,
+    isOnline: filters.isOnline,
     sortBy: table.orderBy,
     sortOrder: table.order,
+  });
+
+  usePresenceChannel({
+    onPresenceChange: useCallback(() => {
+      usersMutate();
+    }, [usersMutate]),
   });
 
   const canReset = !isEqual(defaultFilters, filters);
@@ -131,6 +142,33 @@ export default function UserListView() {
             { name: 'User', href: paths.dashboard.user.root },
             { name: 'List' },
           ]}
+          action={
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Stack
+                direction="row"
+                alignItems="center"
+                spacing={0.75}
+                sx={{
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 1,
+                  bgcolor: 'success.lighter',
+                }}
+              >
+                <Stack
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    bgcolor: 'success.main',
+                  }}
+                />
+                <Typography variant="subtitle2" sx={{ color: 'success.darker' }}>
+                  {onlineCount} online
+                </Typography>
+              </Stack>
+            </Stack>
+          }
           sx={{
             mb: { xs: 3, md: 5 },
           }}

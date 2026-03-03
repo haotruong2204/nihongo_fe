@@ -29,6 +29,10 @@ export default function UserTableFiltersResult({
     onFilters('isPremium', 'all');
   };
 
+  const handleRemoveOnline = () => {
+    onFilters('isOnline', 'all');
+  };
+
   const handleRemoveSearch = () => {
     onFilters('search', '');
   };
@@ -55,6 +59,16 @@ export default function UserTableFiltersResult({
               size="small"
               label={filters.isPremium === 'true' ? 'Premium' : 'Free'}
               onDelete={handleRemovePremium}
+            />
+          </Block>
+        )}
+
+        {filters.isOnline !== 'all' && (
+          <Block label="Online:">
+            <Chip
+              size="small"
+              label={filters.isOnline === 'true' ? 'Online' : 'Offline'}
+              onDelete={handleRemoveOnline}
             />
           </Block>
         )}
