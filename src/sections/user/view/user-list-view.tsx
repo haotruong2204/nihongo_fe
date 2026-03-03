@@ -61,7 +61,7 @@ const defaultFilters: IUserTableFilters = {
 // ----------------------------------------------------------------------
 
 export default function UserListView() {
-  const table = useTable({ defaultRowsPerPage: 10 });
+  const table = useTable({ defaultRowsPerPage: 10, defaultOrderBy: 'created_at' });
 
   const settings = useSettingsContext();
 

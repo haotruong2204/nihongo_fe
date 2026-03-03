@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from 'src/routes/hooks';
 import { useAuthContext } from 'src/auth/hooks';
 // api
 import { useChatRooms, useChatMessages, resetAdminUnread, fetchChatRoomsMeta, updateChatRoomMeta } from 'src/api/chat';
+import { usePresenceChannel } from 'src/api/presence';
 // types
 import { IChatRoomMeta } from 'src/types/chat';
 // components
@@ -53,6 +54,35 @@ export default function ChatView() {
     if (uids.length === 0) return;
     fetchChatRoomsMeta(uids).then(setRoomsMeta).catch(console.error);
   }, [roomUidsKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Online presence tracking
+  const [onlineUserIds, setOnlineUserIds] = useState<Set<string>>(new Set());
+
+  // Initialize online state from meta
+  useEffect(() => {
+    const ids = new Set<string>();
+    Object.values(roomsMeta).forEach((meta) => {
+      if (meta.user?.is_online) {
+        ids.add(String(meta.user.id));
+      }
+    });
+    setOnlineUserIds(ids);
+  }, [roomsMeta]);
+
+  // Real-time presence updates via WebSocket
+  const handlePresenceChange = useCallback((data: { user_id: string; is_online: boolean }) => {
+    setOnlineUserIds((prev) => {
+      const next = new Set(prev);
+      if (data.is_online) {
+        next.add(String(data.user_id));
+      } else {
+        next.delete(String(data.user_id));
+      }
+      return next;
+    });
+  }, []);
+
+  usePresenceChannel({ onPresenceChange: handlePresenceChange });
 
   const selectedMeta = selectedChatId ? roomsMeta[selectedChatId] : undefined;
 
@@ -111,6 +141,7 @@ export default function ChatView() {
       selectedChatId={selectedChatId}
       onSelectRoom={handleSelectRoom}
       roomsMeta={roomsMeta}
+      onlineUserIds={onlineUserIds}
     />
   );
 

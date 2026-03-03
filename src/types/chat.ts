@@ -14,6 +14,7 @@ export type IChatRoomMetaUser = {
   banned_reason: string | null;
   last_login_at: string | null;
   created_at: string | null;
+  is_online?: boolean;
 };
 
 export type IChatRoomMeta = {
