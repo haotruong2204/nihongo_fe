@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   collection,
   query,
@@ -117,8 +117,20 @@ export async function resetAdminUnread(chatId: string) {
 
 // ----------------------------------------------------------------------
 
+const NOTI_SOUND_URL = '/assets/sound/noti.mp3';
+
+function playNotiSound() {
+  try {
+    const audio = new Audio(NOTI_SOUND_URL);
+    audio.play().catch(() => {});
+  } catch (e) {
+    // ignore
+  }
+}
+
 export function useTotalAdminUnread() {
   const [count, setCount] = useState(0);
+  const prevCountRef = useRef<number | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, 'chats'));
@@ -128,6 +140,13 @@ export function useTotalAdminUnread() {
       snapshot.docs.forEach((d) => {
         total += d.data().adminUnread || 0;
       });
+
+      // Play sound when unread count increases (skip initial load)
+      if (prevCountRef.current !== null && total > prevCountRef.current) {
+        playNotiSound();
+      }
+      prevCountRef.current = total;
+
       setCount(total);
     });
 
