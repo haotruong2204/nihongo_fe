@@ -1,5 +1,5 @@
 import isEqual from 'lodash/isEqual';
-import { useState, useCallback } from 'react';
+import { useRef, useState, useCallback } from 'react';
 // @mui
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -83,10 +83,13 @@ export default function UserListView() {
     sortOrder: table.order,
   });
 
+  const usersMutateRef = useRef(usersMutate);
+  usersMutateRef.current = usersMutate;
+
   usePresenceChannel({
     onPresenceChange: useCallback(() => {
-      usersMutate();
-    }, [usersMutate]),
+      usersMutateRef.current();
+    }, []),
   });
 
   const canReset = !isEqual(defaultFilters, filters);
