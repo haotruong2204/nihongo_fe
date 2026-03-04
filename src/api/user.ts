@@ -51,6 +51,8 @@ export function useGetUsers({
 
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher, {
     keepPreviousData: true,
+    refreshInterval: 60000,
+    dedupingInterval: 10000,
   });
 
   const users: IUserItem[] = useMemo(() => {

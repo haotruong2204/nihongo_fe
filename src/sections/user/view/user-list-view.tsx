@@ -87,8 +87,31 @@ export default function UserListView() {
   usersMutateRef.current = usersMutate;
 
   usePresenceChannel({
-    onPresenceChange: useCallback(() => {
-      usersMutateRef.current();
+    onPresenceChange: useCallback((data: { user_id: string; is_online: boolean }) => {
+      usersMutateRef.current((currentData: any) => {
+        if (!currentData?.data?.resource?.data) return currentData;
+
+        const updatedUsers = currentData.data.resource.data.map((user: any) => {
+          if (user.id === data.user_id) {
+            return {
+              ...user,
+              attributes: { ...user.attributes, is_online: data.is_online },
+            };
+          }
+          return user;
+        });
+
+        const onlineDelta = data.is_online ? 1 : -1;
+
+        return {
+          ...currentData,
+          data: {
+            ...currentData.data,
+            resource: { ...currentData.data.resource, data: updatedUsers },
+            online_count: Math.max(0, (currentData.data.online_count ?? 0) + onlineDelta),
+          },
+        };
+      }, { revalidate: false });
     }, []),
   });
 
