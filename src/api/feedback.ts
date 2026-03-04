@@ -1,8 +1,7 @@
 import useSWR from 'swr';
-import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 // utils
 import axiosInstance, { fetcher, endpoints } from 'src/utils/axios';
-import { getCableConsumer } from 'src/utils/actioncable';
 // types
 import { IFeedbackItem, IFeedbackPagination, IFeedbackUser } from 'src/types/feedback';
 
@@ -73,6 +72,9 @@ export function useGetFeedbacks({ perPage = 20 }: UseGetFeedbacksParams = {}) {
 
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher, {
     keepPreviousData: true,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    errorRetryCount: 3,
   });
 
   const firstPageFeedbacks = useMemo(() => parseFeedbacks(data), [data]);
@@ -142,7 +144,11 @@ export function useGetFeedbacks({ perPage = 20 }: UseGetFeedbacksParams = {}) {
 export function useGetFeedback(id: string) {
   const URL = id ? endpoints.feedback.details(id) : null;
 
-  const { data, isLoading, error, mutate } = useSWR(URL, fetcher);
+  const { data, isLoading, error, mutate } = useSWR(URL, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    errorRetryCount: 3,
+  });
 
   const feedback: IFeedbackItem | null = useMemo(() => {
     if (!data?.data?.resource?.data) return null;
@@ -193,38 +199,3 @@ export async function createFeedbackReply(feedbackId: string, text: string) {
   return res.data;
 }
 
-// ----------------------------------------------------------------------
-// WebSocket hook for realtime admin feedbacks
-
-export function useAdminFeedbackChannel(onUpdate: () => void) {
-  const subscriptionRef = useRef<any>(null);
-  const callbackRef = useRef(onUpdate);
-  callbackRef.current = onUpdate;
-
-  useEffect(() => {
-    const consumer = getCableConsumer();
-    if (!consumer) return undefined;
-
-    subscriptionRef.current = consumer.subscriptions.create(
-      { channel: 'FeedbackChannel' },
-      {
-        received(data: any) {
-          if (
-            ['new_feedback', 'new_reply', 'feedback_updated', 'feedback_deleted'].includes(
-              data?.type
-            )
-          ) {
-            callbackRef.current();
-          }
-        },
-      }
-    );
-
-    return () => {
-      if (subscriptionRef.current) {
-        subscriptionRef.current.unsubscribe();
-        subscriptionRef.current = null;
-      }
-    };
-  }, []);
-}

@@ -59,6 +59,9 @@ export function useGetUserNotifications({
 
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher, {
     keepPreviousData: true,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    errorRetryCount: 3,
   });
 
   const notifications: IUserNotificationItem[] = useMemo(

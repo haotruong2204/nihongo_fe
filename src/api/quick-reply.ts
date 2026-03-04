@@ -41,7 +41,11 @@ export function useGetQuickReplies({
 
   const URL = [endpoints.quickReply.list, { params }];
 
-  const { data, isLoading, mutate } = useSWR(URL, fetcher);
+  const { data, isLoading, mutate } = useSWR(URL, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    errorRetryCount: 3,
+  });
 
   const quickReplies = useMemo(() => parseQuickReplies(data), [data]);
 

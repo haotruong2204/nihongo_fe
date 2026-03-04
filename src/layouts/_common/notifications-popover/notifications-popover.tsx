@@ -22,7 +22,6 @@ import { paths } from 'src/routes/paths';
 import { useTotalAdminUnread } from 'src/api/chat';
 import {
   useGetNotifications,
-  useAdminNotificationChannel,
   markNotificationRead,
   markAllNotificationsRead,
 } from 'src/api/notification';
@@ -46,7 +45,6 @@ export default function NotificationsPopover() {
   const chatUnread = useTotalAdminUnread();
 
   useFaviconBadge(unreadCount + chatUnread);
-  useAdminNotificationChannel(notificationsMutate);
 
   const handleMarkAllAsRead = useCallback(async () => {
     await markAllNotificationsRead();

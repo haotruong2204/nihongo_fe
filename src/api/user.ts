@@ -45,6 +45,9 @@ export function useGetUsers({
 
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher, {
     keepPreviousData: true,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    errorRetryCount: 3,
   });
 
   const users: IUserItem[] = useMemo(() => {
@@ -87,7 +90,11 @@ export function useGetUsers({
 export function useGetUser(id: string) {
   const URL = id ? endpoints.user.details(id) : null;
 
-  const { data, isLoading, error } = useSWR(URL, fetcher);
+  const { data, isLoading, error } = useSWR(URL, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    errorRetryCount: 3,
+  });
 
   const user: IUserItem | null = useMemo(() => {
     if (!data?.data?.resource?.data) return null;
@@ -131,6 +138,9 @@ export function useGetUserResources(
 
   const { data, isLoading, error, isValidating } = useSWR(URL, fetcher, {
     keepPreviousData: true,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    errorRetryCount: 3,
   });
 
   const items: Record<string, any>[] = useMemo(() => {

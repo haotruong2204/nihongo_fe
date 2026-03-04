@@ -79,7 +79,11 @@ export type AnalyticsData = {
 // ----------------------------------------------------------------------
 
 export function useGetAnalytics() {
-  const { data, isLoading, error } = useSWR(endpoints.analytics, fetcher);
+  const { data, isLoading, error } = useSWR(endpoints.analytics, fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    errorRetryCount: 3,
+  });
 
   const analyticsData: AnalyticsData | null = useMemo(() => {
     if (!data?.data?.resource) return null;
