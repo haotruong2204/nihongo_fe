@@ -115,7 +115,6 @@ export default function NotificationsView() {
     notifications: adminNotifications,
     unreadCount,
     notificationsLoading: adminLoading,
-    notificationsMutate: _adminMutate,
   } = useGetNotifications({
     createdBy: adminCreatedByFilter,
     notificationType: adminTypeFilter,
