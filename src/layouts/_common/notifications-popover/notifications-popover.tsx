@@ -60,6 +60,8 @@ export default function NotificationsPopover() {
       drawer.onFalse();
       if (notification.link) {
         router.push(`/dashboard${notification.link}`);
+      } else {
+        router.push(paths.dashboard.notifications);
       }
     },
     [router, notificationsMutate, drawer]
