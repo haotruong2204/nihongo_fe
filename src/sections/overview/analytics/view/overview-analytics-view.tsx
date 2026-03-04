@@ -65,7 +65,7 @@ export default function OverviewAnalyticsView() {
       </Typography>
 
       <Grid container spacing={3}>
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={4}>
           <AnalyticsWidgetSummary
             title={t('total_users')}
             total={widgets.total_users}
@@ -73,7 +73,7 @@ export default function OverviewAnalyticsView() {
           />
         </Grid>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={4}>
           <AnalyticsWidgetSummary
             title={t('premium_users')}
             total={widgets.premium_users}
@@ -82,21 +82,12 @@ export default function OverviewAnalyticsView() {
           />
         </Grid>
 
-        <Grid xs={12} sm={6} md={3}>
+        <Grid xs={12} sm={6} md={4}>
           <AnalyticsWidgetSummary
             title={t('new_users_today')}
             total={widgets.new_users_today}
             color="warning"
             icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
-          />
-        </Grid>
-
-        <Grid xs={12} sm={6} md={3}>
-          <AnalyticsWidgetSummary
-            title={t('online_users')}
-            total={widgets.online_users}
-            color="success"
-            icon={<Iconify icon="mdi:access-point" width={64} sx={{ color: 'success.main' }} />}
           />
         </Grid>
 

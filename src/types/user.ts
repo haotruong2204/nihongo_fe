@@ -7,7 +7,6 @@ export type IUserTableFilterValue = string | boolean | null;
 export type IUserTableFilters = {
   search: string;
   isPremium: string; // 'all' | 'true' | 'false'
-  isOnline: string; // 'all' | 'true' | 'false'
 };
 
 // ----------------------------------------------------------------------
@@ -107,7 +106,6 @@ export type IUserItem = {
   srs_cards_count: number;
   review_logs_count: number;
   page_views_count: number;
-  is_online: boolean;
 };
 
 export type IUserStats = {

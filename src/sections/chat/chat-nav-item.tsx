@@ -3,7 +3,7 @@ import { formatDistanceToNowStrict } from 'date-fns';
 // @mui
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import Badge, { badgeClasses } from '@mui/material/Badge';
+import Badge from '@mui/material/Badge';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
 import ListItemText from '@mui/material/ListItemText';
@@ -22,10 +22,9 @@ type Props = {
   onSelectRoom: (roomId: string) => void;
   onCloseMobile: VoidFunction;
   meta?: IChatRoomMeta;
-  isOnline?: boolean;
 };
 
-export default function ChatNavItem({ selected, collapse, room, onSelectRoom, onCloseMobile, meta, isOnline }: Props) {
+export default function ChatNavItem({ selected, collapse, room, onSelectRoom, onCloseMobile, meta }: Props) {
   const mdUp = useResponsive('up', 'md');
 
   const handleClick = useCallback(() => {
@@ -57,27 +56,11 @@ export default function ChatNavItem({ selected, collapse, room, onSelectRoom, on
         overlap="circular"
         badgeContent={collapse ? room.adminUnread : 0}
       >
-        <Badge
-          variant="dot"
-          overlap="circular"
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          invisible={!isOnline}
-          sx={{
-            [`& .${badgeClasses.badge}`]: {
-              backgroundColor: '#44b700',
-              boxShadow: (theme) => `0 0 0 2px ${theme.palette.background.paper}`,
-              width: 12,
-              height: 12,
-              borderRadius: '50%',
-            },
-          }}
-        >
-          <Avatar
-            alt={displayName}
-            src={avatarUrl}
-            sx={{ width: 48, height: 48 }}
-          />
-        </Badge>
+        <Avatar
+          alt={displayName}
+          src={avatarUrl}
+          sx={{ width: 48, height: 48 }}
+        />
       </Badge>
 
       {!collapse && (

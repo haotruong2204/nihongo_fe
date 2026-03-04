@@ -55,7 +55,6 @@ export type AnalyticsData = {
     premium_users: number;
     new_users_today: number;
     logged_in_users: number;
-    online_users: number;
   };
   record_stats?: {
     records_today: number;

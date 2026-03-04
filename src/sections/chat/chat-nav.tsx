@@ -31,7 +31,6 @@ type Props = {
   chatRooms: IChatRoom[];
   onSelectRoom: (roomId: string) => void;
   roomsMeta: Record<string, IChatRoomMeta>;
-  onlineUserIds: Set<string>;
 };
 
 export default function ChatNav({
@@ -40,7 +39,6 @@ export default function ChatNav({
   selectedChatId,
   onSelectRoom,
   roomsMeta,
-  onlineUserIds,
 }: Props) {
   const [newChatOpen, setNewChatOpen] = useState(false);
   const theme = useTheme();
@@ -106,11 +104,6 @@ export default function ChatNav({
     <>
       {chatRooms.map((room) => {
         const meta = roomsMeta[room.id];
-        const isOnline = meta?.user
-          ? onlineUserIds.has(String(meta.user.id)) ||
-            onlineUserIds.has(String(meta.user.uid)) ||
-            meta.user.is_online === true
-          : false;
         return (
           <ChatNavItem
             key={room.id}
@@ -120,7 +113,6 @@ export default function ChatNav({
             onSelectRoom={onSelectRoom}
             onCloseMobile={onCloseMobile}
             meta={meta}
-            isOnline={isOnline}
           />
         );
       })}

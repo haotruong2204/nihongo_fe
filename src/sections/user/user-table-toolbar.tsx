@@ -21,12 +21,6 @@ const PREMIUM_OPTIONS = [
   { value: 'false', label: 'Free' },
 ];
 
-const ONLINE_OPTIONS = [
-  { value: 'all', label: 'All' },
-  { value: 'true', label: 'Online' },
-  { value: 'false', label: 'Offline' },
-];
-
 type Props = {
   filters: IUserTableFilters;
   onFilters: (name: string, value: IUserTableFilterValue) => void;
@@ -46,13 +40,6 @@ export default function UserTableToolbar({
   const handleFilterPremium = useCallback(
     (event: SelectChangeEvent<string>) => {
       onFilters('isPremium', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterOnline = useCallback(
-    (event: SelectChangeEvent<string>) => {
-      onFilters('isOnline', event.target.value);
     },
     [onFilters]
   );
@@ -84,27 +71,6 @@ export default function UserTableToolbar({
           input={<OutlinedInput label="Status" />}
         >
           {PREMIUM_OPTIONS.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <FormControl
-        sx={{
-          flexShrink: 0,
-          width: { xs: 1, md: 160 },
-        }}
-      >
-        <InputLabel>Online</InputLabel>
-
-        <Select
-          value={filters.isOnline}
-          onChange={handleFilterOnline}
-          input={<OutlinedInput label="Online" />}
-        >
-          {ONLINE_OPTIONS.map((option) => (
             <MenuItem key={option.value} value={option.value}>
               {option.label}
             </MenuItem>

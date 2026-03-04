@@ -1,5 +1,5 @@
 import isEqual from 'lodash/isEqual';
-import { useRef, useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 // @mui
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -9,13 +9,10 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
-import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 // routes
 import { paths } from 'src/routes/paths';
 // api
 import { useGetUsers, deleteUser } from 'src/api/user';
-import { usePresenceChannel } from 'src/api/presence';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -57,7 +54,6 @@ const TABLE_HEAD = [
 const defaultFilters: IUserTableFilters = {
   search: '',
   isPremium: 'all',
-  isOnline: 'all',
 };
 
 // ----------------------------------------------------------------------
@@ -73,46 +69,13 @@ export default function UserListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { users, pagination, onlineCount, usersLoading, usersEmpty, usersMutate } = useGetUsers({
+  const { users, pagination, usersLoading, usersEmpty, usersMutate } = useGetUsers({
     page: table.page + 1, // MUI is 0-based, API is 1-based
     perPage: table.rowsPerPage,
     search: filters.search,
     isPremium: filters.isPremium,
-    isOnline: filters.isOnline,
     sortBy: table.orderBy,
     sortOrder: table.order,
-  });
-
-  const usersMutateRef = useRef(usersMutate);
-  usersMutateRef.current = usersMutate;
-
-  usePresenceChannel({
-    onPresenceChange: useCallback((data: { user_id: string; is_online: boolean }) => {
-      usersMutateRef.current((currentData: any) => {
-        if (!currentData?.data?.resource?.data) return currentData;
-
-        const updatedUsers = currentData.data.resource.data.map((user: any) => {
-          if (user.id === data.user_id) {
-            return {
-              ...user,
-              attributes: { ...user.attributes, is_online: data.is_online },
-            };
-          }
-          return user;
-        });
-
-        const onlineDelta = data.is_online ? 1 : -1;
-
-        return {
-          ...currentData,
-          data: {
-            ...currentData.data,
-            resource: { ...currentData.data.resource, data: updatedUsers },
-            online_count: Math.max(0, (currentData.data.online_count ?? 0) + onlineDelta),
-          },
-        };
-      }, { revalidate: false });
-    }, []),
   });
 
   const canReset = !isEqual(defaultFilters, filters);
@@ -170,33 +133,6 @@ export default function UserListView() {
             { name: 'User', href: paths.dashboard.user.root },
             { name: 'List' },
           ]}
-          action={
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Stack
-                direction="row"
-                alignItems="center"
-                spacing={0.75}
-                sx={{
-                  px: 1.5,
-                  py: 0.5,
-                  borderRadius: 1,
-                  bgcolor: 'success.lighter',
-                }}
-              >
-                <Stack
-                  sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    bgcolor: 'success.main',
-                  }}
-                />
-                <Typography variant="subtitle2" sx={{ color: 'success.darker' }}>
-                  {onlineCount} online
-                </Typography>
-              </Stack>
-            </Stack>
-          }
           sx={{
             mb: { xs: 3, md: 5 },
           }}

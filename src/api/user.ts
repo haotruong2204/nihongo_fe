@@ -12,7 +12,6 @@ type UseGetUsersParams = {
   perPage?: number;
   search?: string;
   isPremium?: string;
-  isOnline?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 };
@@ -22,7 +21,6 @@ export function useGetUsers({
   perPage = 10,
   search = '',
   isPremium = 'all',
-  isOnline = 'all',
   sortBy = '',
   sortOrder = 'desc',
 }: UseGetUsersParams = {}) {
@@ -39,10 +37,6 @@ export function useGetUsers({
     params['q[is_premium_eq]'] = isPremium === 'true';
   }
 
-  if (isOnline !== 'all') {
-    params.online = isOnline;
-  }
-
   if (sortBy) {
     params['q[s]'] = `${sortBy} ${sortOrder}`;
   }
@@ -51,8 +45,6 @@ export function useGetUsers({
 
   const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher, {
     keepPreviousData: true,
-    refreshInterval: 60000,
-    dedupingInterval: 10000,
   });
 
   const users: IUserItem[] = useMemo(() => {
@@ -74,20 +66,17 @@ export function useGetUsers({
     [data, perPage]
   );
 
-  const onlineCount: number = useMemo(() => data?.data?.online_count ?? 0, [data]);
-
   const memoizedValue = useMemo(
     () => ({
       users,
       pagination,
-      onlineCount,
       usersLoading: isLoading,
       usersError: error,
       usersValidating: isValidating,
       usersEmpty: !isLoading && !users.length,
       usersMutate: mutate,
     }),
-    [users, pagination, onlineCount, isLoading, error, isValidating, mutate]
+    [users, pagination, isLoading, error, isValidating, mutate]
   );
 
   return memoizedValue;
