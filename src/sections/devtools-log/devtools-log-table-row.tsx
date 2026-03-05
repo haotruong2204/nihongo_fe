@@ -49,11 +49,10 @@ function getCountColor(count: number): 'error' | 'warning' | 'default' {
 export default function DevtoolsLogTableRow({ row, onBlockIp, onUnblockIp }: Props) {
   const { ip_address, email, user_agent, open_count, country, city, last_detected_at, created_at, is_blocked, blocked_ip_id } = row;
 
-  const location = [city, country].filter(Boolean).join(', ') || '-';
-
   const browser = parseBrowser(user_agent);
   const os = parseOS(user_agent);
   const deviceInfo = os ? `${browser} / ${os}` : browser;
+  const location = [city, country].filter(Boolean).join(', ') || '-';
 
   return (
     <TableRow hover>
