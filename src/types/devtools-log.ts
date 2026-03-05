@@ -4,9 +4,13 @@ export type IDevtoolsLogItem = {
   user_agent: string | null;
   email: string | null;
   open_count: number;
+  country: string | null;
+  city: string | null;
   last_detected_at: string;
   created_at: string;
   user_id: string | null;
+  is_blocked: boolean;
+  blocked_ip_id: string | null;
 };
 
 export type IDevtoolsLogTableFilters = {

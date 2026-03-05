@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { useMemo } from 'react';
 // utils
-import { fetcher, endpoints } from 'src/utils/axios';
+import axiosInstance, { fetcher, endpoints } from 'src/utils/axios';
 // types
 import { IDevtoolsLogItem, IDevtoolsLogPagination } from 'src/types/devtools-log';
 
@@ -75,4 +75,18 @@ export function useGetDevtoolsLogs({
     }),
     [logs, pagination, isLoading, error, isValidating, mutate]
   );
+}
+
+// ----------------------------------------------------------------------
+
+export async function blockIp(ipAddress: string, reason?: string) {
+  const res = await axiosInstance.post(endpoints.blockedIp.list, {
+    blocked_ip: { ip_address: ipAddress, reason: reason || 'DevTools detected' },
+  });
+  return res.data;
+}
+
+export async function unblockIp(id: string) {
+  const res = await axiosInstance.delete(endpoints.blockedIp.delete(id));
+  return res.data;
 }

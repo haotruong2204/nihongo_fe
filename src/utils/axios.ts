@@ -92,6 +92,11 @@ export const endpoints = {
   devtoolsLog: {
     list: '/api/v1/admins/devtools_logs',
   },
+  blockedIp: {
+    list: '/api/v1/admins/blocked_ips',
+    delete: (id: string) => `/api/v1/admins/blocked_ips/${id}`,
+  },
+  ipCheck: '/api/v1/ip_check',
   user: {
     list: '/api/v1/admins/users',
     details: (id: string) => `/api/v1/admins/users/${id}`,
