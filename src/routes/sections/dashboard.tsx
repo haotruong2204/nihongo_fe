@@ -58,6 +58,8 @@ const UserNotificationsPage = lazy(() => import('src/pages/dashboard/user-notifi
 const MailPage = lazy(() => import('src/pages/dashboard/mail'));
 const CalendarPage = lazy(() => import('src/pages/dashboard/calendar'));
 const KanbanPage = lazy(() => import('src/pages/dashboard/kanban'));
+// DEVTOOLS LOG
+const DevtoolsLogPage = lazy(() => import('src/pages/dashboard/devtools-log'));
 // TEST RENDER PAGE BY ROLE
 const PermissionDeniedPage = lazy(() => import('src/pages/dashboard/permission'));
 
@@ -157,6 +159,7 @@ export const dashboardRoutes = [
       { path: 'chat', element: <ChatPage /> },
       { path: 'calendar', element: <CalendarPage /> },
       { path: 'kanban', element: <KanbanPage /> },
+      { path: 'devtools-log', element: <DevtoolsLogPage /> },
       { path: 'permission', element: <PermissionDeniedPage /> },
     ],
   },

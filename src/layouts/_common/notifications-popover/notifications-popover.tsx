@@ -1,5 +1,5 @@
 import { m } from 'framer-motion';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 // @mui
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
@@ -7,6 +7,10 @@ import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 import Divider from '@mui/material/Divider';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
@@ -30,7 +34,7 @@ import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { varHover } from 'src/components/animate';
 // types
-import { INotificationItem } from 'src/types/notification';
+import { INotificationItem, NOTIFICATION_TYPE_ICONS } from 'src/types/notification';
 //
 import NotificationItem from './notification-item';
 
@@ -40,6 +44,7 @@ export default function NotificationsPopover() {
   const drawer = useBoolean();
   const smUp = useResponsive('up', 'sm');
   const router = useRouter();
+  const [selectedNotification, setSelectedNotification] = useState<INotificationItem | null>(null);
 
   const { notifications, unreadCount, notificationsMutate } = useGetNotifications();
   const chatUnread = useTotalAdminUnread();
@@ -61,11 +66,15 @@ export default function NotificationsPopover() {
       if (notification.link) {
         router.push(`/dashboard${notification.link}`);
       } else {
-        router.push(paths.dashboard.notifications);
+        setSelectedNotification(notification);
       }
     },
     [router, notificationsMutate, drawer]
   );
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedNotification(null);
+  }, []);
 
   const handleViewAll = useCallback(() => {
     drawer.onFalse();
@@ -155,6 +164,40 @@ export default function NotificationsPopover() {
           </Button>
         </Box>
       </Drawer>
+
+      <Dialog
+        open={!!selectedNotification}
+        onClose={handleCloseModal}
+        maxWidth="sm"
+        fullWidth
+      >
+        {selectedNotification && (
+          <>
+            <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Iconify
+                icon={NOTIFICATION_TYPE_ICONS[selectedNotification.notification_type] || 'solar:bell-bold'}
+                width={24}
+                sx={{
+                  color: selectedNotification.notification_type === 'abuse_alert' || selectedNotification.notification_type === 'warning'
+                    ? 'error.main'
+                    : 'primary.main',
+                }}
+              />
+              {selectedNotification.title}
+            </DialogTitle>
+            <DialogContent>
+              {selectedNotification.body && (
+                <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>
+                  {selectedNotification.body}
+                </Typography>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseModal}>Đóng</Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </>
   );
 }

@@ -136,6 +136,13 @@ export function useNavData() {
             icon: <Iconify icon="solar:chat-round-dots-bold-duotone" width={24} />,
           },
 
+          // DEVTOOLS LOGS
+          {
+            title: 'DevTools Logs',
+            path: paths.dashboard.devtoolsLog,
+            icon: <Iconify icon="solar:shield-warning-bold-duotone" width={24} />,
+          },
+
           // PRODUCT
           {
             title: t('product'),
