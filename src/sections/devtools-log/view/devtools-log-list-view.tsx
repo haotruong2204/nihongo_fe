@@ -1,22 +1,32 @@
 import { useState, useCallback } from 'react';
 // @mui
+import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
 import TableContainer from '@mui/material/TableContainer';
 import InputAdornment from '@mui/material/InputAdornment';
 // routes
 import { paths } from 'src/routes/paths';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+// types
+import { IDevtoolsLogItem } from 'src/types/devtools-log';
+// utils
+import { fDateTime } from 'src/utils/format-time';
 // api
 import { useGetDevtoolsLogs, blockIp, unblockIp } from 'src/api/devtools-log';
 // components
 import Iconify from 'src/components/iconify';
+import Label from 'src/components/label';
 import Scrollbar from 'src/components/scrollbar';
 import { useSnackbar } from 'src/components/snackbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -37,12 +47,9 @@ import DevtoolsLogTableRow from '../devtools-log-table-row';
 const TABLE_HEAD = [
   { id: 'ip_address', label: 'IP Address', width: 160 },
   { id: 'email', label: 'Email' },
-  { id: 'user_agent', label: 'Browser' },
   { id: 'country', label: 'Location', width: 160 },
   { id: 'open_count', label: 'Count', width: 100 },
   { id: '', label: 'Status', width: 100 },
-  { id: 'last_detected_at', label: 'Last Detected', width: 200 },
-  { id: 'created_at', label: 'First Detected', width: 200 },
   { id: '', width: 64 },
 ];
 
@@ -53,6 +60,7 @@ export default function DevtoolsLogListView() {
     defaultRowsPerPage: 20,
     defaultOrderBy: 'last_detected_at',
     defaultOrder: 'desc',
+    defaultDense: true,
   });
 
   const settings = useSettingsContext();
@@ -61,10 +69,12 @@ export default function DevtoolsLogListView() {
 
   const confirmBlock = useBoolean();
   const confirmUnblock = useBoolean();
+  const viewDetail = useBoolean();
 
   const [search, setSearch] = useState('');
   const [blockTarget, setBlockTarget] = useState('');
   const [unblockTarget, setUnblockTarget] = useState({ id: '', ip: '' });
+  const [selectedRow, setSelectedRow] = useState<IDevtoolsLogItem | null>(null);
 
   const { logs, pagination, logsLoading, logsEmpty, logsMutate } = useGetDevtoolsLogs({
     page: table.page + 1,
@@ -73,6 +83,14 @@ export default function DevtoolsLogListView() {
     sortBy: table.orderBy,
     sortOrder: table.order,
   });
+
+  const handleViewRow = useCallback(
+    (row: IDevtoolsLogItem) => {
+      setSelectedRow(row);
+      viewDetail.onTrue();
+    },
+    [viewDetail]
+  );
 
   const handleSearch = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,7 +178,7 @@ export default function DevtoolsLogListView() {
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 1080 }}>
+              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 720 }}>
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
@@ -179,6 +197,7 @@ export default function DevtoolsLogListView() {
                         <DevtoolsLogTableRow
                           key={row.id}
                           row={row}
+                          onViewRow={() => handleViewRow(row)}
                           onBlockIp={handleBlockIp}
                           onUnblockIp={handleUnblockIp}
                         />
@@ -240,6 +259,46 @@ export default function DevtoolsLogListView() {
           </Button>
         }
       />
+
+      <Dialog open={viewDetail.value} onClose={viewDetail.onFalse} maxWidth="sm" fullWidth>
+        <DialogTitle>Log Detail</DialogTitle>
+        <DialogContent>
+          {selectedRow && (
+            <Stack spacing={2} sx={{ pt: 1 }}>
+              <DetailRow label="IP Address" value={selectedRow.ip_address} mono />
+              <DetailRow label="Email" value={selectedRow.email || 'Anonymous'} />
+              <DetailRow label="Location" value={[selectedRow.city, selectedRow.country].filter(Boolean).join(', ') || '-'} />
+              <DetailRow label="User Agent" value={selectedRow.user_agent || '-'} />
+              <DetailRow label="Open Count" value={String(selectedRow.open_count)} />
+              <Box>
+                <Typography variant="caption" sx={{ color: 'text.secondary', mb: 0.5, display: 'block' }}>
+                  Status
+                </Typography>
+                <Label variant="soft" color={selectedRow.is_blocked ? 'error' : 'success'}>
+                  {selectedRow.is_blocked ? 'Blocked' : 'Active'}
+                </Label>
+              </Box>
+              <DetailRow label="Last Detected" value={selectedRow.last_detected_at ? fDateTime(selectedRow.last_detected_at) : '-'} />
+              <DetailRow label="First Detected" value={selectedRow.created_at ? fDateTime(selectedRow.created_at) : '-'} />
+            </Stack>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
+  );
+}
+
+// ----------------------------------------------------------------------
+
+function DetailRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
+  return (
+    <Box>
+      <Typography variant="caption" sx={{ color: 'text.secondary', mb: 0.5, display: 'block' }}>
+        {label}
+      </Typography>
+      <Typography variant="body2" sx={mono ? { fontFamily: 'monospace' } : undefined}>
+        {value}
+      </Typography>
+    </Box>
   );
 }
