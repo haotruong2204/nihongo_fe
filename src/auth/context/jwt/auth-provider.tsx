@@ -66,7 +66,7 @@ export function AuthProvider({ children }: Props) {
 
   const initialize = useCallback(async () => {
     try {
-      const accessToken = sessionStorage.getItem(STORAGE_KEY);
+      const accessToken = localStorage.getItem(STORAGE_KEY);
       if (!accessToken || !isValidToken(accessToken)) {
         setSession(null);
         dispatch({ type: Types.INITIAL, payload: { user: null } });
