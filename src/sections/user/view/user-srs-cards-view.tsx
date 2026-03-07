@@ -51,11 +51,10 @@ const STATUS_TABS = [
 type SrsStatusColor = 'default' | 'info' | 'success' | 'error' | 'warning' | 'primary' | 'secondary';
 
 const STATUS_COLORS: Record<string, SrsStatusColor> = {
-  new: 'default',
+  new_card: 'default',
   learning: 'info',
   review: 'success',
   relearning: 'warning',
-  overdue: 'error',
 };
 
 // ----------------------------------------------------------------------
@@ -157,11 +156,11 @@ export default function UserSrsCardsView() {
             <Table size="medium" sx={{ minWidth: 960 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell>{t('col_front')}</TableCell>
-                  <TableCell>{t('col_back')}</TableCell>
-                  <TableCell>{t('col_status')}</TableCell>
+                  <TableCell>{t('col_kanji')}</TableCell>
+                  <TableCell>{t('col_meaning')}</TableCell>
+                  <TableCell>{t('col_state')}</TableCell>
                   <TableCell align="center">{t('col_interval')}</TableCell>
-                  <TableCell align="center">{t('col_ease_factor')}</TableCell>
+                  <TableCell align="center">{t('col_ease')}</TableCell>
                   <TableCell align="center">{t('col_reviews_count')}</TableCell>
                   <TableCell align="center">{t('col_lapses_count')}</TableCell>
                   <TableCell>{t('col_due_date')}</TableCell>
@@ -177,22 +176,22 @@ export default function UserSrsCardsView() {
                   : items.map((row) => (
                       <TableRow key={row.id} hover>
                         <TableCell sx={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {row.front ?? '-'}
+                          {row.kanji ?? '-'}
                         </TableCell>
 
                         <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {row.back ?? '-'}
+                          {row.meaning ?? '-'}
                         </TableCell>
 
                         <TableCell>
-                          {row.status ? (
+                          {row.state ? (
                             <Label
                               variant="soft"
-                              color={STATUS_COLORS[row.status] ?? 'default'}
+                              color={STATUS_COLORS[row.state] ?? 'default'}
                             >
-                              {t(`srs_status_${row.status}`) !== `srs_status_${row.status}`
-                                ? t(`srs_status_${row.status}`)
-                                : row.status}
+                              {t(`srs_status_${row.state}`) !== `srs_status_${row.state}`
+                                ? t(`srs_status_${row.state}`)
+                                : row.state}
                             </Label>
                           ) : '-'}
                         </TableCell>
@@ -208,13 +207,13 @@ export default function UserSrsCardsView() {
                         </TableCell>
 
                         <TableCell align="center">
-                          {row.ease_factor != null
-                            ? Number(row.ease_factor).toFixed(2)
+                          {row.ease != null
+                            ? Number(row.ease).toFixed(2)
                             : '-'}
                         </TableCell>
 
                         <TableCell align="center">
-                          {row.reviews_count ?? row.review_count ?? 0}
+                          {row.reviews_count ?? 0}
                         </TableCell>
 
                         <TableCell align="center">

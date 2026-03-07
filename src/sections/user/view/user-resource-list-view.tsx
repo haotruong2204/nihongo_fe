@@ -91,7 +91,7 @@ function GenericResourceListView() {
 
   const { user, userLoading } = useGetUser(id);
 
-  const { items, pagination, isLoading, isEmpty } = useGetUserResources(id, resource, {
+  const { items, pagination, isLoading, isEmpty, error } = useGetUserResources(id, resource, {
     page: table.page + 1,
     perPage: table.rowsPerPage,
   });
@@ -112,6 +112,26 @@ function GenericResourceListView() {
     return (
       <Container maxWidth={settings.themeStretch ? false : 'xl'}>
         <Typography variant="h6">{t('user_not_found')}</Typography>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Container maxWidth={settings.themeStretch ? false : 'xl'}>
+        <CustomBreadcrumbs
+          heading={resourceTitle}
+          links={[
+            { name: t('dashboard'), href: paths.dashboard.root },
+            { name: t('user'), href: paths.dashboard.user.list },
+            { name: user.display_name, href: paths.dashboard.user.analytics(id) },
+            { name: resourceTitle },
+          ]}
+          sx={{ mb: { xs: 3, md: 5 } }}
+        />
+        <Typography variant="body2" color="text.secondary">
+          {t('not_updated')}
+        </Typography>
       </Container>
     );
   }

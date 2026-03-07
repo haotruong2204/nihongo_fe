@@ -140,7 +140,7 @@ export function useGetUserResources(
     keepPreviousData: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
-    errorRetryCount: 3,
+    errorRetryCount: 0,
   });
 
   const items: Record<string, any>[] = useMemo(() => {
