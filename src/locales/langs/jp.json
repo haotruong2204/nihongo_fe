@@ -136,6 +136,17 @@
   "feature_usage": "機能利用状況",
   "not_updated": "更新中",
   "no_analytics_data": "分析データがありません",
+  "all": "すべて",
+  "delete": "削除",
+  "srs_reset": "SRSリセット",
+  "srs_actions": "操作",
+  "srs_status_new": "新規",
+  "srs_status_learning": "学習中",
+  "srs_status_review": "復習",
+  "srs_status_relearning": "再学習",
+  "srs_status_overdue": "期限超過",
+  "srs_delete_confirm_content": "このカードは完全に削除されます。この操作は元に戻せません。",
+  "srs_reset_confirm_content": "このカードのSRS進捗を初期状態（新規）にリセットします。この操作は元に戻せません。",
   "demo": {
     "title": "日本語"
   }

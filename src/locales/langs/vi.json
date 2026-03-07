@@ -136,6 +136,17 @@
   "feature_usage": "Sử dụng tính năng",
   "not_updated": "Đang cập nhật",
   "no_analytics_data": "Không có dữ liệu phân tích",
+  "all": "Tất cả",
+  "delete": "Xóa",
+  "srs_reset": "Đặt lại SRS",
+  "srs_actions": "Hành động",
+  "srs_status_new": "Mới",
+  "srs_status_learning": "Đang học",
+  "srs_status_review": "Ôn tập",
+  "srs_status_relearning": "Học lại",
+  "srs_status_overdue": "Quá hạn",
+  "srs_delete_confirm_content": "Thẻ này sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn tác.",
+  "srs_reset_confirm_content": "Tiến trình SRS của thẻ sẽ được đặt lại về trạng thái ban đầu (mới). Hành động này không thể hoàn tác.",
   "demo": {
     "title": "Vietnamese"
   }

@@ -103,5 +103,8 @@ export const endpoints = {
     update: (id: string) => `/api/v1/admins/users/${id}`,
     delete: (id: string) => `/api/v1/admins/users/${id}`,
     resources: (userId: string, resource: string) => `/api/v1/admins/users/${userId}/${resource}`,
+    srsCards: (userId: string) => `/api/v1/admins/users/${userId}/srs_cards`,
+    srsCard: (userId: string, cardId: string) => `/api/v1/admins/users/${userId}/srs_cards/${cardId}`,
+    resetSrsCard: (userId: string, cardId: string) => `/api/v1/admins/users/${userId}/srs_cards/${cardId}/reset`,
   },
 };

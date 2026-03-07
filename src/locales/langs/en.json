@@ -136,6 +136,17 @@
   "feature_usage": "Feature Usage",
   "not_updated": "Updating",
   "no_analytics_data": "No analytics data available",
+  "all": "All",
+  "delete": "Delete",
+  "srs_reset": "Reset SRS",
+  "srs_actions": "Actions",
+  "srs_status_new": "New",
+  "srs_status_learning": "Learning",
+  "srs_status_review": "Review",
+  "srs_status_relearning": "Relearning",
+  "srs_status_overdue": "Overdue",
+  "srs_delete_confirm_content": "This card will be permanently deleted. This action cannot be undone.",
+  "srs_reset_confirm_content": "The card's SRS progress will be reset to its initial state (new). This action cannot be undone.",
   "demo": {
     "title": "English"
   }

@@ -25,6 +25,8 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import Scrollbar from 'src/components/scrollbar';
 import { LoadingScreen } from 'src/components/loading-screen';
 import { useTable, TableNoData, TableSkeleton } from 'src/components/table';
+//
+import UserSrsCardsView from './user-srs-cards-view';
 
 // ----------------------------------------------------------------------
 
@@ -67,6 +69,18 @@ function formatCellValue(col: string, value: unknown, t: (key: string) => string
 // ----------------------------------------------------------------------
 
 export default function UserResourceListView() {
+  const { resource = '' } = useParams();
+
+  if (resource === 'srs_cards') {
+    return <UserSrsCardsView />;
+  }
+
+  return <GenericResourceListView />;
+}
+
+// ----------------------------------------------------------------------
+
+function GenericResourceListView() {
   const settings = useSettingsContext();
 
   const { t } = useLocales();
