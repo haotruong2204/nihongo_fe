@@ -27,6 +27,8 @@ import { LoadingScreen } from 'src/components/loading-screen';
 import { useTable, TableNoData, TableSkeleton } from 'src/components/table';
 //
 import UserSrsCardsView from './user-srs-cards-view';
+import UserCustomVocabView from './user-custom-vocab-view';
+import UserVocabSetsView from './user-vocab-sets-view';
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +36,7 @@ const RESOURCE_I18N_KEY: Record<string, string> = {
   srs_cards: 'srs_cards',
   review_logs: 'review_logs',
   custom_vocab_items: 'custom_vocab',
+  vocab_sets: 'vocab_sets',
   roadmap_day_progresses: 'roadmap_progress',
   tango_lesson_progresses: 'tango_lessons',
   jlpt_test_results: 'jlpt_tests',
@@ -73,6 +76,14 @@ export default function UserResourceListView() {
 
   if (resource === 'srs_cards') {
     return <UserSrsCardsView />;
+  }
+
+  if (resource === 'custom_vocab_items') {
+    return <UserCustomVocabView />;
+  }
+
+  if (resource === 'vocab_sets') {
+    return <UserVocabSetsView />;
   }
 
   return <GenericResourceListView />;

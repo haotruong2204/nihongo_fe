@@ -63,6 +63,7 @@
   "roadmap_progress": "Tiến độ lộ trình",
   "tango_lessons": "Bài học Tango",
   "jlpt_tests": "Bài thi JLPT",
+  "vocab_sets": "Bộ từ vựng",
   "login_activities": "Lịch sử đăng nhập",
   "col_ip_address": "Địa chỉ IP",
   "col_user_agent": "Trình duyệt",
@@ -151,6 +152,8 @@
   "srs_status_overdue": "Quá hạn",
   "srs_delete_confirm_content": "Thẻ này sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn tác.",
   "srs_reset_confirm_content": "Tiến trình SRS của thẻ sẽ được đặt lại về trạng thái ban đầu (mới). Hành động này không thể hoàn tác.",
+  "vocab_set_delete_confirm": "Bộ từ vựng này sẽ bị xóa vĩnh viễn cùng toàn bộ từ trong đó. Hành động này không thể hoàn tác.",
+  "vocab_item_delete_confirm": "Từ này sẽ bị xóa khỏi bộ từ vựng. Hành động này không thể hoàn tác.",
   "demo": {
     "title": "Vietnamese"
   }

@@ -136,7 +136,7 @@ export function useGetUserResources(
     ? [endpoints.user.resources(userId, resource), { params: { page, per_page: perPage } }]
     : null;
 
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher, {
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher, {
     keepPreviousData: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
@@ -170,8 +170,9 @@ export function useGetUserResources(
       error,
       isValidating,
       isEmpty: !isLoading && !items.length,
+      mutate,
     }),
-    [items, pagination, isLoading, error, isValidating]
+    [items, pagination, isLoading, error, isValidating, mutate]
   );
 }
 
@@ -239,6 +240,24 @@ export function useGetUserSrsCards(
 export async function deleteSrsCard(userId: string, cardId: string) {
   const URL = endpoints.user.srsCard(userId, cardId);
   const res = await axiosInstance.delete(URL);
+  return res.data;
+}
+
+export async function deleteCustomVocabItem(userId: string, itemId: string) {
+  const URL = endpoints.user.customVocabItem(userId, itemId);
+  const res = await axiosInstance.delete(URL);
+  return res.data;
+}
+
+export async function deleteVocabSet(userId: string, setId: string) {
+  const URL = endpoints.user.vocabSet(userId, setId);
+  const res = await axiosInstance.delete(URL);
+  return res.data;
+}
+
+export async function removeVocabSetItem(userId: string, setId: string, index: number) {
+  const URL = endpoints.user.vocabSetRemoveItem(userId, setId);
+  const res = await axiosInstance.delete(URL, { params: { index } });
   return res.data;
 }
 

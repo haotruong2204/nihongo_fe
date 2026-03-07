@@ -106,5 +106,8 @@ export const endpoints = {
     srsCards: (userId: string) => `/api/v1/admins/users/${userId}/srs_cards`,
     srsCard: (userId: string, cardId: string) => `/api/v1/admins/users/${userId}/srs_cards/${cardId}`,
     resetSrsCard: (userId: string, cardId: string) => `/api/v1/admins/users/${userId}/srs_cards/${cardId}/reset`,
+    customVocabItem: (userId: string, itemId: string) => `/api/v1/admins/users/${userId}/custom_vocab_items/${itemId}`,
+    vocabSet: (userId: string, setId: string) => `/api/v1/admins/users/${userId}/vocab_sets/${setId}`,
+    vocabSetRemoveItem: (userId: string, setId: string) => `/api/v1/admins/users/${userId}/vocab_sets/${setId}/remove_item`,
   },
 };

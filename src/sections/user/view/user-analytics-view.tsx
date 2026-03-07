@@ -111,10 +111,10 @@ export default function UserAnalyticsView() {
           </Grid>
 
           <Grid xs={12} sm={6} md={4}>
-            <Box onClick={() => handleCardClick('custom_vocab_items')} sx={{ cursor: 'pointer' }}>
+            <Box onClick={() => handleCardClick('vocab_sets')} sx={{ cursor: 'pointer' }}>
               <AnalyticsWidgetSummary
-                title={t('custom_vocab')}
-                total={stats.custom_vocab_items_count}
+                title={t('vocab_sets')}
+                total={stats.vocab_sets_count}
                 color="warning"
                 icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
               />

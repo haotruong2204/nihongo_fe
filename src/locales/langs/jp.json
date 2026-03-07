@@ -63,6 +63,7 @@
   "roadmap_progress": "ロードマップ進捗",
   "tango_lessons": "単語レッスン",
   "jlpt_tests": "JLPTテスト",
+  "vocab_sets": "単語セット",
   "login_activities": "ログイン履歴",
   "col_ip_address": "IPアドレス",
   "col_user_agent": "ブラウザ",
@@ -147,6 +148,8 @@
   "srs_status_overdue": "期限超過",
   "srs_delete_confirm_content": "このカードは完全に削除されます。この操作は元に戻せません。",
   "srs_reset_confirm_content": "このカードのSRS進捗を初期状態（新規）にリセットします。この操作は元に戻せません。",
+  "vocab_set_delete_confirm": "この単語セットとすべての単語が完全に削除されます。この操作は元に戻せません。",
+  "vocab_item_delete_confirm": "この単語が単語セットから削除されます。この操作は元に戻せません。",
   "demo": {
     "title": "日本語"
   }

@@ -63,6 +63,7 @@
   "roadmap_progress": "路线图进度",
   "tango_lessons": "单词课程",
   "jlpt_tests": "JLPT测试",
+  "vocab_sets": "词汇集",
   "login_activities": "登录记录",
   "col_ip_address": "IP地址",
   "col_user_agent": "浏览器",
@@ -147,6 +148,8 @@
   "srs_status_overdue": "逾期",
   "srs_delete_confirm_content": "此卡将被永久删除，无法撤销。",
   "srs_reset_confirm_content": "此卡的SRS进度将重置为初始状态（新卡），无法撤销。",
+  "vocab_set_delete_confirm": "此词汇集及其所有单词将被永久删除，无法撤销。",
+  "vocab_item_delete_confirm": "此单词将从词汇集中删除，无法撤销。",
   "demo": {
     "title": "Chinese"
   }

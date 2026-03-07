@@ -111,6 +111,7 @@ export type IUserItem = {
 export type IUserStats = {
   srs_cards_count: number;
   review_logs_count: number;
+  vocab_sets_count: number;
   custom_vocab_items_count: number;
   roadmap_day_progresses_count: number;
   tango_lesson_progresses_count: number;
