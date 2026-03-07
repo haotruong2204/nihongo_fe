@@ -29,6 +29,11 @@ export const isValidToken = (accessToken: string) => {
 
   const decoded = jwtDecode(accessToken);
 
+  // If token has no expiry, treat as valid
+  if (!decoded.exp) {
+    return true;
+  }
+
   const currentTime = Date.now() / 1000;
 
   return decoded.exp > currentTime;
@@ -38,9 +43,13 @@ export const isValidToken = (accessToken: string) => {
 
 let expiredTimer: ReturnType<typeof setTimeout> | null = null;
 
-export const tokenExpired = (exp: number) => {
+export const tokenExpired = (exp: number | undefined) => {
+  if (!exp) return;
+
   const currentTime = Date.now();
   const timeLeft = exp * 1000 - currentTime;
+
+  if (timeLeft <= 0) return;
 
   if (expiredTimer) {
     clearTimeout(expiredTimer);
