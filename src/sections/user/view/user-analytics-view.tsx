@@ -1,4 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
+// utils
+import { fDateTime } from 'src/utils/format-time';
 // @mui
 import Grid from '@mui/material/Unstable_Grid2';
 import Container from '@mui/material/Container';
@@ -81,6 +83,14 @@ export default function UserAnalyticsView() {
               <Label variant="soft" color={user.is_banned ? 'error' : 'success'}>
                 {user.is_banned ? t('banned') : t('active')}
               </Label>
+            </Stack>
+            <Stack direction="row" spacing={2} sx={{ mt: 0.5 }}>
+              <Typography variant="caption" color="text.secondary">
+                {t('last_login')}: <strong>{user.last_login_at ? fDateTime(user.last_login_at) : '-'}</strong>
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {t('joined')}: <strong>{user.created_at ? fDateTime(user.created_at) : '-'}</strong>
+              </Typography>
             </Stack>
           </Stack>
         </Stack>
@@ -172,6 +182,17 @@ export default function UserAnalyticsView() {
                 total={stats.page_views_count}
                 color="info"
                 icon={<img alt="icon" src="/assets/icons/glass/ic_glass_buy.png" />}
+              />
+            </Box>
+          </Grid>
+
+          <Grid xs={12} sm={6} md={4}>
+            <Box onClick={() => handleCardClick('custom_vocab_items')} sx={{ cursor: 'pointer' }}>
+              <AnalyticsWidgetSummary
+                title={t('custom_vocab_items')}
+                total={stats.custom_vocab_items_count}
+                color="primary"
+                icon={<img alt="icon" src="/assets/icons/glass/ic_glass_message.png" />}
               />
             </Box>
           </Grid>

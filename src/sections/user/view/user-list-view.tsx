@@ -44,10 +44,9 @@ const TABLE_HEAD = [
   { id: 'srs_cards_count', label: 'SRS', width: 100 },
   { id: 'review_logs_count', label: 'Reviews', width: 100 },
   { id: 'page_views_count', label: 'Page Views', width: 120 },
-  { id: 'is_premium', label: 'Premium', width: 140 },
+  { id: 'tango_lesson_progresses_count', label: 'Tango', width: 100 },
+  { id: 'vocab_sets_count', label: 'Vocab Sets', width: 110 },
   { id: 'is_banned', label: 'Status', width: 120 },
-  { id: 'last_login_at', label: 'Last Login', width: 180 },
-  { id: 'created_at', label: 'Joined', width: 180 },
   { id: '', width: 88 },
 ];
 

@@ -106,6 +106,8 @@ export type IUserItem = {
   srs_cards_count: number;
   review_logs_count: number;
   page_views_count: number;
+  tango_lesson_progresses_count?: number;
+  vocab_sets_count?: number;
 };
 
 export type IUserStats = {

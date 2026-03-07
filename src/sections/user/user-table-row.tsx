@@ -1,6 +1,6 @@
 // @mui
-import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
@@ -16,8 +16,6 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hooks';
 // types
 import { IUserItem } from 'src/types/user';
-// utils
-import { fDateTime } from 'src/utils/format-time';
 // components
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -41,7 +39,7 @@ export default function UserTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { id, display_name, photo_url, email, is_premium, is_banned, created_at, last_login_at, srs_cards_count, review_logs_count, page_views_count } = row;
+  const { id, display_name, photo_url, email, is_premium, is_banned, srs_cards_count, review_logs_count, page_views_count, tango_lesson_progresses_count, vocab_sets_count } = row;
 
   const router = useRouter();
 
@@ -75,7 +73,8 @@ export default function UserTableRow({
             primaryTypographyProps={{ typography: 'body2' }}
             secondaryTypographyProps={{
               component: 'span',
-              color: 'text.disabled',
+              color: is_premium ? 'warning.main' : 'text.disabled',
+              fontWeight: is_premium ? 600 : 400,
             }}
           />
         </TableCell>
@@ -92,13 +91,12 @@ export default function UserTableRow({
           {page_views_count ?? 0}
         </TableCell>
 
-        <TableCell>
-          <Label
-            variant="soft"
-            color={is_premium ? 'success' : 'default'}
-          >
-            {is_premium ? 'Premium' : 'Free'}
-          </Label>
+        <TableCell align="center">
+          {tango_lesson_progresses_count ?? 0}
+        </TableCell>
+
+        <TableCell align="center">
+          {vocab_sets_count ?? 0}
         </TableCell>
 
         <TableCell>
@@ -108,14 +106,6 @@ export default function UserTableRow({
           >
             {is_banned ? 'Banned' : 'Active'}
           </Label>
-        </TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {last_login_at ? fDateTime(last_login_at) : '-'}
-        </TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {created_at ? fDateTime(created_at) : '-'}
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
