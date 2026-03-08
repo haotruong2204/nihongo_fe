@@ -109,7 +109,19 @@ export default function ChatRoom({ room, meta, onMetaUpdate, onDelete }: Props) 
     return d.toISOString().slice(0, 16);
   };
 
-  const [premiumUntil, setPremiumUntil] = useState(defaultPremiumUntil);
+  const [premiumUntil, setPremiumUntil] = useState(() =>
+    meta?.user?.premium_until
+      ? new Date(meta.user.premium_until).toISOString().slice(0, 16)
+      : defaultPremiumUntil()
+  );
+
+  useEffect(() => {
+    setPremiumUntil(
+      meta?.user?.premium_until
+        ? new Date(meta.user.premium_until).toISOString().slice(0, 16)
+        : defaultPremiumUntil()
+    );
+  }, [meta?.user?.premium_until]);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
 
   const handleUpgrade = useCallback(async () => {
