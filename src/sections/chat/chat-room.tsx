@@ -27,8 +27,10 @@ import { useResponsive } from 'src/hooks/use-responsive';
 import { IChatRoom, IChatRoomMeta } from 'src/types/chat';
 // api
 import { deleteChatRoom } from 'src/api/chat';
+import { updateUser } from 'src/api/user';
 // components
 import Iconify from 'src/components/iconify';
+import { useSnackbar } from 'src/components/snackbar';
 //
 import { useCollapseNav } from './hooks';
 
@@ -67,6 +69,8 @@ type Props = {
 export default function ChatRoom({ room, meta, onMetaUpdate, onDelete }: Props) {
   const theme = useTheme();
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const lgUp = useResponsive('up', 'lg');
 
   const {
@@ -98,6 +102,50 @@ export default function ChatRoom({ room, meta, onMetaUpdate, onDelete }: Props) 
   const [banLoading, setBanLoading] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const defaultPremiumUntil = () => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 1);
+    return d.toISOString().slice(0, 16);
+  };
+
+  const [premiumUntil, setPremiumUntil] = useState(defaultPremiumUntil);
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
+
+  const handleUpgrade = useCallback(async () => {
+    const userId = meta?.user?.id;
+    if (!userId) return;
+    setUpgradeLoading(true);
+    try {
+      await updateUser(String(userId), {
+        is_premium: true,
+        premium_until: premiumUntil ? new Date(premiumUntil).toISOString() : null,
+      });
+      enqueueSnackbar('Nâng cấp thành công!');
+      onMetaUpdate?.();
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar('Nâng cấp thất bại!', { variant: 'error' });
+    } finally {
+      setUpgradeLoading(false);
+    }
+  }, [meta?.user?.id, premiumUntil, onMetaUpdate, enqueueSnackbar]);
+
+  const handleRemovePremium = useCallback(async () => {
+    const userId = meta?.user?.id;
+    if (!userId) return;
+    setUpgradeLoading(true);
+    try {
+      await updateUser(String(userId), { is_premium: false, premium_until: null });
+      enqueueSnackbar('Đã hạ cấp tài khoản.');
+      onMetaUpdate?.();
+    } catch (error) {
+      console.error(error);
+      enqueueSnackbar('Thao tác thất bại!', { variant: 'error' });
+    } finally {
+      setUpgradeLoading(false);
+    }
+  }, [meta?.user?.id, onMetaUpdate, enqueueSnackbar]);
 
   const handleConfirmDelete = useCallback(async () => {
     if (!room.id) return;
@@ -212,6 +260,69 @@ export default function ChatRoom({ room, meta, onMetaUpdate, onDelete }: Props) 
               Admin Note
             </Typography>
             <Typography variant="body2">{meta.admin_note}</Typography>
+          </Stack>
+        </>
+      )}
+
+      {meta?.user && (
+        <>
+          <Divider sx={{ my: 1.5 }} />
+
+          <Stack spacing={1}>
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              Nâng cấp tài khoản
+            </Typography>
+
+            {meta.user.is_premium ? (
+              <Stack spacing={1}>
+                <TextField
+                  size="small"
+                  label="Premium đến"
+                  type="datetime-local"
+                  value={premiumUntil}
+                  onChange={(e) => setPremiumUntil(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="warning"
+                  onClick={handleUpgrade}
+                  disabled={upgradeLoading}
+                >
+                  Gia hạn Premium
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="inherit"
+                  onClick={handleRemovePremium}
+                  disabled={upgradeLoading}
+                >
+                  Hủy Premium
+                </Button>
+              </Stack>
+            ) : (
+              <Stack spacing={1}>
+                <TextField
+                  size="small"
+                  label="Premium đến"
+                  type="datetime-local"
+                  value={premiumUntil}
+                  onChange={(e) => setPremiumUntil(e.target.value)}
+                  InputLabelProps={{ shrink: true }}
+                />
+                <Button
+                  size="small"
+                  variant="contained"
+                  color="warning"
+                  onClick={handleUpgrade}
+                  disabled={upgradeLoading}
+                >
+                  Nâng cấp Premium
+                </Button>
+              </Stack>
+            )}
           </Stack>
         </>
       )}
