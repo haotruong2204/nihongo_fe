@@ -51,6 +51,7 @@ const TABLE_HEAD = [
   { id: 'country', label: 'Location', width: 160 },
   { id: 'open_count', label: 'Count', width: 100 },
   { id: '', label: 'Status', width: 100 },
+  { id: 'last_detected_at', label: 'Last Detected', width: 160 },
   { id: '', width: 64 },
 ];
 
