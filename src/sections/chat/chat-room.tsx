@@ -103,24 +103,28 @@ export default function ChatRoom({ room, meta, onMetaUpdate, onDelete }: Props) 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  const toUTC7Input = (date: Date) =>
+    new Date(date.getTime() + 7 * 3600000).toISOString().slice(0, 16);
+
   const defaultPremiumUntil = () => {
     const d = new Date();
     d.setMonth(d.getMonth() + 1);
-    return d.toISOString().slice(0, 16);
+    return toUTC7Input(d);
   };
 
   const [premiumUntil, setPremiumUntil] = useState(() =>
     meta?.user?.premium_until
-      ? new Date(meta.user.premium_until).toISOString().slice(0, 16)
+      ? toUTC7Input(new Date(meta.user.premium_until))
       : defaultPremiumUntil()
   );
 
   useEffect(() => {
     setPremiumUntil(
       meta?.user?.premium_until
-        ? new Date(meta.user.premium_until).toISOString().slice(0, 16)
+        ? toUTC7Input(new Date(meta.user.premium_until))
         : defaultPremiumUntil()
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meta?.user?.premium_until]);
   const [upgradeLoading, setUpgradeLoading] = useState(false);
 
@@ -131,7 +135,7 @@ export default function ChatRoom({ room, meta, onMetaUpdate, onDelete }: Props) 
     try {
       await updateUser(String(userId), {
         is_premium: true,
-        premium_until: premiumUntil ? new Date(premiumUntil).toISOString() : null,
+        premium_until: premiumUntil ? new Date(`${premiumUntil}+07:00`).toISOString() : null,
       });
       enqueueSnackbar('Nâng cấp thành công!');
       onMetaUpdate?.();
