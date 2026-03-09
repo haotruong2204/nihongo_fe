@@ -9,9 +9,8 @@ export function fNumber(number: InputValue) {
 }
 
 export function fCurrency(number: InputValue) {
-  const format = number ? numeral(number).format('$0,0.00') : '';
-
-  return result(format, '.00');
+  if (number == null || number === '') return '';
+  return `${numeral(number).format('0,0')}₫`;
 }
 
 export function fPercent(number: InputValue) {
@@ -24,6 +23,11 @@ export function fShortenNumber(number: InputValue) {
   const format = number != null ? numeral(number).format('0.00a') : '';
 
   return result(format, '.00');
+}
+
+export function fVND(number: InputValue) {
+  if (number == null || number === '') return '';
+  return `${numeral(number).format('0,0')}₫`;
 }
 
 export function fData(number: InputValue) {

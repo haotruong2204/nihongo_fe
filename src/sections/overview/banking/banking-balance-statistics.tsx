@@ -49,7 +49,7 @@ export default function BankingBalanceStatistics({ title, subheader, chart, ...o
     },
     tooltip: {
       y: {
-        formatter: (value: number) => `$${value}`,
+        formatter: (value: number) => `${value.toLocaleString('vi-VN')}₫`,
       },
     },
     ...options,

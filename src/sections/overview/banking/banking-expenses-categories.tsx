@@ -24,9 +24,13 @@ interface Props extends CardProps {
     }[];
     options?: ApexOptions;
   };
+  bottomStats?: {
+    label: string;
+    value: string | number;
+  }[];
 }
 
-export default function BankingExpensesCategories({ title, subheader, chart, ...other }: Props) {
+export default function BankingExpensesCategories({ title, subheader, chart, bottomStats, ...other }: Props) {
   const theme = useTheme();
 
   const smUp = useResponsive('up', 'sm');
@@ -88,7 +92,7 @@ export default function BankingExpensesCategories({ title, subheader, chart, ...
       >
         <Chart
           dir="ltr"
-          type="polarArea"
+          type="donut"
           series={chartSeries}
           options={chartOptions}
           height={smUp ? 240 : 360}
@@ -97,25 +101,30 @@ export default function BankingExpensesCategories({ title, subheader, chart, ...
 
       <Divider sx={{ borderStyle: 'dashed' }} />
 
-      <Box
-        display="grid"
-        gridTemplateColumns="repeat(2, 1fr)"
-        sx={{ textAlign: 'center', typography: 'h4' }}
-      >
-        <Stack sx={{ py: 2, borderRight: `dashed 1px ${theme.palette.divider}` }}>
-          <Box component="span" sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>
-            Categories
-          </Box>
-          9
-        </Stack>
-
-        <Stack sx={{ py: 2 }}>
-          <Box component="span" sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>
-            Categories
-          </Box>
-          $18,765
-        </Stack>
-      </Box>
+      {bottomStats && bottomStats.length > 0 && (
+        <Box
+          display="grid"
+          gridTemplateColumns={`repeat(${bottomStats.length}, 1fr)`}
+          sx={{ textAlign: 'center', typography: 'h4' }}
+        >
+          {bottomStats.map((stat, index) => (
+            <Stack
+              key={stat.label}
+              sx={{
+                py: 2,
+                borderRight: index < bottomStats.length - 1
+                  ? `dashed 1px ${theme.palette.divider}`
+                  : undefined,
+              }}
+            >
+              <Box component="span" sx={{ mb: 1, typography: 'body2', color: 'text.secondary' }}>
+                {stat.label}
+              </Box>
+              {stat.value}
+            </Stack>
+          ))}
+        </Box>
+      )}
     </Card>
   );
 }

@@ -37,6 +37,7 @@ type RowProps = {
   name: string | null;
   avatarUrl: string | null;
   date: Date | number | string;
+  endDate?: Date | number | string | null;
 };
 
 interface Props extends CardProps {
@@ -163,13 +164,22 @@ function BankingRecentTransitionsRow({ row }: BankingRecentTransitionsRowProps) 
       <TableRow>
         <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
           {renderAvatar}
-          <ListItemText primary={row.message} secondary={row.category} />
+          <ListItemText
+            primary={row.message}
+            secondary={
+              <Label variant="soft" color={row.category === 'Gói năm' ? 'info' : 'default'} sx={{ mt: 0.5, fontSize: 11 }}>
+                {row.category}
+              </Label>
+            }
+          />
         </TableCell>
 
         <TableCell>
           <ListItemText
             primary={fDateTime(row.date)}
+            secondary={row.endDate ? `Hết hạn: ${fDateTime(row.endDate)}` : ''}
             primaryTypographyProps={{ typography: 'body2' }}
+            secondaryTypographyProps={{ typography: 'caption', color: 'text.disabled' }}
           />
         </TableCell>
 
