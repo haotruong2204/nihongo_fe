@@ -27,6 +27,7 @@ import { useGetDevtoolsLogs, blockIp, unblockIp } from 'src/api/devtools-log';
 // components
 import Iconify from 'src/components/iconify';
 import Label from 'src/components/label';
+import DeviceInfoChip, { parseUserAgent } from 'src/components/device-info-chip';
 import Scrollbar from 'src/components/scrollbar';
 import { useSnackbar } from 'src/components/snackbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -268,6 +269,12 @@ export default function DevtoolsLogListView() {
               <DetailRow label="IP Address" value={selectedRow.ip_address} mono />
               <DetailRow label="Email" value={selectedRow.email || 'Anonymous'} />
               <DetailRow label="Location" value={[selectedRow.city, selectedRow.country].filter(Boolean).join(', ') || '-'} />
+              <Box>
+                <Typography variant="caption" sx={{ color: 'text.secondary', mb: 0.5, display: 'block' }}>
+                  Device
+                </Typography>
+                <DeviceInfoChip deviceInfo={selectedRow.user_agent ? parseUserAgent(selectedRow.user_agent) : 'Unknown'} />
+              </Box>
               <DetailRow label="User Agent" value={selectedRow.user_agent || '-'} />
               <DetailRow label="Open Count" value={String(selectedRow.open_count)} />
               <Box>

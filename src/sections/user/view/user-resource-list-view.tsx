@@ -10,7 +10,10 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+// components
+import DeviceInfoChip from 'src/components/device-info-chip';
 // routes
 import { paths } from 'src/routes/paths';
 // api
@@ -57,6 +60,22 @@ function formatColumnHeader(col: string, t: (key: string) => string): string {
       .replace(/\b\w/g, (c) => c.toUpperCase());
   }
   return translated;
+}
+
+function renderCell(col: string, value: unknown, t: (key: string) => string) {
+  if (col === 'device_info') {
+    return <DeviceInfoChip deviceInfo={String(value ?? '-')} />;
+  }
+  if (col === 'user_agent') {
+    return (
+      <Tooltip title={String(value ?? '')} arrow placement="top">
+        <Typography variant="caption" noWrap sx={{ display: 'block', color: 'text.secondary' }}>
+          {String(value ?? '-')}
+        </Typography>
+      </Tooltip>
+    );
+  }
+  return formatCellValue(col, value, t);
 }
 
 function formatCellValue(col: string, value: unknown, t: (key: string) => string): string {
@@ -184,8 +203,8 @@ function GenericResourceListView() {
                     {items.map((row) => (
                       <TableRow key={row.id} hover>
                         {columns.map((col) => (
-                          <TableCell key={col}>
-                            {formatCellValue(col, row[col], t)}
+                          <TableCell key={col} sx={col === 'user_agent' ? { maxWidth: 200 } : undefined}>
+                            {renderCell(col, row[col], t)}
                           </TableCell>
                         ))}
                       </TableRow>
