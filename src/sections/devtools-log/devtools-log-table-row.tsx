@@ -6,8 +6,6 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 // types
 import { IDevtoolsLogItem } from 'src/types/devtools-log';
-// utils
-import { fDateTime } from 'src/utils/format-time';
 // components
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
@@ -28,7 +26,7 @@ function getCountColor(count: number): 'error' | 'warning' | 'default' {
 }
 
 export default function DevtoolsLogTableRow({ row, onViewRow, onBlockIp, onUnblockIp }: Props) {
-  const { ip_address, email, open_count, country, city, is_blocked, blocked_ip_id, last_detected_at } = row;
+  const { ip_address, email, open_count, country, city, is_blocked, blocked_ip_id } = row;
 
   const location = [city, country].filter(Boolean).join(', ') || '-';
 
@@ -63,12 +61,6 @@ export default function DevtoolsLogTableRow({ row, onViewRow, onBlockIp, onUnblo
         <Label variant="soft" color={is_blocked ? 'error' : 'success'}>
           {is_blocked ? 'Blocked' : 'Active'}
         </Label>
-      </TableCell>
-
-      <TableCell sx={{ whiteSpace: 'nowrap' }}>
-        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-          {last_detected_at ? fDateTime(last_detected_at) : '-'}
-        </Typography>
       </TableCell>
 
       <TableCell align="right" sx={{ px: 1 }}>
