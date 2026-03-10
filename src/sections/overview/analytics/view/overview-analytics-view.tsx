@@ -1,9 +1,13 @@
 // @mui
 import Grid from '@mui/material/Unstable_Grid2';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
+// hooks
+import { useState } from 'react';
 // components
 import { useSettingsContext } from 'src/components/settings';
 // locales
@@ -12,6 +16,7 @@ import { useLocales } from 'src/locales';
 import { useGetAnalytics } from 'src/api/analytics';
 // components
 import Iconify from 'src/components/iconify';
+import axiosInstance, { endpoints } from 'src/utils/axios';
 //
 import AnalyticsNews from '../analytics-news';
 import AnalyticsCurrentVisits from '../analytics-current-visits';
@@ -30,6 +35,17 @@ export default function OverviewAnalyticsView() {
   const { t } = useLocales();
 
   const { analytics, analyticsLoading } = useGetAnalytics();
+  const [syncing, setSyncing] = useState(false);
+
+  const handleCacheSync = async () => {
+    setSyncing(true);
+    try {
+      await axiosInstance.post(endpoints.cacheSync);
+      window.location.reload();
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   if (analyticsLoading) {
     return (
@@ -55,14 +71,18 @@ export default function OverviewAnalyticsView() {
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
-      <Typography
-        variant="h4"
-        sx={{
-          mb: { xs: 3, md: 5 },
-        }}
-      >
-        {t('analytics_dashboard')}
-      </Typography>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: { xs: 3, md: 5 } }}>
+        <Typography variant="h4">{t('analytics_dashboard')}</Typography>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<Iconify icon={syncing ? 'svg-spinners:ring-resize' : 'solar:refresh-bold'} />}
+          onClick={handleCacheSync}
+          disabled={syncing}
+        >
+          {syncing ? 'Đang sync...' : 'Sync dữ liệu'}
+        </Button>
+      </Stack>
 
       <Grid container spacing={3}>
         <Grid xs={12} sm={6} md={4}>

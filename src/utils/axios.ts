@@ -89,6 +89,7 @@ export const endpoints = {
     details: (id: string) => `/api/v1/admins/quick_replies/${id}`,
   },
   analytics: '/api/v1/admins/analytics',
+  cacheSync: '/api/v1/admins/cache_sync',
   revenue: '/api/v1/admins/revenue',
   devtoolsLog: {
     list: '/api/v1/admins/devtools_logs',
