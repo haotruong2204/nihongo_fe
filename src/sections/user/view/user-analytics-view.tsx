@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 // utils
 import { fDateTime } from 'src/utils/format-time';
@@ -9,10 +10,15 @@ import Avatar from '@mui/material/Avatar';
 import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 // routes
 import { paths } from 'src/routes/paths';
 // api
-import { useGetUser } from 'src/api/user';
+import { useGetUser, recalculateUserCounters } from 'src/api/user';
+// components
+import Iconify from 'src/components/iconify';
+import { useSnackbar } from 'src/components/snackbar';
 // locales
 import { useLocales } from 'src/locales';
 // components
@@ -33,8 +39,23 @@ export default function UserAnalyticsView() {
   const navigate = useNavigate();
 
   const { id = '' } = useParams();
+  const { enqueueSnackbar } = useSnackbar();
+  const [syncing, setSyncing] = useState(false);
 
   const { user, stats, userLoading } = useGetUser(id);
+
+  const handleSyncCounters = async () => {
+    setSyncing(true);
+    try {
+      await recalculateUserCounters(id);
+      enqueueSnackbar('Đã đồng bộ số liệu!', { variant: 'success' });
+      window.location.reload();
+    } catch {
+      enqueueSnackbar('Đồng bộ thất bại!', { variant: 'error' });
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const handleCardClick = (resource: string) => {
     navigate(paths.dashboard.user.resource(id, resource));
@@ -61,6 +82,19 @@ export default function UserAnalyticsView() {
           { name: t('user'), href: paths.dashboard.user.list },
           { name: user.display_name },
         ]}
+        action={
+          <Tooltip title="Đồng bộ lại counter cache & xóa Redis cache">
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<Iconify icon="solar:refresh-bold" />}
+              onClick={handleSyncCounters}
+              disabled={syncing}
+            >
+              {syncing ? 'Đang sync...' : 'Sync số liệu'}
+            </Button>
+          </Tooltip>
+        }
         sx={{ mb: { xs: 3, md: 5 } }}
       />
 

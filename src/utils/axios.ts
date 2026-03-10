@@ -110,5 +110,6 @@ export const endpoints = {
     customVocabItem: (userId: string, itemId: string) => `/api/v1/admins/users/${userId}/custom_vocab_items/${itemId}`,
     vocabSet: (userId: string, setId: string) => `/api/v1/admins/users/${userId}/vocab_sets/${setId}`,
     vocabSetRemoveItem: (userId: string, setId: string) => `/api/v1/admins/users/${userId}/vocab_sets/${setId}/remove_item`,
+    recalculateCounters: (id: string) => `/api/v1/admins/users/${id}/recalculate_counters`,
   },
 };

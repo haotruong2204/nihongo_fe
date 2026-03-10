@@ -294,6 +294,14 @@ export async function searchUsers(query: string): Promise<IUserItem[]> {
 
 // ----------------------------------------------------------------------
 
+export async function recalculateUserCounters(id: string) {
+  const URL = endpoints.user.recalculateCounters(id);
+  const res = await axiosInstance.post(URL);
+  return res.data;
+}
+
+// ----------------------------------------------------------------------
+
 export async function updateUser(
   id: string,
   data: {
