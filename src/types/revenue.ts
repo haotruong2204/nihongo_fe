@@ -14,12 +14,20 @@ export type IRevenueChartItem = {
   revenue: number;
 };
 
+export type IRevenueDailyChartItem = {
+  day: string;
+  revenue: number;
+};
+
 export type IRevenueStats = {
   total_revenue: number;
+  today_revenue: number;
+  yesterday_revenue: number;
   this_month_revenue: number;
   last_month_revenue: number;
   monthly_count: number;
   yearly_count: number;
+  daily_chart: IRevenueDailyChartItem[];
   monthly_chart: IRevenueChartItem[];
   recent_transactions: IRevenueTransaction[];
 };

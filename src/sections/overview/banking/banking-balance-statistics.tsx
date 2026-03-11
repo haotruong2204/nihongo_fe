@@ -21,6 +21,7 @@ interface Props extends CardProps {
     colors?: string[];
     series: {
       type: string;
+      categories?: string[];
       data: {
         name: string;
         data: number[];
@@ -35,7 +36,12 @@ export default function BankingBalanceStatistics({ title, subheader, chart, ...o
 
   const popover = usePopover();
 
-  const [seriesData, setSeriesData] = useState('Year');
+  const [seriesData, setSeriesData] = useState(series[0]?.type ?? 'Year');
+
+  const currentSeries = series.find((s) => s.type === seriesData);
+  const currentCategories = currentSeries?.categories ?? categories;
+
+  const { xaxis: _xaxis, ...restOptions } = options ?? {};
 
   const chartOptions = useChart({
     colors,
@@ -45,14 +51,14 @@ export default function BankingBalanceStatistics({ title, subheader, chart, ...o
       colors: ['transparent'],
     },
     xaxis: {
-      categories,
+      categories: currentCategories,
     },
     tooltip: {
       y: {
         formatter: (value: number) => `${value.toLocaleString('vi-VN')}₫`,
       },
     },
-    ...options,
+    ...restOptions,
   });
 
   const handleChangeSeries = useCallback(

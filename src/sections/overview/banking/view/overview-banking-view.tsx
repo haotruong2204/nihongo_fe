@@ -48,19 +48,28 @@ export default function OverviewBankingView() {
   const revenues = stats?.monthly_chart.map((m) => m.revenue) ?? [];
   const categories = stats?.monthly_chart.map((m) => m.month) ?? [];
 
+  const dailyRevenues = stats?.daily_chart.map((d) => d.revenue) ?? [];
+  const dailyCategories = stats?.daily_chart.map((d) => d.day) ?? [];
+
   const percent =
     stats && stats.last_month_revenue > 0
       ? ((stats.this_month_revenue - stats.last_month_revenue) / stats.last_month_revenue) * 100
+      : 0;
+
+  const todayPercent =
+    stats && stats.yesterday_revenue > 0
+      ? ((stats.today_revenue - stats.yesterday_revenue) / stats.yesterday_revenue) * 100
       : 0;
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
         {/* Summary widgets */}
-        <Grid xs={12} md={7}>
+        <Grid xs={12}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
             {isLoading ? (
               <>
+                <Skeleton variant="rounded" width="100%" height={220} />
                 <Skeleton variant="rounded" width="100%" height={220} />
                 <Skeleton variant="rounded" width="100%" height={220} />
               </>
@@ -81,6 +90,15 @@ export default function OverviewBankingView() {
                   percent={percent}
                   total={stats?.this_month_revenue ?? 0}
                   chart={{ series: toSparkline(revenues) }}
+                />
+
+                <BankingWidgetSummary
+                  title="Hôm nay"
+                  color="info"
+                  icon="solar:sun-bold"
+                  percent={todayPercent}
+                  total={stats?.today_revenue ?? 0}
+                  chart={{ series: toSparkline(dailyRevenues.slice(-7)) }}
                 />
               </>
             )}
@@ -112,16 +130,21 @@ export default function OverviewBankingView() {
           />
         </Grid>
 
-        {/* Monthly revenue chart */}
-        <Grid xs={12}>
+        {/* Revenue chart */}
+        <Grid xs={12} md={7}>
           <BankingBalanceStatistics
-            title="Doanh thu theo tháng"
-            subheader={stats ? `Tháng này: ${fVND(stats.this_month_revenue)} — Tháng trước: ${fVND(stats.last_month_revenue)}` : ''}
+            title="Thống kê doanh thu"
+            subheader={stats ? `Hôm nay: ${fVND(stats.today_revenue)} — Tháng này: ${fVND(stats.this_month_revenue)}` : ''}
             chart={{
-              categories,
               series: [
                 {
+                  type: 'Ngày',
+                  categories: dailyCategories,
+                  data: [{ name: 'Doanh thu', data: dailyRevenues }],
+                },
+                {
                   type: 'Tháng',
+                  categories,
                   data: [{ name: 'Doanh thu', data: revenues }],
                 },
               ],
