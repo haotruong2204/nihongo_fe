@@ -41,7 +41,7 @@ export default function BankingBalanceStatistics({ title, subheader, chart, ...o
   const currentSeries = series.find((s) => s.type === seriesData);
   const currentCategories = currentSeries?.categories ?? categories;
 
-  const { xaxis: _xaxis, ...restOptions } = options ?? {};
+  const { xaxis: _xaxis, ...restOptions } = options ?? {}; // eslint-disable-line @typescript-eslint/no-unused-vars
 
   const chartOptions = useChart({
     colors,
