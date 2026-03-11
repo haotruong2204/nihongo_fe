@@ -41,7 +41,7 @@ import UserTableFiltersResult from '../user-table-filters-result';
 
 const TABLE_HEAD = [
   { id: 'display_name', label: 'User' },
-  { id: 'srs_cards_count', label: 'SRS', width: 100 },
+  { id: 'srs_cards_count', label: 'SRS (K/V)', width: 110 },
   { id: 'review_logs_count', label: 'Reviews', width: 100 },
   { id: 'page_views_count', label: 'Page Views', width: 120 },
   { id: 'tango_lesson_progresses_count', label: 'Tango', width: 100 },

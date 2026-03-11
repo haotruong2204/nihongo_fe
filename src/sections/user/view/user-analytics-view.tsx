@@ -57,8 +57,9 @@ export default function UserAnalyticsView() {
     }
   };
 
-  const handleCardClick = (resource: string) => {
-    navigate(paths.dashboard.user.resource(id, resource));
+  const handleCardClick = (resource: string, query?: string) => {
+    const url = paths.dashboard.user.resource(id, resource);
+    navigate(query ? `${url}?${query}` : url);
   };
 
   if (userLoading) {
@@ -133,10 +134,21 @@ export default function UserAnalyticsView() {
       {stats && (
         <Grid container spacing={3}>
           <Grid xs={12} sm={6} md={4}>
-            <Box onClick={() => handleCardClick('srs_cards')} sx={{ cursor: 'pointer' }}>
+            <Box onClick={() => handleCardClick('srs_cards', 'type=kanji')} sx={{ cursor: 'pointer' }}>
               <AnalyticsWidgetSummary
-                title={t('srs_cards')}
-                total={stats.srs_cards_count}
+                title={t('srs_type_kanji')}
+                total={stats.kanji_srs_cards_count}
+                color="secondary"
+                icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
+              />
+            </Box>
+          </Grid>
+
+          <Grid xs={12} sm={6} md={4}>
+            <Box onClick={() => handleCardClick('srs_cards', 'type=vocab')} sx={{ cursor: 'pointer' }}>
+              <AnalyticsWidgetSummary
+                title={t('srs_type_vocab')}
+                total={stats.vocab_srs_cards_count}
                 color="primary"
                 icon={<img alt="icon" src="/assets/icons/glass/ic_glass_bag.png" />}
               />

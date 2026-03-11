@@ -153,6 +153,8 @@
   "srs_status_review": "Ôn tập",
   "srs_status_relearning": "Học lại",
   "srs_status_overdue": "Quá hạn",
+  "srs_type_kanji": "Kanji",
+  "srs_type_vocab": "Từ vựng",
   "srs_delete_confirm_content": "Thẻ này sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn tác.",
   "srs_reset_confirm_content": "Tiến trình SRS của thẻ sẽ được đặt lại về trạng thái ban đầu (mới). Hành động này không thể hoàn tác.",
   "vocab_set_delete_confirm": "Bộ từ vựng này sẽ bị xóa vĩnh viễn cùng toàn bộ từ trong đó. Hành động này không thể hoàn tác.",

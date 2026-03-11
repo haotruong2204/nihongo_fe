@@ -149,6 +149,8 @@
   "srs_status_review": "复习",
   "srs_status_relearning": "重新学习",
   "srs_status_overdue": "逾期",
+  "srs_type_kanji": "漢字",
+  "srs_type_vocab": "詞彙",
   "srs_delete_confirm_content": "此卡将被永久删除，无法撤销。",
   "srs_reset_confirm_content": "此卡的SRS进度将重置为初始状态（新卡），无法撤销。",
   "vocab_set_delete_confirm": "此词汇集及其所有单词将被永久删除，无法撤销。",

@@ -39,7 +39,7 @@ export default function UserTableRow({
   onSelectRow,
   onDeleteRow,
 }: Props) {
-  const { id, display_name, photo_url, email, is_premium, is_banned, srs_cards_count, review_logs_count, page_views_count, tango_lesson_progresses_count, vocab_sets_count } = row;
+  const { id, display_name, photo_url, email, is_premium, is_banned, srs_cards_count, kanji_srs_cards_count, vocab_srs_cards_count, review_logs_count, page_views_count, tango_lesson_progresses_count, vocab_sets_count } = row;
 
   const router = useRouter();
 
@@ -80,7 +80,9 @@ export default function UserTableRow({
         </TableCell>
 
         <TableCell align="center">
-          {srs_cards_count ?? 0}
+          {kanji_srs_cards_count != null && vocab_srs_cards_count != null
+            ? `${kanji_srs_cards_count} / ${vocab_srs_cards_count}`
+            : (srs_cards_count ?? 0)}
         </TableCell>
 
         <TableCell align="center">

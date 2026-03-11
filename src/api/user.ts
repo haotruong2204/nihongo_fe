@@ -182,14 +182,16 @@ type UseGetUserSrsCardsParams = {
   page?: number;
   perPage?: number;
   status?: string;
+  cardType?: string;
 };
 
 export function useGetUserSrsCards(
   userId: string,
-  { page = 1, perPage = 10, status = '' }: UseGetUserSrsCardsParams = {}
+  { page = 1, perPage = 10, status = '', cardType = '' }: UseGetUserSrsCardsParams = {}
 ) {
   const params: Record<string, any> = { page, per_page: perPage };
   if (status) params.status = status;
+  if (cardType) params.card_type = cardType;
 
   const URL = userId
     ? [endpoints.user.srsCards(userId), { params }]

@@ -104,6 +104,8 @@ export type IUserItem = {
   last_login_at: string | null;
   created_at: string | null;
   srs_cards_count: number;
+  kanji_srs_cards_count?: number;
+  vocab_srs_cards_count?: number;
   review_logs_count: number;
   page_views_count: number;
   tango_lesson_progresses_count?: number;
@@ -112,6 +114,8 @@ export type IUserItem = {
 
 export type IUserStats = {
   srs_cards_count: number;
+  kanji_srs_cards_count: number;
+  vocab_srs_cards_count: number;
   review_logs_count: number;
   vocab_sets_count: number;
   custom_vocab_items_count: number;

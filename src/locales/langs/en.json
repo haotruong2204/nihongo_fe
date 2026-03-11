@@ -153,6 +153,8 @@
   "srs_status_review": "Review",
   "srs_status_relearning": "Relearning",
   "srs_status_overdue": "Overdue",
+  "srs_type_kanji": "Kanji",
+  "srs_type_vocab": "Vocabulary",
   "srs_delete_confirm_content": "This card will be permanently deleted. This action cannot be undone.",
   "srs_reset_confirm_content": "The card's SRS progress will be reset to its initial state (new). This action cannot be undone.",
   "vocab_set_delete_confirm": "This vocab set and all its words will be permanently deleted. This action cannot be undone.",

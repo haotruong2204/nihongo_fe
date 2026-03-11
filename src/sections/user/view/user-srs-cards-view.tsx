@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 // @mui
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
@@ -40,6 +40,11 @@ import { useTable, TableNoData, TableSkeleton } from 'src/components/table';
 
 // ----------------------------------------------------------------------
 
+const TYPE_TABS = [
+  { value: 'kanji', labelKey: 'srs_type_kanji' },
+  { value: 'vocab', labelKey: 'srs_type_vocab' },
+];
+
 const STATUS_TABS = [
   { value: '', labelKey: 'all' },
   { value: 'new', labelKey: 'srs_status_new' },
@@ -65,8 +70,11 @@ export default function UserSrsCardsView() {
   const settings = useSettingsContext();
   const { t } = useLocales();
   const { id = '' } = useParams();
+  const [searchParams] = useSearchParams();
 
   const table = useTable({ defaultRowsPerPage: 10 });
+  const initialType = searchParams.get('type') === 'vocab' ? 'vocab' : 'kanji';
+  const [cardTypeFilter, setCardTypeFilter] = useState(initialType);
   const [statusFilter, setStatusFilter] = useState('');
   const [actionTarget, setActionTarget] = useState<ActionTarget>(null);
   const confirmDialog = useBoolean();
@@ -76,7 +84,16 @@ export default function UserSrsCardsView() {
     page: table.page + 1,
     perPage: table.rowsPerPage,
     status: statusFilter,
+    cardType: cardTypeFilter,
   });
+
+  const handleTypeTabChange = useCallback(
+    (_: React.SyntheticEvent, newValue: string) => {
+      setCardTypeFilter(newValue);
+      table.onResetPage();
+    },
+    [table]
+  );
 
   const handleTabChange = useCallback(
     (_: React.SyntheticEvent, newValue: string) => {
@@ -126,6 +143,7 @@ export default function UserSrsCardsView() {
   }
 
   const isDeleteAction = actionTarget?.type === 'delete';
+  const showReadingCol = cardTypeFilter === 'vocab';
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -141,6 +159,18 @@ export default function UserSrsCardsView() {
       />
 
       <Card>
+        {/* Type filter */}
+        <Tabs
+          value={cardTypeFilter}
+          onChange={handleTypeTabChange}
+          sx={{ px: 2.5, borderBottom: 1, borderColor: 'divider' }}
+        >
+          {TYPE_TABS.map((tab) => (
+            <Tab key={tab.value} value={tab.value} label={t(tab.labelKey)} />
+          ))}
+        </Tabs>
+
+        {/* Status filter */}
         <Tabs
           value={statusFilter}
           onChange={handleTabChange}
@@ -157,6 +187,7 @@ export default function UserSrsCardsView() {
               <TableHead>
                 <TableRow>
                   <TableCell>{t('col_kanji')}</TableCell>
+                  {showReadingCol && <TableCell>{t('col_reading')}</TableCell>}
                   <TableCell>{t('col_meaning')}</TableCell>
                   <TableCell>{t('col_state')}</TableCell>
                   <TableCell align="center">{t('col_interval')}</TableCell>
@@ -174,80 +205,86 @@ export default function UserSrsCardsView() {
                       <TableSkeleton key={index} sx={{ height: 56 }} />
                     ))
                   : items.map((row) => (
-                      <TableRow key={row.id} hover>
-                        <TableCell sx={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {row.kanji ?? '-'}
-                        </TableCell>
+                        <TableRow key={row.id} hover>
+                          <TableCell sx={{ maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {row.kanji ?? '-'}
+                          </TableCell>
 
-                        <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {row.meaning ?? '-'}
-                        </TableCell>
+                          {showReadingCol && (
+                            <TableCell sx={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {row.reading || '-'}
+                            </TableCell>
+                          )}
 
-                        <TableCell>
-                          {row.state ? (
-                            <Label
-                              variant="soft"
-                              color={STATUS_COLORS[row.state] ?? 'default'}
-                            >
-                              {t(`srs_status_${row.state}`) !== `srs_status_${row.state}`
-                                ? t(`srs_status_${row.state}`)
-                                : row.state}
-                            </Label>
-                          ) : '-'}
-                        </TableCell>
+                          <TableCell sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {row.meaning ?? '-'}
+                          </TableCell>
 
-                        <TableCell align="center">
-                          {row.interval != null ? (
-                            <Chip
-                              size="small"
-                              label={`${row.interval}d`}
-                              variant="outlined"
-                            />
-                          ) : '-'}
-                        </TableCell>
-
-                        <TableCell align="center">
-                          {row.ease != null
-                            ? Number(row.ease).toFixed(2)
-                            : '-'}
-                        </TableCell>
-
-                        <TableCell align="center">
-                          {row.reviews_count ?? 0}
-                        </TableCell>
-
-                        <TableCell align="center">
-                          {row.lapses_count ?? 0}
-                        </TableCell>
-
-                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                          {row.due_date ? fDateTime(row.due_date) : '-'}
-                        </TableCell>
-
-                        <TableCell align="right">
-                          <Stack direction="row" justifyContent="flex-end" spacing={0.5}>
-                            <Tooltip title={t('srs_reset')} arrow placement="top">
-                              <IconButton
-                                size="small"
-                                color="warning"
-                                onClick={() => handleOpenConfirm(row.id, 'reset')}
+                          <TableCell>
+                            {row.state ? (
+                              <Label
+                                variant="soft"
+                                color={STATUS_COLORS[row.state] ?? 'default'}
                               >
-                                <Iconify icon="solar:restart-bold" />
-                              </IconButton>
-                            </Tooltip>
+                                {t(`srs_status_${row.state}`) !== `srs_status_${row.state}`
+                                  ? t(`srs_status_${row.state}`)
+                                  : row.state}
+                              </Label>
+                            ) : '-'}
+                          </TableCell>
 
-                            <Tooltip title={t('delete')} arrow placement="top">
-                              <IconButton
+                          <TableCell align="center">
+                            {row.interval != null ? (
+                              <Chip
                                 size="small"
-                                color="error"
-                                onClick={() => handleOpenConfirm(row.id, 'delete')}
-                              >
-                                <Iconify icon="solar:trash-bin-trash-bold" />
-                              </IconButton>
-                            </Tooltip>
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
+                                label={`${row.interval}d`}
+                                variant="outlined"
+                              />
+                            ) : '-'}
+                          </TableCell>
+
+                          <TableCell align="center">
+                            {row.ease != null
+                              ? Number(row.ease).toFixed(2)
+                              : '-'}
+                          </TableCell>
+
+                          <TableCell align="center">
+                            {row.reviews_count ?? 0}
+                          </TableCell>
+
+                          <TableCell align="center">
+                            {row.lapses_count ?? 0}
+                          </TableCell>
+
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                            {row.due_date ? fDateTime(row.due_date) : '-'}
+                          </TableCell>
+
+                          <TableCell align="right">
+                            <Stack direction="row" justifyContent="flex-end" spacing={0.5}>
+                              <Tooltip title={t('srs_reset')} arrow placement="top">
+                                <IconButton
+                                  size="small"
+                                  color="warning"
+                                  onClick={() => handleOpenConfirm(row.id, 'reset')}
+                                >
+                                  <Iconify icon="solar:restart-bold" />
+                                </IconButton>
+                              </Tooltip>
+
+                              <Tooltip title={t('delete')} arrow placement="top">
+                                <IconButton
+                                  size="small"
+                                  color="error"
+                                  onClick={() => handleOpenConfirm(row.id, 'delete')}
+                                >
+                                  <Iconify icon="solar:trash-bin-trash-bold" />
+                                </IconButton>
+                              </Tooltip>
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
                     ))}
 
                 <TableNoData notFound={isEmpty} />
