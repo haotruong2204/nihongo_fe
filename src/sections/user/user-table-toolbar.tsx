@@ -44,6 +44,13 @@ export default function UserTableToolbar({
     [onFilters]
   );
 
+  const handleFilterIp = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      onFilters('ipSearch', event.target.value);
+    },
+    [onFilters]
+  );
+
   return (
     <Stack
       spacing={2}
@@ -87,6 +94,20 @@ export default function UserTableToolbar({
           startAdornment: (
             <InputAdornment position="start">
               <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+            </InputAdornment>
+          ),
+        }}
+      />
+
+      <TextField
+        sx={{ flexShrink: 0, width: { xs: 1, md: 200 } }}
+        value={filters.ipSearch}
+        onChange={handleFilterIp}
+        placeholder="Search by IP..."
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <Iconify icon="solar:shield-network-bold" sx={{ color: 'text.disabled' }} />
             </InputAdornment>
           ),
         }}

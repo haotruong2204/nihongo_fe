@@ -7,6 +7,7 @@ export type IUserTableFilterValue = string | boolean | null;
 export type IUserTableFilters = {
   search: string;
   isPremium: string; // 'all' | 'true' | 'false'
+  ipSearch: string;
 };
 
 // ----------------------------------------------------------------------

@@ -14,6 +14,7 @@ type UseGetUsersParams = {
   isPremium?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  ipSearch?: string;
 };
 
 export function useGetUsers({
@@ -23,6 +24,7 @@ export function useGetUsers({
   isPremium = 'all',
   sortBy = '',
   sortOrder = 'desc',
+  ipSearch = '',
 }: UseGetUsersParams = {}) {
   const params: Record<string, any> = {
     page,
@@ -35,6 +37,10 @@ export function useGetUsers({
 
   if (isPremium !== 'all') {
     params['q[is_premium_eq]'] = isPremium === 'true';
+  }
+
+  if (ipSearch) {
+    params.ip = ipSearch;
   }
 
   if (sortBy) {

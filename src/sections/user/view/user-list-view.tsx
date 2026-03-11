@@ -53,6 +53,7 @@ const TABLE_HEAD = [
 const defaultFilters: IUserTableFilters = {
   search: '',
   isPremium: 'all',
+  ipSearch: '',
 };
 
 // ----------------------------------------------------------------------
@@ -75,6 +76,7 @@ export default function UserListView() {
     isPremium: filters.isPremium,
     sortBy: table.orderBy,
     sortOrder: table.order,
+    ipSearch: filters.ipSearch,
   });
 
   const canReset = !isEqual(defaultFilters, filters);
