@@ -85,6 +85,7 @@ function formatCellValue(col: string, value: unknown, t: (key: string) => string
     const formatted = fDateTime(value);
     return formatted || String(value);
   }
+  if (typeof value === 'object') return JSON.stringify(value);
   return String(value);
 }
 
