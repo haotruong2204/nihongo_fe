@@ -121,6 +121,8 @@
   "col_answer": "答案",
   "col_correct": "正确",
   "col_duration": "时长",
+  "jlpt_failed": "未通过",
+  "jlpt_level_all": "全部等级",
   "analytics_dashboard": "分析仪表板",
   "total_users": "总用户数",
   "premium_users": "高级用户",

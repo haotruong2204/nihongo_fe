@@ -245,6 +245,69 @@ export function useGetUserSrsCards(
 
 // ----------------------------------------------------------------------
 
+// ----------------------------------------------------------------------
+
+type UseGetUserJlptTestResultsParams = {
+  page?: number;
+  perPage?: number;
+  level?: string;
+  passed?: string;
+};
+
+export function useGetUserJlptTestResults(
+  userId: string,
+  { page = 1, perPage = 10, level = '', passed = '' }: UseGetUserJlptTestResultsParams = {}
+) {
+  const params: Record<string, any> = { page, per_page: perPage };
+  if (level) params.level = level;
+  if (passed !== '') params.passed = passed;
+
+  const URL = userId
+    ? [endpoints.user.resources(userId, 'jlpt_test_results'), { params }]
+    : null;
+
+  const { data, isLoading, error, isValidating, mutate } = useSWR(URL, fetcher, {
+    keepPreviousData: true,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    errorRetryCount: 0,
+  });
+
+  const items: Record<string, any>[] = useMemo(() => {
+    if (!data?.data?.resource?.data) return [];
+    return data.data.resource.data.map((item: any) => ({
+      id: item.id,
+      ...item.attributes,
+    }));
+  }, [data]);
+
+  const pagination: IUserPagination = useMemo(
+    () =>
+      data?.data?.pagy || {
+        current_page: 1,
+        total_pages: 1,
+        total_count: 0,
+        per_page: perPage,
+      },
+    [data, perPage]
+  );
+
+  return useMemo(
+    () => ({
+      items,
+      pagination,
+      isLoading,
+      error,
+      isValidating,
+      isEmpty: !isLoading && !items.length,
+      mutate,
+    }),
+    [items, pagination, isLoading, error, isValidating, mutate]
+  );
+}
+
+// ----------------------------------------------------------------------
+
 export async function deleteSrsCard(userId: string, cardId: string) {
   const URL = endpoints.user.srsCard(userId, cardId);
   const res = await axiosInstance.delete(URL);

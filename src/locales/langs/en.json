@@ -124,6 +124,8 @@
   "col_answer": "Answer",
   "col_correct": "Correct",
   "col_duration": "Duration",
+  "jlpt_failed": "Failed",
+  "jlpt_level_all": "All Levels",
   "analytics_dashboard": "Analytics Dashboard",
   "total_users": "Total Users",
   "premium_users": "Premium Users",

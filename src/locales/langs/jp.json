@@ -121,6 +121,8 @@
   "col_answer": "回答",
   "col_correct": "正解",
   "col_duration": "所要時間",
+  "jlpt_failed": "不合格",
+  "jlpt_level_all": "全レベル",
   "analytics_dashboard": "分析ダッシュボード",
   "total_users": "総ユーザー数",
   "premium_users": "プレミアムユーザー",

@@ -32,6 +32,7 @@ import { useTable, TableNoData, TableSkeleton } from 'src/components/table';
 import UserSrsCardsView from './user-srs-cards-view';
 import UserCustomVocabView from './user-custom-vocab-view';
 import UserVocabSetsView from './user-vocab-sets-view';
+import UserJlptTestResultsView from './user-jlpt-test-results-view';
 
 // ----------------------------------------------------------------------
 
@@ -104,6 +105,10 @@ export default function UserResourceListView() {
 
   if (resource === 'vocab_sets') {
     return <UserVocabSetsView />;
+  }
+
+  if (resource === 'jlpt_test_results') {
+    return <UserJlptTestResultsView />;
   }
 
   return <GenericResourceListView />;
