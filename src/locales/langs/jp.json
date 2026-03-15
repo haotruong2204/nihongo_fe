@@ -65,6 +65,7 @@
   "jlpt_tests": "JLPTテスト",
   "vocab_sets": "単語セット",
   "login_activities": "ログイン履歴",
+  "user_devices": "ログインデバイス",
   "last_login": "最終ログイン",
   "joined": "参加日",
   "custom_vocab_items": "カスタム語彙",
