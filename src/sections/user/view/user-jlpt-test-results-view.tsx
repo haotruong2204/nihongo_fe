@@ -4,7 +4,17 @@ import { useParams } from 'react-router-dom';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
+import Box from '@mui/material/Box';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import LinearProgress from '@mui/material/LinearProgress';
 import Table from '@mui/material/Table';
+import Stack from '@mui/material/Stack';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -13,6 +23,8 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
+// components
+import Iconify from 'src/components/iconify';
 // routes
 import { paths } from 'src/routes/paths';
 // api
@@ -48,6 +60,132 @@ const PASSED_TABS = [
 
 // ----------------------------------------------------------------------
 
+interface SectionResult { label: string; correct: number; total: number; }
+
+function JlptResultDialog({ row, open, onClose }: {
+  row: Record<string, any> | null;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const { t } = useLocales();
+  if (!row) return null;
+
+  const sections: SectionResult[] = Array.isArray(row.sections) ? row.sections : [];
+  const pct = row.total_questions > 0
+    ? Math.round((row.correct_count / row.total_questions) * 100)
+    : 0;
+  const minutes = row.time_used != null ? Math.floor(row.time_used / 60) : null;
+  const seconds = row.time_used != null ? row.time_used % 60 : null;
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pb: 1 }}>
+        <Stack direction="row" spacing={1} alignItems="center">
+          <Label variant="soft" color="primary" sx={{ fontSize: 14 }}>{row.level}</Label>
+          {row.section && <Label variant="soft" color="default">{row.section}</Label>}
+          {row.test_id && (
+            <Typography variant="caption" color="text.secondary">{row.test_id}</Typography>
+          )}
+        </Stack>
+        <IconButton size="small" onClick={onClose}>
+          <Iconify icon="mingcute:close-line" width={20} />
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent sx={{ pt: 1 }}>
+        {/* Overall score */}
+        <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+          <Box
+            sx={{
+              flex: 1, textAlign: 'center', p: 2, borderRadius: 1.5,
+              bgcolor: row.passed ? 'success.lighter' : 'error.lighter',
+            }}
+          >
+            <Typography variant="h3" color={row.passed ? 'success.dark' : 'error.dark'}>
+              {row.correct_count ?? '-'}<Typography component="span" variant="h6" color="text.secondary"> / {row.total_questions}</Typography>
+            </Typography>
+            <Typography variant="caption" color="text.secondary">câu đúng</Typography>
+          </Box>
+
+          <Stack spacing={1} sx={{ flex: 1 }}>
+            <Box sx={{ p: 1.5, borderRadius: 1.5, bgcolor: 'background.neutral' }}>
+              <Typography variant="caption" color="text.secondary">Kết quả</Typography>
+              <Box sx={{ mt: 0.5 }}>
+                <Label variant="soft" color={row.passed ? 'success' : 'error'} sx={{ fontSize: 13 }}>
+                  {row.passed ? t('col_passed') : t('jlpt_failed')}
+                </Label>
+              </Box>
+            </Box>
+            <Box sx={{ p: 1.5, borderRadius: 1.5, bgcolor: 'background.neutral' }}>
+              <Typography variant="caption" color="text.secondary">Thời gian</Typography>
+              <Typography variant="body2" fontWeight={600}>
+                {minutes != null ? `${minutes}p ${seconds}s` : '-'}
+              </Typography>
+            </Box>
+          </Stack>
+        </Stack>
+
+        {/* Progress bar overall */}
+        <Stack spacing={0.5} sx={{ mb: 2 }}>
+          <Stack direction="row" justifyContent="space-between">
+            <Typography variant="caption" color="text.secondary">Tổng điểm</Typography>
+            <Typography variant="caption" fontWeight={600}>{pct}%</Typography>
+          </Stack>
+          <LinearProgress
+            variant="determinate"
+            value={pct}
+            color={row.passed ? 'success' : 'error'}
+            sx={{ height: 8, borderRadius: 1 }}
+          />
+        </Stack>
+
+        {/* Per-section breakdown */}
+        {sections.length > 0 && (
+          <>
+            <Divider sx={{ mb: 2 }} />
+            <Typography variant="subtitle2" sx={{ mb: 1.5 }}>Chi tiết theo phần</Typography>
+            <Stack spacing={1.5}>
+              {sections.map((s) => {
+                const sPct = s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0;
+                let sColor: 'success' | 'warning' | 'error' = 'error';
+                if (sPct >= 60) sColor = 'success';
+                else if (sPct >= 40) sColor = 'warning';
+                return (
+                  <Stack key={s.label} spacing={0.5}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="center">
+                      <Typography variant="body2">{s.label}</Typography>
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Typography variant="caption" color="text.secondary">
+                          {s.correct} / {s.total} câu
+                        </Typography>
+                        <Label variant="soft" color={sColor} sx={{ minWidth: 40, justifyContent: 'center', fontSize: 11 }}>
+                          {sPct}%
+                        </Label>
+                      </Stack>
+                    </Stack>
+                    <LinearProgress
+                      variant="determinate"
+                      value={sPct}
+                      color={sColor}
+                      sx={{ height: 6, borderRadius: 1 }}
+                    />
+                  </Stack>
+                );
+              })}
+            </Stack>
+          </>
+        )}
+
+        <Typography variant="caption" color="text.disabled" sx={{ display: 'block', mt: 2 }}>
+          {row.taken_at ? fDateTime(row.taken_at) : ''}
+        </Typography>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ----------------------------------------------------------------------
+
 export default function UserJlptTestResultsView() {
   const settings = useSettingsContext();
   const { t } = useLocales();
@@ -56,6 +194,7 @@ export default function UserJlptTestResultsView() {
   const table = useTable({ defaultRowsPerPage: 10 });
   const [levelFilter, setLevelFilter] = useState('');
   const [passedFilter, setPassedFilter] = useState('');
+  const [selectedRow, setSelectedRow] = useState<Record<string, any> | null>(null);
 
   const { user, userLoading } = useGetUser(id);
   const { items, pagination, isLoading, isEmpty, error } = useGetUserJlptTestResults(id, {
@@ -73,13 +212,6 @@ export default function UserJlptTestResultsView() {
     [table]
   );
 
-  const handlePassedTabChange = useCallback(
-    (_: React.SyntheticEvent, newValue: string) => {
-      setPassedFilter(newValue);
-      table.onResetPage();
-    },
-    [table]
-  );
 
   if (userLoading) return <LoadingScreen />;
 
@@ -125,31 +257,39 @@ export default function UserJlptTestResultsView() {
       />
 
       <Card>
-        {/* Level filter */}
-        <Tabs
-          value={levelFilter}
-          onChange={handleLevelTabChange}
-          sx={{ px: 2.5, borderBottom: 1, borderColor: 'divider' }}
+        <Stack
+          direction="row"
+          alignItems="center"
+          sx={{ borderBottom: 1, borderColor: 'divider' }}
         >
-          {LEVEL_TABS.map((tab) => (
-            <Tab
-              key={tab.value}
-              value={tab.value}
-              label={tab.labelKey ? t(tab.labelKey) : tab.label}
-            />
-          ))}
-        </Tabs>
+          <Tabs
+            value={levelFilter}
+            onChange={handleLevelTabChange}
+            sx={{ flex: 1, px: 2.5 }}
+          >
+            {LEVEL_TABS.map((tab) => (
+              <Tab
+                key={tab.value}
+                value={tab.value}
+                label={tab.labelKey ? t(tab.labelKey) : tab.label}
+              />
+            ))}
+          </Tabs>
 
-        {/* Passed filter */}
-        <Tabs
-          value={passedFilter}
-          onChange={handlePassedTabChange}
-          sx={{ px: 2.5, borderBottom: 1, borderColor: 'divider' }}
-        >
-          {PASSED_TABS.map((tab) => (
-            <Tab key={tab.value} value={tab.value} label={t(tab.labelKey)} />
-          ))}
-        </Tabs>
+          <Select
+            size="small"
+            value={passedFilter}
+            onChange={(e) => { setPassedFilter(e.target.value); table.onResetPage(); }}
+            sx={{ mr: 2.5, minWidth: 120, fontSize: 13 }}
+            displayEmpty
+          >
+            {PASSED_TABS.map((tab) => (
+              <MenuItem key={tab.value} value={tab.value} sx={{ fontSize: 13 }}>
+                {t(tab.labelKey)}
+              </MenuItem>
+            ))}
+          </Select>
+        </Stack>
 
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
           <Scrollbar>
@@ -158,13 +298,13 @@ export default function UserJlptTestResultsView() {
                 <TableRow>
                   <TableCell>{t('col_id')}</TableCell>
                   <TableCell>{t('col_test_level')}</TableCell>
-                  <TableCell>{t('col_test_date')}</TableCell>
-                  <TableCell align="center">{t('col_score')}</TableCell>
-                  <TableCell align="center">{t('col_total')}</TableCell>
+                  <TableCell>Section</TableCell>
+                  <TableCell>Test ID</TableCell>
                   <TableCell align="center">{t('col_correct')}</TableCell>
+                  <TableCell align="center">{t('col_total')}</TableCell>
                   <TableCell align="center">{t('col_duration')}</TableCell>
                   <TableCell align="center">{t('col_passed')}</TableCell>
-                  <TableCell>{t('col_created_at')}</TableCell>
+                  <TableCell>{t('col_test_date')}</TableCell>
                 </TableRow>
               </TableHead>
 
@@ -174,31 +314,42 @@ export default function UserJlptTestResultsView() {
                       <TableSkeleton key={index} sx={{ height: 56 }} />
                     ))
                   : items.map((row) => (
-                      <TableRow key={row.id} hover>
+                      <TableRow
+                        key={row.id}
+                        hover
+                        onClick={() => setSelectedRow(row)}
+                        sx={{ cursor: 'pointer' }}
+                      >
                         <TableCell>{row.id ?? '-'}</TableCell>
 
                         <TableCell>
-                          {row.test_level ? (
+                          {row.level ? (
                             <Label variant="soft" color="primary">
-                              {row.test_level}
+                              {row.level}
                             </Label>
                           ) : (
                             '-'
                           )}
                         </TableCell>
 
-                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                          {row.test_date ? fDateTime(row.test_date) : '-'}
+                        <TableCell>{row.section ?? '-'}</TableCell>
+
+                        <TableCell>
+                          <Typography variant="caption" color="text.secondary">
+                            {row.test_id ?? '-'}
+                          </Typography>
                         </TableCell>
 
-                        <TableCell align="center">{row.score ?? '-'}</TableCell>
+                        <TableCell align="center">
+                          {row.correct_count != null && row.incorrect_count != null
+                            ? `${row.correct_count} / ${row.correct_count + row.incorrect_count}`
+                            : '-'}
+                        </TableCell>
 
-                        <TableCell align="center">{row.total ?? '-'}</TableCell>
-
-                        <TableCell align="center">{row.correct ?? '-'}</TableCell>
+                        <TableCell align="center">{row.total_questions ?? '-'}</TableCell>
 
                         <TableCell align="center">
-                          {row.duration != null ? `${row.duration}s` : '-'}
+                          {row.time_used != null ? `${row.time_used}s` : '-'}
                         </TableCell>
 
                         <TableCell align="center">
@@ -215,7 +366,7 @@ export default function UserJlptTestResultsView() {
                         </TableCell>
 
                         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                          {row.created_at ? fDateTime(row.created_at) : '-'}
+                          {row.taken_at ? fDateTime(row.taken_at) : '-'}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -236,6 +387,12 @@ export default function UserJlptTestResultsView() {
           rowsPerPageOptions={[5, 10, 25, 50]}
         />
       </Card>
+
+      <JlptResultDialog
+        row={selectedRow}
+        open={!!selectedRow}
+        onClose={() => setSelectedRow(null)}
+      />
     </Container>
   );
 }

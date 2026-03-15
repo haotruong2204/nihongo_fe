@@ -320,6 +320,12 @@ export async function deleteCustomVocabItem(userId: string, itemId: string) {
   return res.data;
 }
 
+export async function deleteUserDevice(userId: string, deviceId: string) {
+  const URL = endpoints.user.userDevice(userId, deviceId);
+  const res = await axiosInstance.delete(URL);
+  return res.data;
+}
+
 export async function deleteVocabSet(userId: string, setId: string) {
   const URL = endpoints.user.vocabSet(userId, setId);
   const res = await axiosInstance.delete(URL);

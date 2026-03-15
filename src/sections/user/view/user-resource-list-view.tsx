@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 // @mui
 import Card from '@mui/material/Card';
+import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
@@ -14,10 +15,11 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 // components
 import DeviceInfoChip from 'src/components/device-info-chip';
+import Iconify from 'src/components/iconify';
 // routes
 import { paths } from 'src/routes/paths';
 // api
-import { useGetUser, useGetUserResources } from 'src/api/user';
+import { useGetUser, useGetUserResources, deleteUserDevice } from 'src/api/user';
 // locales
 import { useLocales } from 'src/locales';
 // utils
@@ -45,6 +47,11 @@ const RESOURCE_I18N_KEY: Record<string, string> = {
   tango_lesson_progresses: 'tango_lessons',
   jlpt_test_results: 'jlpt_tests',
   login_activities: 'login_activities',
+  user_devices: 'user_devices',
+};
+
+const DELETABLE_RESOURCES: Partial<Record<string, (userId: string, itemId: string) => Promise<unknown>>> = {
+  user_devices: deleteUserDevice,
 };
 
 function isDateColumn(col: string): boolean {
@@ -64,7 +71,7 @@ function formatColumnHeader(col: string, t: (key: string) => string): string {
 }
 
 function renderCell(col: string, value: unknown, t: (key: string) => string) {
-  if (col === 'device_info') {
+  if (col === 'device_info' || col === 'device_name') {
     return <DeviceInfoChip deviceInfo={String(value ?? '-')} />;
   }
   if (col === 'user_agent') {
@@ -127,10 +134,22 @@ function GenericResourceListView() {
 
   const { user, userLoading } = useGetUser(id);
 
-  const { items, pagination, isLoading, isEmpty, error } = useGetUserResources(id, resource, {
+  const { items, pagination, isLoading, isEmpty, error, mutate } = useGetUserResources(id, resource, {
     page: table.page + 1,
     perPage: table.rowsPerPage,
   });
+
+  const deleteFn = DELETABLE_RESOURCES[resource];
+
+  const handleDelete = async (itemId: string) => {
+    if (!deleteFn) return;
+    try {
+      await deleteFn(id, itemId);
+      mutate();
+    } catch {
+      // ignore
+    }
+  };
 
   const resourceKey = RESOURCE_I18N_KEY[resource];
   const resourceTitle = resourceKey ? t(resourceKey) : resource;
@@ -196,6 +215,7 @@ function GenericResourceListView() {
                       {formatColumnHeader(col, t)}
                     </TableCell>
                   ))}
+                  {deleteFn && <TableCell sx={{ fontWeight: 'bold', width: 60 }} />}
                 </TableRow>
               </TableHead>
 
@@ -213,6 +233,13 @@ function GenericResourceListView() {
                             {renderCell(col, row[col], t)}
                           </TableCell>
                         ))}
+                        {deleteFn && (
+                          <TableCell>
+                            <IconButton size="small" color="error" onClick={() => handleDelete(String(row.id))}>
+                              <Iconify icon="solar:trash-bin-trash-bold" width={18} />
+                            </IconButton>
+                          </TableCell>
+                        )}
                       </TableRow>
                     ))}
                   </>

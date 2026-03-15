@@ -222,6 +222,17 @@ export default function UserAnalyticsView() {
           </Grid>
 
           <Grid xs={12} sm={6} md={4}>
+            <Box onClick={() => handleCardClick('user_devices')} sx={{ cursor: 'pointer' }}>
+              <AnalyticsWidgetSummary
+                title={t('user_devices')}
+                total={stats.user_devices_count ?? 0}
+                color="info"
+                icon={<img alt="icon" src="/assets/icons/glass/ic_glass_users.png" />}
+              />
+            </Box>
+          </Grid>
+
+          <Grid xs={12} sm={6} md={4}>
             <Box onClick={() => handleCardClick('page_views')} sx={{ cursor: 'pointer' }}>
               <AnalyticsWidgetSummary
                 title={t('page_views')}

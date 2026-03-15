@@ -112,5 +112,6 @@ export const endpoints = {
     vocabSet: (userId: string, setId: string) => `/api/v1/admins/users/${userId}/vocab_sets/${setId}`,
     vocabSetRemoveItem: (userId: string, setId: string) => `/api/v1/admins/users/${userId}/vocab_sets/${setId}/remove_item`,
     recalculateCounters: (id: string) => `/api/v1/admins/users/${id}/recalculate_counters`,
+    userDevice: (userId: string, deviceId: string) => `/api/v1/admins/users/${userId}/user_devices/${deviceId}`,
   },
 };
