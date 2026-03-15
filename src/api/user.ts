@@ -326,6 +326,12 @@ export async function deleteUserDevice(userId: string, deviceId: string) {
   return res.data;
 }
 
+export async function deleteLoginActivity(userId: string, activityId: string) {
+  const URL = endpoints.user.loginActivity(userId, activityId);
+  const res = await axiosInstance.delete(URL);
+  return res.data;
+}
+
 export async function deleteVocabSet(userId: string, setId: string) {
   const URL = endpoints.user.vocabSet(userId, setId);
   const res = await axiosInstance.delete(URL);

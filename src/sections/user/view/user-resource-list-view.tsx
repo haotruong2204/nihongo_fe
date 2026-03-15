@@ -19,7 +19,7 @@ import Iconify from 'src/components/iconify';
 // routes
 import { paths } from 'src/routes/paths';
 // api
-import { useGetUser, useGetUserResources, deleteUserDevice } from 'src/api/user';
+import { useGetUser, useGetUserResources, deleteUserDevice, deleteLoginActivity } from 'src/api/user';
 // locales
 import { useLocales } from 'src/locales';
 // utils
@@ -52,6 +52,7 @@ const RESOURCE_I18N_KEY: Record<string, string> = {
 
 const DELETABLE_RESOURCES: Partial<Record<string, (userId: string, itemId: string) => Promise<unknown>>> = {
   user_devices: deleteUserDevice,
+  login_activities: deleteLoginActivity,
 };
 
 function isDateColumn(col: string): boolean {
